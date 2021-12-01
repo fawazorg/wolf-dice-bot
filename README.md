@@ -1,4 +1,5 @@
-#Dice Bot
+## Dice Bot
+
 A game bot for wolf life
 
 ## command
