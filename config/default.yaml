@@ -1,0 +1,14 @@
+keyword: dice
+app:
+  defaultLanguage: en
+  developerId: 12500068
+  commandSettings:
+    ignoreOfficialBots: true
+    ignoreUnofficialBots: true
+  networkSettings:
+    retryMode: 1
+    retryAttempts: 1
+
+redis:
+  host: localhost
+  port: 6379

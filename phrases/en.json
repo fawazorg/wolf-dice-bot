@@ -1,0 +1,142 @@
+[
+  {
+    "name": "dice_default_command",
+    "value": "!dice"
+  },
+  {
+    "name": "dice_create_command",
+    "value": "new"
+  },
+  {
+    "name": "dice_join_command",
+    "value": "join"
+  },
+  {
+    "name": "dice_balance_command",
+    "value": "bal"
+  },
+  {
+    "name": "dice_show_command",
+    "value": "show"
+  },
+  {
+    "name": "dice_help_command",
+    "value": "help"
+  },
+  {
+    "name": "dice_default_message",
+    "value": "Welcome to Dice game bot\n!dice help"
+  },
+  {
+    "name": "dice_game_created",
+    "value": "The game is created for {count} of players, you have 30 seconds to join\nsend !dice join"
+  },
+  {
+    "name": "dice_game_wrong_creation",
+    "value": "(n) You have to put a balance, send \"!dice <balance>\""
+  },
+  {
+    "name": "dice_game_invalid_balance",
+    "value": "(n) The balance must be multiples of 500 and less than 5000"
+  },
+  {
+    "name": "dice_game_finish",
+    "value": "(n) The game is over"
+  },
+  {
+    "name": "dice_game_already_created",
+    "value": "(n) There is a game already created send \"!dice join\" to join"
+  },
+  {
+    "name": "dice_game_already_start",
+    "value": "(n) There is already a game, please wait for game to end"
+  },
+  {
+    "name": "dice_game_join",
+    "value": "(y) {nickname} ({id}) joined the game"
+  },
+  {
+    "name": "dice_game_already_join",
+    "value": "(n) {nickname} ({id}) You are already joined"
+  },
+  {
+    "name": "dice_game_notexist",
+    "value": "(n) There is no game available right now send \"!dice new\" to create a new game"
+  },
+  {
+    "name": "dice_game_players",
+    "value": "Player List: \n\n{list}"
+  },
+  {
+    "name": "dice_game_player_balance",
+    "value": "💰 Your balance is : {balance}\n{nickname}({id})"
+  },
+  {
+    "name": "dice_game_player_notfound",
+    "value": "(n) You have not joined the game\n{nickname}({id})"
+  },
+  {
+    "name": "dice_game_start",
+    "value": "The game has started and the players are:\n\n{list}"
+  },
+  {
+    "name": "dice_game_make_a_guess",
+    "value": "You have 30 seconds to guess a number between 1 and 50."
+  },
+  {
+    "name": "dice_game_player_turn",
+    "value": "{list}\n🎲The dice number is {dice}\nyou have 30 seconds to choose your opponent\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_player_not_pick",
+    "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_ask_player_balance",
+    "value": "💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500"
+  },
+  {
+    "name": "dice_game_ask_player_to_roll",
+    "value": "🎲 Send \"roll\" to roll!\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_time_is_up_roll",
+    "value": "(n) Your time is out\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_roll",
+    "value": "roll"
+  },
+  {
+    "name": "dice_game_player_rolled",
+    "value": "🎲 you've got : {dice}\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_pvp_winner",
+    "value": "(y) Your opponent has lost : {bet}\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_pvp_draw",
+    "value": "(n) This game draw, so the game will be replay"
+  },
+  {
+    "name": "dice_game_player_out",
+    "value": "(y) The player lost, better luck in the next time\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_winner",
+    "value": "🎉 Congratulations to the winning player:\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_player_balance_500_error",
+    "value": "(n) The amount must be a multiple of 500"
+  },
+  {
+    "name": "dice_game_player_balance_notenough_error",
+    "value": "(n) You don't have enough balance"
+  },
+  {
+    "name": "dice_help_message",
+    "value": "Help menu:\n!dice new <balance>\n!dice join\n!dice bal\n!dice show\n!dice help"
+  }
+]

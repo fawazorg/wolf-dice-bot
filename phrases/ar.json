@@ -1,0 +1,143 @@
+[
+  {
+    "name": "dice_default_command",
+    "value": "!نرد"
+  },
+  {
+    "name": "dice_create_command",
+    "value": "انشاء"
+  },
+  {
+    "name": "dice_join_command",
+    "value": "دخول"
+  },
+  {
+    "name": "dice_balance_command",
+    "value": "رصيد"
+  },
+  {
+    "name": "dice_show_command",
+    "value": "عرض"
+  },
+  {
+    "name": "dice_help_command",
+    "value": "مساعدة"
+  },
+  {
+    "name": "dice_default_message",
+    "value": "مرحبا بك في بوت نرد.\n!نرد مساعدة"
+  },
+  {
+    "name": "dice_game_created",
+    "value": "تم انشاء اللعبة لعدد {count} من اللاعبين، امامكم 30 ثانية للانضمام\nاستخدم !نرد دخول"
+  },
+  {
+    "name": "dice_game_wrong_creation",
+    "value": "(n) خطأ في إنشاء اللعبة، استخدم !نرد <الرصيد>"
+  },
+  {
+    "name": "dice_game_invalid_balance",
+    "value": "(n) مبلغ الرصيد لابد ان يكون من مضاعفات 500 و ان يكون اقل من 5000"
+  },
+  {
+    "name": "dice_game_finish",
+    "value": "(n) انتهت اللعبة"
+  },
+  {
+    "name": "dice_game_already_created",
+    "value": "(n) هناك لعبة تم انشائها مسبقا، استخدم !نرد دخول للانضمام."
+  },
+  {
+    "name": "dice_game_already_start",
+    "value": "(n) هناك لعبة حاليا، انتظر حتى تنتهي."
+  },
+  {
+    "name": "dice_game_join",
+    "value": "(y) {nickname} ({id}) انضم للعبة "
+  },
+  {
+    "name": "dice_game_already_join",
+    "value": "(n) {nickname} ({id}) انضممت بالفعل "
+  },
+  {
+    "name": "dice_game_notexist",
+    "value": "(n) ليس هناك لعبة متاحة حاليا، استخدم امر !نرد انشاء"
+  },
+  {
+    "name": "dice_game_players",
+    "value": "قائمة اللاعبين: \n\n{list}"
+  },
+  {
+    "name": "dice_game_player_balance",
+    "value": "💰 رصيدك هو : {balance}\n{nickname}({id})"
+  },
+
+  {
+    "name": "dice_game_player_notfound",
+    "value": "(n) لم تقم بالانضمام للعبة\n{nickname}({id})"
+  },
+  {
+    "name": "dice_game_start",
+    "value": "بدأت اللعبة ، و الاعبون هم :\n\n{list}"
+  },
+  {
+    "name": "dice_game_make_a_guess",
+    "value": "امامكم 30 ثانية لتخمين رقم بين 1 و 50."
+  },
+  {
+    "name": "dice_game_player_turn",
+    "value": "🎲 {list} \nرقم النرد ({dice})\nامامك 30 ثانية لاختيار اللاعب المنافس:\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_player_not_pick",
+    "value": "(n) لم تقم باختيار منافس لك ، سأتجاهل هذه الجولة\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_ask_player_balance",
+    "value": "💰 رصيدك هو {balance}\n فضلا اختر مبلغ المنافسة على ان يكون من مضاعفات 500"
+  },
+  {
+    "name": "dice_game_ask_player_to_roll",
+    "value": "🎲 ارسل كلمة (لف) لرمي النرد \n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_time_is_up_roll",
+    "value": "(n) لقد انتهى الوقت المخصص لك \n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_roll",
+    "value": "لف"
+  },
+  {
+    "name": "dice_game_player_rolled",
+    "value": "🎲 رميت النرد على الرقم : {dice} \n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_pvp_winner",
+    "value": "(y) خسر المنافسة على {bet}\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_pvp_draw",
+    "value": "(n) النتيجة هي تعادل، سوف تعاد المنافسة من جديد"
+  },
+  {
+    "name": "dice_game_player_out",
+    "value": "(y) تم إقصاء اللاعب، حظاً أوفر.\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_winner",
+    "value": "🎉 تهانينا الفائز باللعبة هو :\n{nickname} ({id})"
+  },
+  {
+    "name": "dice_game_player_balance_500_error",
+    "value": "(n) مبلغ المنافسة لابد ان يكون من مضاعفات 500"
+  },
+  {
+    "name": "dice_game_player_balance_notenough_error",
+    "value": "(n) ليس لديك رصيد كافي."
+  },
+  {
+    "name": "dice_help_message",
+    "value": "قائمة المساعدة : \n!نرد انشاء <الرصيد>\n!نرد دخول\n!نرد رصيد\n!نرد عرض\n!نرد مساعدة"
+  }
+]
