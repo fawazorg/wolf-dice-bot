@@ -86,7 +86,7 @@
   },
   {
     "name": "dice_game_player_turn",
-    "value": "🎲 {list} \nرقم النرد ({dice})\nامامك 30 ثانية لاختيار اللاعب المنافس:\n{nickname} ({id})"
+    "value": "🎲 {list} \n\nرقم النرد ({dice})\n\nامامك 30 ثانية لاختيار اللاعب المنافس:\n{nickname} ({id})"
   },
   {
     "name": "dice_game_player_not_pick",
@@ -122,11 +122,11 @@
   },
   {
     "name": "dice_game_player_out",
-    "value": "(y) تم إقصاء اللاعب، حظاً أوفر.\n{nickname} ({id})"
+    "value": "(y) تم إقصاء اللاعب، حظاً أوفر \n{nickname} ({id})"
   },
   {
     "name": "dice_game_winner",
-    "value": "🎉 تهانينا الفائز باللعبة هو :\n{nickname} ({id})"
+    "value": "🎉 تهانينا الفائز باللعبة هو :{nickname} ({id})"
   },
   {
     "name": "dice_game_player_balance_500_error",
