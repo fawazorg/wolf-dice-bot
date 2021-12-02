@@ -462,10 +462,10 @@ class Game {
     let results = "";
     this.#getRichestPlayers(g).forEach((p, index, array) => {
       if (index === array.length - 1) {
-        results += `${index + 1} - ${p.nickname} (${p.id}), ${p.balance}`;
+        results += `${index + 1} ـ ${p.nickname} (${p.id}), ${p.balance}`;
         return results;
       }
-      results += `${index + 1} - ${p.nickname} (${p.id}), ${p.balance}\n`;
+      results += `${index + 1} ـ ${p.nickname} (${p.id}), ${p.balance}\n`;
     });
     return results;
   };
