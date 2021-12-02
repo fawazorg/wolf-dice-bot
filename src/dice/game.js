@@ -351,6 +351,14 @@ class Game {
     }
     return s;
   };
+
+  /**
+   *
+   * @param {*} num
+   * @returns
+   */
+  #formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+
   /**
    *
    * @param {*} n
@@ -462,10 +470,10 @@ class Game {
     let results = "";
     this.#getRichestPlayers(g).forEach((p, index, array) => {
       if (index === array.length - 1) {
-        results += `${index + 1} ـ ${p.nickname} (${p.id}), ${p.balance}`;
+        results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}`;
         return results;
       }
-      results += `${index + 1} ـ ${p.nickname} (${p.id}), ${p.balance}\n`;
+      results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}\n`;
     });
     return results;
   };
@@ -603,7 +611,11 @@ class Game {
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { id: player.id, nickname: player.nickname, balance: player.balance });
+      .replace(phrase, {
+        id: player.id,
+        nickname: player.nickname,
+        balance: this.#formatNumber(player.balance),
+      });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -657,7 +669,10 @@ class Game {
   #replyAskPlayerBalance = async (g, player) => {
     let DICE_GAME_Ask_Player_Balance = `${this.#API.config.keyword}_game_ask_player_balance`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Ask_Player_Balance);
-    let response = this.#API.utility().string().replace(phrase, { balance: player.balance });
+    let response = this.#API
+      .utility()
+      .string()
+      .replace(phrase, { balance: this.#formatNumber(player.balance) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -719,7 +734,7 @@ class Game {
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id, bet });
+      .replace(phrase, { nickname: player.nickname, id: player.id, bet: this.#formatNumber(bet) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
