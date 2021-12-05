@@ -1,4 +1,3 @@
-const constant = require("@dawalters1/constants");
 const { WOLFBot, Constants } = require("wolf.js");
 const api = new WOLFBot();
 const { UpdateTimer } = require("./src/jobs/group");
