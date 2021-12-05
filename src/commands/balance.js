@@ -1,4 +1,4 @@
-const WOLF = require("@dawalters1/wolf.js");
+const WOLF = require("wolf.js");
 const { api, game } = require("../../bot");
 
 const COMMAND_TRIGER = `${api.config.keyword}_balance_command`;

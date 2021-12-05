@@ -1,6 +1,6 @@
 /**
  *
- * @param {import('@dawalters1/wolf.js').WOLFBot} api
+ * @param {import('wolf.js').WOLFBot} api
  * @param {object} g
  * @param {import('../dice/game')} game
  */

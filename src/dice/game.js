@@ -1,11 +1,11 @@
-const { Validator } = require("@dawalters1/wolf.js");
+const { Validator } = require("wolf.js");
 class Game {
   #Groups = [];
   #API;
 
   /**
    *
-   * @param {import("@dawalters1/wolf.js").WOLFBot} api
+   * @param {import("wolf.js").WOLFBot} api
    */
   constructor(api) {
     this.#API = api;
