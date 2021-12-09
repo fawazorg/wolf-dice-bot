@@ -230,7 +230,7 @@ class Game {
     if (this.#checkGuess(guess)) {
       let n = this.#getNumber(guess);
       if (this.#getRichestPlayers(g).some((p) => p.courrntGuesse === n)) {
-        n = -1;
+        n = 150;
       }
       this.#getPlayer(g.id, player).courrntGuesse = n;
     }
