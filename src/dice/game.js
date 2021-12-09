@@ -40,6 +40,7 @@ class Game {
     }
     g = this.#setupGroup(gid, language, this.#getNumber(defaultBalance));
     this.#Groups.push(g);
+    //g.players.push(this.#setupPlayer(player, g.defaultBalance));
     await this.#replyCreated(g);
     await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 30000);
     return;
@@ -483,7 +484,7 @@ class Game {
    * @returns
    */
   #getRichestPlayers = (g) => {
-    return g.players.filter((p) => p.balance > 0);
+    return g.players.filter((p) => p.balance >= 500);
   };
   /**
    *
