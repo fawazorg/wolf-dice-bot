@@ -281,6 +281,8 @@ class Game {
     if (this.#getPlayer(g.id, player.id).balance > 0) {
       return;
     }
+    // remove the player
+    g.players = g.players.filter((p) => p.id !== player.id);
     await this.#API.utility().delay(2000);
     await this.#replyPlayerIsOut(g, player);
   };
@@ -484,7 +486,8 @@ class Game {
    * @returns
    */
   #getRichestPlayers = (g) => {
-    return g.players.filter((p) => p.balance >= 500);
+    let gg = this.find(g.id);
+    return gg.players.filter((p) => p.balance >= 500);
   };
   /**
    *
