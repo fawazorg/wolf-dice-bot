@@ -450,8 +450,10 @@ class Game {
       .nextMessage(
         (message) =>
           message.isGroup &&
-          message.body.toLocaleLowerCase() ===
-            this.#getPhrase(g.language, `${this.#API.config.keyword}_game_roll`) &&
+          this.#API
+            .phrase()
+            .getAllByName(`${this.#API.config.keyword}_game_roll`)
+            .some((s) => s.value === message.body.toLocaleLowerCase()) &&
           message.targetGroupId === g.id &&
           message.sourceSubscriberId === player.id,
         30000
