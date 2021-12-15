@@ -53,11 +53,11 @@
   },
   {
     "name": "dice_game_join",
-    "value": "(y) {nickname} ({id}) joined the game"
+    "value": "(y) {nickname} ({id} ) joined the game"
   },
   {
     "name": "dice_game_already_join",
-    "value": "(n) {nickname} ({id}) You are already joined"
+    "value": "(n) {nickname} ({id} ) You are already joined"
   },
   {
     "name": "dice_game_notexist",
@@ -69,7 +69,7 @@
   },
   {
     "name": "dice_game_player_balance",
-    "value": "💰 Your balance is : {balance}\n{nickname}({id})"
+    "value": "💰 Your balance is : {balance}\n{nickname}({id} )"
   },
   {
     "name": "dice_game_player_notfound",
@@ -85,11 +85,11 @@
   },
   {
     "name": "dice_game_player_turn",
-    "value": "{list}\n\n🎲The dice number is {dice}\n\nyou have 30 seconds to choose your opponent\n{nickname} ({id})"
+    "value": "{list}\n\n🎲The dice number is {dice}\n\nyou have 30 seconds to choose your opponent\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_player_not_pick",
-    "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id})"
+    "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_ask_player_balance",
@@ -97,11 +97,11 @@
   },
   {
     "name": "dice_game_ask_player_to_roll",
-    "value": "🎲 Send \"roll\" to roll!\n{nickname} ({id})"
+    "value": "🎲 Send \"roll\" to roll!\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_time_is_up_roll",
-    "value": "(n) Your time is out\n{nickname} ({id})"
+    "value": "(n) Your time is out\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_roll",
@@ -109,11 +109,11 @@
   },
   {
     "name": "dice_game_player_rolled",
-    "value": "🎲 you've got : {dice}\n{nickname} ({id})"
+    "value": "🎲 you've got : {dice}\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_pvp_winner",
-    "value": "(y) Your opponent has lost : {bet}\n{nickname} ({id})"
+    "value": "(y) Your opponent has lost : {bet}\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_pvp_draw",
@@ -121,11 +121,11 @@
   },
   {
     "name": "dice_game_player_out",
-    "value": "(y) The player lost, better luck in the next time\n{nickname} ({id})"
+    "value": "(y) The player lost, better luck in the next time\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_winner",
-    "value": "🎉 Congratulations to the winning player: {nickname} ({id})"
+    "value": "🎉 Congratulations to the winning player: {nickname} ({id} )"
   },
   {
     "name": "dice_game_player_balance_500_error",

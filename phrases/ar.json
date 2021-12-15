@@ -53,11 +53,11 @@
   },
   {
     "name": "dice_game_join",
-    "value": "(y) {nickname} ({id}) انضم للعبة "
+    "value": "(y) {nickname} ({id} ) انضم للعبة "
   },
   {
     "name": "dice_game_already_join",
-    "value": "(n) {nickname} ({id}) انضممت بالفعل "
+    "value": "(n) {nickname} ({id} ) انضممت بالفعل "
   },
   {
     "name": "dice_game_notexist",
@@ -69,12 +69,12 @@
   },
   {
     "name": "dice_game_player_balance",
-    "value": "💰 رصيدك هو : {balance}\n{nickname}({id})"
+    "value": "💰 رصيدك هو : {balance}\n{nickname}({id} )"
   },
 
   {
     "name": "dice_game_player_notfound",
-    "value": "(n) لم تقم بالانضمام للعبة\n{nickname}({id})"
+    "value": "(n) لم تقم بالانضمام للعبة\n{nickname}({id} )"
   },
   {
     "name": "dice_game_start",
@@ -86,11 +86,11 @@
   },
   {
     "name": "dice_game_player_turn",
-    "value": "{list} \n\n🎲 رقم النرد ({dice})\n\nامامك 30 ثانية لاختيار اللاعب المنافس:\n{nickname} ({id})"
+    "value": "{list} \n\n🎲 رقم النرد ({dice} )\n\nامامك 30 ثانية لاختيار اللاعب المنافس:\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_player_not_pick",
-    "value": "(n) لم تقم باختيار منافس لك ، سأتجاهل هذه الجولة\n{nickname} ({id})"
+    "value": "(n) لم تقم باختيار منافس لك ، سأتجاهل هذه الجولة\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_ask_player_balance",
@@ -98,11 +98,11 @@
   },
   {
     "name": "dice_game_ask_player_to_roll",
-    "value": "🎲 ارسل كلمة (لف) لرمي النرد \n{nickname} ({id})"
+    "value": "🎲 ارسل كلمة (لف) لرمي النرد \n{nickname} ({id} )"
   },
   {
     "name": "dice_game_time_is_up_roll",
-    "value": "(n) لقد انتهى الوقت المخصص لك \n{nickname} ({id})"
+    "value": "(n) لقد انتهى الوقت المخصص لك \n{nickname} ({id} )"
   },
   {
     "name": "dice_game_roll",
@@ -110,11 +110,11 @@
   },
   {
     "name": "dice_game_player_rolled",
-    "value": "🎲 رميت النرد على الرقم : {dice} \n{nickname} ({id})"
+    "value": "🎲 رميت النرد على الرقم : {dice} \n{nickname} ({id} )"
   },
   {
     "name": "dice_game_pvp_winner",
-    "value": "(y) خسر المنافسة على {bet}\n{nickname} ({id})"
+    "value": "(y) خسر المنافسة على {bet}\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_pvp_draw",
@@ -122,11 +122,11 @@
   },
   {
     "name": "dice_game_player_out",
-    "value": "(y) تم إقصاء اللاعب، حظاً أوفر \n{nickname} ({id})"
+    "value": "(y) تم إقصاء اللاعب، حظاً أوفر \n{nickname} ({id} )"
   },
   {
     "name": "dice_game_winner",
-    "value": "🎉 تهانينا الفائز باللعبة هو :{nickname} ({id})"
+    "value": "🎉 تهانينا الفائز باللعبة هو :{nickname} ({id} )"
   },
   {
     "name": "dice_game_player_balance_500_error",
