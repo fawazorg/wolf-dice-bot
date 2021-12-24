@@ -17,7 +17,7 @@ class Game {
    * @param {String} options
    * @returns {Boolean|object}
    */
-  create = async (gid, language, options) => {
+  create = async (gid, language, options, player) => {
     let g = this.find(gid);
     let defaultBalance = options || 2500;
     if (g) {
@@ -43,7 +43,7 @@ class Game {
     //g.players.push(this.#setupPlayer(player, g.defaultBalance));
     await this.#replyCreated(g);
     await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 30000);
-    return;
+    g.players.push(this.#setupPlayer(player, g.defaultBalance));
   };
   /**
    *
@@ -114,6 +114,10 @@ class Game {
   find = (gid) => {
     return this.#Groups.find((g) => g.id === gid) ?? false;
   };
+  /**
+   *
+   * @param {Number} g
+   */
   start = async (g) => {
     g.joinable = 0;
     await this.#replyGameStart(g);
@@ -152,6 +156,7 @@ class Game {
     if (this.find(g.id)) {
       await this.stop(g);
     }
+    this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
   };
   /**
    *
@@ -268,8 +273,13 @@ class Game {
    * @returns
    */
   #checkNumber = (n) => {
-    let newN = parseInt(this.#a2e(n));
-    return Validator.isValidNumber(newN) && !isNaN(newN);
+    if (!Validator.isValidNumber(this.#API.utility().number().toEnglishNumbers(n))) {
+      return false;
+    }
+    if (Validator.isLessThanOrEqualZero(parseInt(n))) {
+      return false;
+    }
+    return true;
   };
   /**
    *
@@ -360,7 +370,9 @@ class Game {
    * @param {*} num
    * @returns
    */
-  #formatNumber = (num) => num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  #formatNumber = (num) => {
+    return this.#API.utility().number().addCommas(num);
+  };
 
   /**
    *
@@ -368,8 +380,7 @@ class Game {
    * @returns
    */
   #getNumber = (n) => {
-    let newN = this.#a2e(n);
-    return parseInt(newN);
+    return parseInt(this.#API.utility().number().toEnglishNumbers(n));
   };
   /**
    *
