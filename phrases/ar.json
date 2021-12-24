@@ -78,7 +78,7 @@
   },
   {
     "name": "dice_game_start",
-    "value": "بدأت اللعبة ، و الاعبون هم :\n\n{list}"
+    "value": "بدأت اللعبة ، و اللاعبون هم :\n\n{list}"
   },
   {
     "name": "dice_game_make_a_guess",
