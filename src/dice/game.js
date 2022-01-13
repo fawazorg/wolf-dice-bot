@@ -70,7 +70,7 @@ class Game {
     g.players.push(this.#setupPlayer(player, g.defaultBalance));
     await this.#replyJoin(g, player);
     if (g.players.length >= g.playersCount) {
-      await this.start(g);
+      return await this.start(g);
     }
   };
 
@@ -500,6 +500,9 @@ class Game {
    */
   #getRichestPlayers = (g) => {
     let gg = this.find(g.id);
+    if (!gg) {
+      return [];
+    }
     return gg.players.filter((p) => p.balance >= 500);
   };
   /**
