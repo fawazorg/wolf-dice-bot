@@ -42,7 +42,7 @@ class Game {
     this.#Groups.push(g);
     //g.players.push(this.#setupPlayer(player, g.defaultBalance));
     await this.#replyCreated(g);
-    await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 15000);
+    await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 30000);
     g.players.push(this.#setupPlayer(player, g.defaultBalance));
   };
   /**
@@ -122,7 +122,7 @@ class Game {
     g.joinable = 0;
     await this.#replyGameStart(g);
     while (this.#getRichestPlayers(g).length !== 1) {
-      await this.#API.utility().delay(3000);
+      await this.#API.utility().delay(2000);
       await this.#askPlayerToMakeGuesses(g);
       if (this.#checkGuessIsOne(g)) {
         await this.finish(g);

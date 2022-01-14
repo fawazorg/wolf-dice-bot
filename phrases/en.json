@@ -29,7 +29,7 @@
   },
   {
     "name": "dice_game_created",
-    "value": "The game is created for {count} of players, you have 15 seconds to join send !dice join"
+    "value": "The game is created for {count} of players, you have 30 seconds to join send !dice join"
   },
   {
     "name": "dice_game_wrong_creation",
@@ -81,7 +81,7 @@
   },
   {
     "name": "dice_game_make_a_guess",
-    "value": "You have 15 seconds to guess a number between 1 and 50."
+    "value": "/me You have 15 seconds to guess a number between 1 and 50."
   },
   {
     "name": "dice_game_player_turn",
