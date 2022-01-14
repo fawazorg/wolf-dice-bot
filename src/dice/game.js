@@ -42,7 +42,7 @@ class Game {
     this.#Groups.push(g);
     //g.players.push(this.#setupPlayer(player, g.defaultBalance));
     await this.#replyCreated(g);
-    await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 30000);
+    await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 15000);
     g.players.push(this.#setupPlayer(player, g.defaultBalance));
   };
   /**
@@ -208,7 +208,7 @@ class Game {
     let exit = true;
     setTimeout(function () {
       exit = false;
-    }, 30000);
+    }, 15000);
     while (exit) {
       let r = await this.#API
         .messaging()
@@ -409,7 +409,7 @@ class Game {
           this.#getNumber(message.body) - 1 !==
             this.#getRichestPlayers(g).findIndex((p) => p.id === player.id) &&
           this.#getRichestPlayers(g).length >= this.#getNumber(message.body),
-        30000
+        15000
       );
     if (r) {
       return this.#getRichestPlayers(g)[this.#getNumber(r.body) - 1];
@@ -437,7 +437,7 @@ class Game {
             message.targetGroupId === g.id &&
             message.sourceSubscriberId === player.id &&
             this.#checkNumber(message.body),
-          30000
+          15000
         );
       if (r) {
         exit = await this.#checkBalance(g, player, this.#getNumber(r.body));
@@ -467,7 +467,7 @@ class Game {
             .some((s) => s.value === message.body.toLocaleLowerCase()) &&
           message.targetGroupId === g.id &&
           message.sourceSubscriberId === player.id,
-        30000
+        15000
       );
     if (r) {
       let dice = this.#rollDice(6);

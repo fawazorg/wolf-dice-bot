@@ -29,7 +29,7 @@
   },
   {
     "name": "dice_game_created",
-    "value": "The game is created for {count} of players, you have 30 seconds to join send !dice join"
+    "value": "The game is created for {count} of players, you have 15 seconds to join send !dice join"
   },
   {
     "name": "dice_game_wrong_creation",
@@ -81,11 +81,11 @@
   },
   {
     "name": "dice_game_make_a_guess",
-    "value": "You have 30 seconds to guess a number between 1 and 50."
+    "value": "You have 15 seconds to guess a number between 1 and 50."
   },
   {
     "name": "dice_game_player_turn",
-    "value": "{list}\n\n🎲The dice number is {dice}\n\nyou have 30 seconds to choose your opponent\n{nickname} ({id} )"
+    "value": "{list}\n\n🎲The dice number is {dice}\n\nyou have 15 seconds to choose your opponent\n{nickname} ({id} )"
   },
   {
     "name": "dice_game_player_not_pick",
