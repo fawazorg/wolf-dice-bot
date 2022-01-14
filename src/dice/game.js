@@ -347,22 +347,11 @@ class Game {
    * @returns
    */
   #closestGuesse = (g, botDice) => {
-    let array = g.players;
+    let array = g.players.filter((p) => p.courrntGuesse !== null);
     let w = array.sort(
       (a, b) => Math.abs(botDice - a.courrntGuesse) - Math.abs(botDice - b.courrntGuesse)
     )[0];
     return this.#getPlayer(g.id, w.id);
-  };
-  /**
-   *
-   * @param {*} s
-   * @returns
-   */
-  #a2e = (s) => {
-    if (isNaN(parseInt(s))) {
-      return s.replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-    }
-    return s;
   };
 
   /**
