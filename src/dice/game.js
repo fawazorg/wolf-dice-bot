@@ -471,25 +471,15 @@ class Game {
    * @param {*} g
    * @returns
    */
-  #printPlayers = async (g) => {
+  #printPlayers = (g) => {
     let results = "";
-    let user = null;
-    this.#getRichestPlayers(g).forEach(async (p, index, array) => {
+    this.#getRichestPlayers(g).forEach((p, index, array) => {
       if (index === array.length - 1) {
-        user = await this.#API.subscriber().getById(p.id);
-        //results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}`;
-        results += `${index + 1} ـ ${user.nickname} (${user.id}) ـ ${this.#formatNumber(
-          p.balance
-        )}`;
-        //return results;
+        results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}`;
+        return results;
       }
-      user = await this.#API.subscriber().getById(p.id);
-      //results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}\n`;
-      results += `${index + 1} ـ ${user.nickname} (${user.id}) ـ ${this.#formatNumber(
-        p.balance
-      )}\n`;
+      results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}\n`;
     });
-    console.log(results);
     return results;
   };
   /**
@@ -600,9 +590,10 @@ class Game {
   #replyGameStart = async (g) => {
     let DICE_GAME_Start = `${this.#API.config.keyword}_game_start`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Start);
-    let list = await this.#printPlayers(g);
-    console.log(list);
-    let response = this.#API.utility().string().replace(phrase, { list: list });
+    let response = this.#API
+      .utility()
+      .string()
+      .replace(phrase, { list: this.#printPlayers(g) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -612,10 +603,10 @@ class Game {
   #replyPlayers = async (g) => {
     let DICE_GAME_Players = `${this.#API.config.keyword}_game_players`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Players);
-    let list = await this.#printPlayers(g);
-    console.log(await this.#printPlayers(g));
-    console.log(list);
-    let response = this.#API.utility().string().replace(phrase, { list: list });
+    let response = this.#API
+      .utility()
+      .string()
+      .replace(phrase, { list: this.#printPlayers(g) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -668,13 +659,15 @@ class Game {
   #replyPlayerTurn = async (g, player, botdice) => {
     let DICE_GAME_Player_Turn = `${this.#API.config.keyword}_game_player_turn`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Player_Turn);
-    let list = await this.#printPlayers(g);
-    let response = this.#API.utility().string().replace(phrase, {
-      dice: botdice,
-      nickname: player.nickname,
-      id: player.id,
-      list,
-    });
+    let response = this.#API
+      .utility()
+      .string()
+      .replace(phrase, {
+        dice: botdice,
+        nickname: player.nickname,
+        id: player.id,
+        list: this.#printPlayers(g),
+      });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
