@@ -1,4 +1,4 @@
-const { WOLFBot, Constants } = require("wolf.js");
+const { WOLFBot } = require("wolf.js");
 const api = new WOLFBot();
 const { UpdateTimer } = require("./src/jobs/group");
 const Game = require("./src/dice/game");
@@ -14,4 +14,4 @@ api.on("ready", async () => {
   await api.utility().timer().initialise({ UpdateTimer: UpdateTimer }, game);
 });
 
-api.login(process.env.EMAIL, process.env.PASSWORD, Constants.LoginDevice.WEB);
+api.login(process.env.EMAIL, process.env.PASSWORD);
