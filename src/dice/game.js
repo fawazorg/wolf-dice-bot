@@ -182,7 +182,7 @@ class Game {
    * @returns
    */
   #setupGroup = (gid, language, defaultBalance = 2500) => {
-    return { id: gid, joinable: 1, language, defaultBalance, playersCount: 10, players: [] };
+    return { id: gid, joinable: 1, language, defaultBalance, playersCount: 15, players: [] };
   };
   /**
    *
