@@ -68,10 +68,11 @@ class Game {
       return false;
     }
     g.players.push(this.#setupPlayer(player, g.defaultBalance));
-    await this.#replyJoin(g, player);
     if (g.players.length >= g.playersCount) {
+      await this.#replyJoin(g, player);
       return await this.start(g);
     }
+    return await this.#replyJoin(g, player);
   };
 
   /**
