@@ -92,8 +92,16 @@
     "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id} )"
   },
   {
+    "name": "dice_game_player_rewarded",
+    "value": "🥳 Congratulations, you guessed the correct number, you will be rewarded with 500 points\n\n{nickname} ( {id} )"
+  },
+  {
     "name": "dice_game_ask_player_balance",
     "value": "💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500"
+  },
+  {
+    "name": "dice_game_ask_player_balance_alrady_500",
+    "value": "💰 Your balance is: 500, All your balance will be bet."
   },
   {
     "name": "dice_game_ask_player_to_roll",

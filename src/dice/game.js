@@ -130,7 +130,7 @@ class Game {
         break;
       }
       let botDice = this.#rollDice(50);
-      let clousePalyer = this.#closestGuesse(g, botDice);
+      let clousePalyer = await this.#closestGuesse(g, botDice);
       await this.#API.utility().delay(2000);
       await this.#replyPlayerTurn(g, clousePalyer, botDice);
       let playerPicked = await this.#askPlayerPick(g, clousePalyer);
@@ -347,11 +347,15 @@ class Game {
    * @param {*} botDice
    * @returns
    */
-  #closestGuesse = (g, botDice) => {
+  #closestGuesse = async (g, botDice) => {
     let array = g.players;
     let w = array.sort(
       (a, b) => Math.abs(botDice - a.courrntGuesse) - Math.abs(botDice - b.courrntGuesse)
     )[0];
+    if (w.courrntGuesse === botDice) {
+      w.balance += 500;
+      await this.#replyPlayerRewarded(g, w);
+    }
     return this.#getPlayer(g.id, w.id);
   };
 
@@ -414,6 +418,10 @@ class Game {
    * @returns
    */
   #AskPlayerBalance = async (g, player) => {
+    if (player.balance === 500) {
+      await this.#replyAskPlayerBalanceAlrady500(g);
+      return 500;
+    }
     await this.#replyAskPlayerBalance(g, player);
     let exit = false;
     let r = null;
@@ -689,6 +697,17 @@ class Game {
    *
    * @param {*} g
    */
+  #replyAskPlayerBalanceAlrady500 = async (g) => {
+    let DICE_Player_Balance_Alrady500 = `${
+      this.#API.config.keyword
+    }_game_ask_player_balance_alrady_500`;
+    let phrase = this.#getPhrase(g.language, DICE_Player_Balance_Alrady500);
+    await this.#API.messaging().sendGroupMessage(g.id, phrase);
+  };
+  /**
+   *
+   * @param {*} g
+   */
   #replyAskPlayerBalanceError500 = async (g) => {
     let DICE_Player_Balance_Error500 = `${this.#API.config.keyword}_game_player_balance_500_error`;
     let phrase = this.#getPhrase(g.language, DICE_Player_Balance_Error500);
@@ -801,6 +820,20 @@ class Game {
   #replyPlayerNotPick = async (g, player) => {
     let DICE_GAME_Not_Pick = `${this.#API.config.keyword}_game_player_not_pick`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Not_Pick);
+    let response = this.#API
+      .utility()
+      .string()
+      .replace(phrase, { nickname: player.nickname, id: player.id });
+    await this.#API.messaging().sendGroupMessage(g.id, response);
+  };
+  /**
+   *
+   * @param {*} g
+   * @param {*} player
+   */
+  #replyPlayerRewarded = async (g, player) => {
+    let DICE_GAME_Rewarded = `${this.#API.config.keyword}_game_player_rewarded`;
+    let phrase = this.#getPhrase(g.language, DICE_GAME_Rewarded);
     let response = this.#API
       .utility()
       .string()
