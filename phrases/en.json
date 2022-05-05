@@ -20,6 +20,14 @@
     "value": "show"
   },
   {
+    "name": "dice_rank_command",
+    "value": "rank"
+  },
+  {
+    "name": "dice_top_command",
+    "value": "top"
+  },
+  {
     "name": "dice_help_command",
     "value": "help"
   },
@@ -144,7 +152,19 @@
     "value": "(n) You don't have enough balance"
   },
   {
+    "name": "dice_message_score",
+    "value": "ترتيبك و مجموعك الكلي على مستوى ولف:\n\nالترتيب: {rank}\nالمجموع: {total} نقطة\n{nickname} ( {id} )"
+  },
+  {
+    "name": "dice_message_no_score",
+    "value": "ليس لديك نقاط حاليا في هذا البوت\n{nickname} ( {id} )"
+  },
+  {
+    "name": "dice_message_g_score",
+    "value": "قائمة الجلادين بوت نرد : \n\n{list}"
+  },
+  {
     "name": "dice_help_message",
-    "value": "Help menu:\n!dice new <balance>\n!dice join\n!dice bal\n!dice show\n!dice help"
+    "value": "Help menu:\n!dice new <balance>\n!dice join\n!dice bal\n!dice show\n!dice rank\n!dice top\n!dice help"
   }
 ]

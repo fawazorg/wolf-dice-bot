@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^10.0.0",
+    "mongoose": "^6.3.2",
+    "mongoose-find-or-create": "^1.3.1",
     "wolf.js": "^1.0.0-beta.7"
   }
 }

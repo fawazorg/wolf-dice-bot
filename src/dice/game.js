@@ -1,4 +1,5 @@
 const { Validator } = require("wolf.js");
+const { addPoint } = require("./score");
 class Game {
   #Groups = [];
   #API;
@@ -122,8 +123,10 @@ class Game {
   start = async (g) => {
     g.joinable = 0;
     await this.#replyGameStart(g);
+    const ScoreAmont = g.players.length;
     while (this.#getRichestPlayers(g).length !== 1) {
       await this.#API.utility().delay(2000);
+      g.rounds += 1;
       await this.#askPlayerToMakeGuesses(g);
       if (this.#checkGuessIsOne(g)) {
         await this.finish(g);
@@ -155,7 +158,7 @@ class Game {
     }
     await this.#API.utility().delay(2000);
     if (this.find(g.id)) {
-      await this.stop(g);
+      await this.stop(g, ScoreAmont);
     }
     this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
   };
@@ -171,8 +174,11 @@ class Game {
    *
    * @param {Number} gid
    */
-  stop = async (g) => {
-    await this.#replyGameWinner(g, this.#getRichestPlayers(g)[0]);
+  stop = async (g, ScoreAmont) => {
+    let winner = this.#getRichestPlayers(g)[0];
+    this.#addPointsToPlayer(g, winner.id, ScoreAmont);
+    await this.#rewardPlayers(g);
+    await this.#replyGameWinner(g, winner);
     this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
   };
   /**
@@ -183,7 +189,16 @@ class Game {
    * @returns
    */
   #setupGroup = (gid, language, defaultBalance = 2500) => {
-    return { id: gid, joinable: 1, language, defaultBalance, playersCount: 15, players: [] };
+    return {
+      id: gid,
+      joinable: 1,
+      language,
+      defaultBalance,
+      rounds: 0,
+      playersCount: 15,
+      players: [],
+      scores: new Map(),
+    };
   };
   /**
    *
@@ -285,6 +300,52 @@ class Game {
   /**
    *
    * @param {*} g
+   * @param {*} pid
+   * @param {*} points
+   */
+  #addPointsToPlayer = (g, pid, points) => {
+    if (g.scores.has(pid)) {
+      let oldScore = g.scores.get(pid);
+      g.scores.set(pid, oldScore + points);
+    } else {
+      g.scores.set(pid, points);
+    }
+  };
+  /**
+   *
+   * @param {*} g
+   */
+  #rewardPlayers = async (g) => {
+    g.scores.forEach(async (points, pid) => {
+      await addPoint(pid, points);
+    });
+  };
+  /**
+   *
+   * @param {*} g
+   */
+  #gameWinners = async (g) => {
+    return new Promise(async (resolve, reject) => {
+      let r = "\n";
+      const mapSort = new Map([...g.scores.entries()].sort((a, b) => b[1] - a[1]));
+      let keys = Array.from(mapSort.keys());
+      let values = Array.from(mapSort.values());
+      for (let i = 0; i < keys.length; i++) {
+        const id = keys[i];
+        const score = values[i];
+        let user = await this.#API.subscriber().getById(id);
+        if (i === keys.length - 1) {
+          r += `${i + 1} ـ ${user.nickname} (${user.id}) ـ ${score}`;
+        } else {
+          r += `${i + 1} ـ ${user.nickname} (${user.id}) ـ ${score}\n`;
+        }
+      }
+      resolve(r);
+    });
+  };
+  /**
+   *
+   * @param {*} g
    * @param {*} player
    * @returns
    */
@@ -329,12 +390,14 @@ class Game {
     if (p1 > p2) {
       playerTow.balance -= bet;
       await this.#replyPVPWinner(g, playerTow, bet);
+      this.#addPointsToPlayer(g, playerOne.id, 1);
       await this.#checkPlayerIsOut(g, playerTow);
       return false;
     }
     if (p2 > p1) {
       playerOne.balance -= bet;
       await this.#replyPVPWinner(g, playerOne, bet);
+      this.#addPointsToPlayer(g, playerTow.id, 1);
       await this.#checkPlayerIsOut(g, playerOne);
       return false;
     }
@@ -354,6 +417,7 @@ class Game {
     )[0];
     if (w.courrntGuesse === botDice) {
       w.balance += 500;
+      this.#addPointsToPlayer(g, w.id, 2);
       await this.#replyPlayerRewarded(g, w);
     }
     return this.#getPlayer(g.id, w.id);
@@ -848,12 +912,14 @@ class Game {
   #replyGameWinner = async (g, player) => {
     let DICE_GAME_Winner = `${this.#API.config.keyword}_game_winner`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Winner);
+    let list = await this.#gameWinners(g);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: player.nickname, id: player.id, list });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
+  3;
   /**
    *
    * @param {*} language
