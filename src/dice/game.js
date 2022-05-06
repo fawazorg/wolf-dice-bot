@@ -188,7 +188,7 @@ class Game {
    * @param {*} defaultBalance
    * @returns
    */
-  #setupGroup = (gid, language, defaultBalance = 2500) => {
+  #setupGroup = (gid, language, defaultBalance = 500) => {
     return {
       id: gid,
       joinable: 1,
