@@ -20,7 +20,7 @@ class Game {
    */
   create = async (gid, language, options, player) => {
     let g = this.find(gid);
-    let defaultBalance = options || 2500;
+    let defaultBalance = options || 500;
     if (g) {
       await this.#replyAlreadyCreated(g);
       return false;
