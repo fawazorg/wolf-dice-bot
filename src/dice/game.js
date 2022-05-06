@@ -128,7 +128,7 @@ class Game {
       await this.#API.utility().delay(2000);
       g.rounds += 1;
       await this.#askPlayerToMakeGuesses(g);
-      if (this.#checkGuessIsOne(g)) {
+      if (this.#checkGuessIsZero(g)) {
         await this.finish(g);
         break;
       }
@@ -280,8 +280,8 @@ class Game {
    * @param {*} g
    * @returns
    */
-  #checkGuessIsOne = (g) => {
-    return g.players.filter((p) => p.courrntGuesse !== null).length <= 1;
+  #checkGuessIsZero = (g) => {
+    return g.players.filter((p) => p.courrntGuesse !== null).length <= 0;
   };
   /**
    *

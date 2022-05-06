@@ -141,7 +141,7 @@
   },
   {
     "name": "dice_game_winner",
-    "value": "🎉 Congratulations to the winning player: {nickname} ({id} )"
+    "value": "🎉 Congratulations to the winning player: {nickname} ({id} )\n\nOther winners:{list}"
   },
   {
     "name": "dice_game_player_balance_500_error",
@@ -153,15 +153,15 @@
   },
   {
     "name": "dice_message_score",
-    "value": "ترتيبك و مجموعك الكلي على مستوى ولف:\n\nالترتيب: {rank}\nالمجموع: {total} نقطة\n{nickname} ( {id} )"
+    "value": "Your rank and total points:\n\nRank: {rank}\nTotal: {total} points \n{nickname} ( {id} )"
   },
   {
     "name": "dice_message_no_score",
-    "value": "ليس لديك نقاط حاليا في هذا البوت\n{nickname} ( {id} )"
+    "value": "You currently have no points in this bot\n{nickname} ( {id} )"
   },
   {
     "name": "dice_message_g_score",
-    "value": "قائمة الجلادين بوت نرد : \n\n{list}"
+    "value": "Top 10 List: \n\n{list}"
   },
   {
     "name": "dice_help_message",
