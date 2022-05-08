@@ -411,7 +411,7 @@ class Game {
    * @returns
    */
   #closestGuesse = async (g, botDice) => {
-    let array = g.players;
+    let array = g.players.filter((p) => p.courrntGuesse !== null);
     let w = array.sort(
       (a, b) => Math.abs(botDice - a.courrntGuesse) - Math.abs(botDice - b.courrntGuesse)
     )[0];
