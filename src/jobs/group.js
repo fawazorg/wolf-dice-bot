@@ -6,8 +6,8 @@
  */
 const UpdateTimer = async (api, data, game) => {
   let g = game.find(data.id);
-  if (g) {
-    if (g.players?.length <= 1) {
+  if (g && g.players) {
+    if (g.players.length <= 1) {
       return await game.finish(g);
     } else {
       if (g.joinable) {
