@@ -5,6 +5,9 @@
  * @param {import('../dice/game')} game
  */
 const UpdateTimer = async (api, data, game) => {
+  if (!data) {
+    return;
+  }
   let g = game.find(data.id);
   if (g && g.players) {
     if (g.players.length <= 1) {
