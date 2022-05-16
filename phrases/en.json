@@ -12,6 +12,10 @@
     "value": "join"
   },
   {
+    "name": "dice_command_join",
+    "value": "enter"
+  },
+  {
     "name": "dice_balance_command",
     "value": "bal"
   },
@@ -166,5 +170,17 @@
   {
     "name": "dice_help_message",
     "value": "Help menu:\n!dice new <balance>\n!dice join\n!dice bal\n!dice show\n!dice rank\n!dice top\n!dice help"
+  },
+  {
+    "name": "dice_join_message",
+    "value": [
+      "(y) join done",
+      "(n) you don't have permission to use this command",
+      "(n) group id must be a number",
+      "(n) the group have a pssword",
+      "(n) the bot alrady in the group",
+      "(n) the level is too high",
+      "(n) we don't found this group"
+    ]
   }
 ]
