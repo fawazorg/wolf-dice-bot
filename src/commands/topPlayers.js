@@ -8,5 +8,5 @@ TopPlayers = async (api, command) => {
 };
 
 module.exports = new WOLF.Command(COMMAND_TRIGER, {
-  both: (command) => TopPlayers(api, command),
+  group: (command) => TopPlayers(api, command),
 });

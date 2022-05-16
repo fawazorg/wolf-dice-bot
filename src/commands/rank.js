@@ -8,5 +8,5 @@ Rank = async (api, command) => {
 };
 
 module.exports = new WOLF.Command(COMMAND_TRIGER, {
-  both: (command) => Rank(api, command),
+  group: (command) => Rank(api, command),
 });
