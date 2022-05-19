@@ -24,7 +24,7 @@ const myRank = async (command, api) => {
         $setWindowFields: {
           sortBy: { score: -1 },
           output: {
-            GlopalRank: {
+            GlobalRank: {
               $documentNumber: {},
             },
           },
@@ -44,7 +44,7 @@ const myRank = async (command, api) => {
             .utility()
             .string()
             .replace(api.phrase().getByCommandAndName(command, "dice_message_score"), {
-              rank: data.GlopalRank,
+              rank: data.GlobalRank,
               total: data.score,
               nickname: user.nickname,
               id: user.id,

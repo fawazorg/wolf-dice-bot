@@ -4,7 +4,7 @@ app:
   developerId: 12500068
   commandSettings:
     ignoreOfficialBots: true
-    ignoreUnofficialBots: true
+    ignoreUnofficialBots: false
   networkSettings:
     retryMode: 1
     retryAttempts: 1

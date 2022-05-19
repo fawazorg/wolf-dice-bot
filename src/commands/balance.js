@@ -1,13 +1,12 @@
 const WOLF = require("wolf.js");
 const { api, game } = require("../../bot");
 
-const COMMAND_TRIGER = `${api.config.keyword}_balance_command`;
+const COMMAND_TRIGGER = `${api.config.keyword}_balance_command`;
 
 Balance = async (api, command) => {
-  const user = await api.subscriber().getById(command.sourceSubscriberId);
-  await game.balance(command, user);
+  await game.balance(command);
 };
 
-module.exports = new WOLF.Command(COMMAND_TRIGER, {
+module.exports = new WOLF.Command(COMMAND_TRIGGER, {
   group: (command) => Balance(api, command),
 });

@@ -72,7 +72,7 @@
     "value": "(n) {nickname} ({id} ) You are already joined"
   },
   {
-    "name": "dice_game_notexist",
+    "name": "dice_game_not_exist",
     "value": "(n) There is no game available right now send \"!dice new\" to create a new game"
   },
   {
@@ -112,7 +112,7 @@
     "value": "💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500"
   },
   {
-    "name": "dice_game_ask_player_balance_alrady_500",
+    "name": "dice_game_ask_player_balance_already_500",
     "value": "💰 Your balance is: 500, All your balance will be bet."
   },
   {
@@ -152,7 +152,7 @@
     "value": "(n) The amount must be a multiple of 500"
   },
   {
-    "name": "dice_game_player_balance_notenough_error",
+    "name": "dice_game_player_balance_not_enough_error",
     "value": "(n) You don't have enough balance"
   },
   {
@@ -177,8 +177,8 @@
       "(y) join done",
       "(n) you don't have permission to use this command",
       "(n) group id must be a number",
-      "(n) the group have a pssword",
-      "(n) the bot alrady in the group",
+      "(n) the group have a password",
+      "(n) the bot already in the group",
       "(n) the level is too high",
       "(n) we don't found this group"
     ]

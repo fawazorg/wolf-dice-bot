@@ -1,7 +1,7 @@
 const { Validator, Command } = require("wolf.js");
 const { api } = require("../../bot");
 
-const COMMAND_TRIGER = `${api.config.keyword}_command_join`;
+const COMMAND_TRIGGER = `${api.config.keyword}_command_join`;
 
 /**
  *
@@ -18,30 +18,30 @@ const Join = async (api, command) => {
   if (!Validator.isValidNumber(roomID)) {
     return await api.messaging().sendMessage(command, jm[2]);
   }
-  let respoens = await api.group().joinById(parseInt(roomID), password);
-  if (respoens.code === 403) {
-    if (respoens.headers.subCode === 110) {
+  let response = await api.group().joinById(parseInt(roomID), password);
+  if (response.code === 403) {
+    if (response.headers.subCode === 110) {
       return await api.messaging().sendMessage(command, jm[4]);
-    } else if (respoens.headers.subCode === 4) {
+    } else if (response.headers.subCode === 4) {
       return await api.messaging().sendMessage(command, jm[5]);
     }
-    return await api.messaging().sendMessage(command, respoens.headers.message);
+    return await api.messaging().sendMessage(command, response.headers.message);
   }
-  if (respoens.code === 404) {
+  if (response.code === 404) {
     return await api.messaging().sendMessage(command, jm[6]);
   }
-  if (respoens.code === 401) {
-    if (respoens.headers.subCode === 1) {
+  if (response.code === 401) {
+    if (response.headers.subCode === 1) {
       return await api.messaging().sendMessage(command, jm[3]);
     }
-    return await api.messaging().sendMessage(command, respoens.headers.message);
+    return await api.messaging().sendMessage(command, response.headers.message);
   }
-  if (respoens.headers.subCode === 4) {
+  if (response.headers.subCode === 4) {
     return await api.messaging().sendMessage(command, jm[5]);
   }
   return await api.messaging().sendMessage(command, jm[0]);
 };
 
-module.exports = new Command(COMMAND_TRIGER, {
+module.exports = new Command(COMMAND_TRIGGER, {
   private: (command) => Join(api, command),
 });

@@ -1,32 +1,39 @@
 const { Validator } = require("wolf.js");
+const group = require("./data");
 const { addPoint } = require("./score");
 class Game {
-  #Groups = [];
+  /**
+   * @type {import("wolf.js").WOLFBot}
+   */
   #API;
-
+  #PLAYERS_COUNT;
+  #TIME_TO_JOIN;
+  #TIME_TO_CHOICE;
+  #BOT_DICE;
   /**
    *
    * @param {import("wolf.js").WOLFBot} api
    */
   constructor(api) {
     this.#API = api;
+    this.#PLAYERS_COUNT = 15;
+    this.#TIME_TO_JOIN = 30 * 1000;
+    this.#TIME_TO_CHOICE = 15 * 1000;
+    this.#BOT_DICE = 50;
   }
   /**
    *
-   * @param {Number} gid
-   * @param {String} language
+   * @param {import "wolf.js".CommandObject} command
    * @param {String} options
-   * @returns {Boolean|object}
    */
-  create = async (gid, language, options, player) => {
-    let g = this.find(gid);
-    let defaultBalance = options || 500;
-    if (g) {
-      await this.#replyAlreadyCreated(g);
+  create = async (command, options) => {
+    if (group.has(command.targetGroupId)) {
+      await this.#replyAlreadyCreated(command);
       return false;
     }
+    let defaultBalance = options || 500;
     if (defaultBalance !== "" && !this.#checkNumber(defaultBalance)) {
-      await this.#replyWrongCreate(gid, language);
+      await this.#replyWrongCreate(command);
       return false;
     }
     if (
@@ -36,44 +43,49 @@ class Game {
         this.#getNumber(defaultBalance) % 500 === 0
       )
     ) {
-      await this.#replyInvalidBalance(gid, language);
+      await this.#replyInvalidBalance(command);
       return;
     }
-    g = this.#setupGroup(gid, language, this.#getNumber(defaultBalance));
-    this.#Groups.push(g);
-    //g.players.push(this.#setupPlayer(player, g.defaultBalance));
+    this.#setupGroup(command.targetGroupId, command.language, this.#getNumber(defaultBalance));
+    let g = group.get(command.targetGroupId);
+    await this.#API
+      .utility()
+      .timer()
+      .add(
+        `game-${command.targetGroupId}`,
+        "UpdateTimer",
+        { gid: command.targetGroupId },
+        this.#TIME_TO_JOIN
+      );
+    this.#setupPlayer(g.players, command.sourceSubscriberId, g.defaultBalance);
     await this.#replyCreated(g);
-    await this.#API.utility().timer().add(`game-${g.id}`, "UpdateTimer", g, 30000);
-    g.players.push(this.#setupPlayer(player, g.defaultBalance));
   };
   /**
    *
-   * @param {Number} gid
-   * @param {object} player
+   * @param {import "wolf.js".CommandObject} command
    * @returns
    */
-  join = async (command, player) => {
-    let g = this.find(command.targetGroupId);
-    if (!g) {
-      await this.#replyNotExist(command);
-      return;
+  join = async (command) => {
+    if (!group.has(command.targetGroupId)) {
+      return await this.#replyNotExist(command);
     }
+    let g = group.get(command.targetGroupId);
     if (!g.joinable) {
       return false;
     }
-    if (g.players.length >= g.playersCount) {
+    if (g.players.size >= g.playersCount) {
       return false;
     }
-    if (this.#getPlayer(g.id, player.id)) {
-      await this.#replyAlreadyJoin(g, player);
-      return false;
+    if (g.players.has(command.sourceSubscriberId)) {
+      return await this.#replyAlreadyJoin(command);
     }
-    g.players.push(this.#setupPlayer(player, g.defaultBalance));
-    if (g.players.length >= g.playersCount) {
-      await this.#replyJoin(g, player);
-      return await this.start(g);
+    this.#setupPlayer(g.players, command.sourceSubscriberId, g.defaultBalance);
+    await this.#replyJoin(command);
+    if (g.players.size >= g.playersCount) {
+      g.joinable = false;
+      g.start = true;
+      await this.start(g.id);
     }
-    return await this.#replyJoin(g, player);
   };
 
   /**
@@ -82,104 +94,100 @@ class Game {
    * @returns
    */
   show = async (command) => {
-    let g = this.find(command.targetGroupId);
-    if (!g) {
-      await this.#replyNotExist(command);
-      return;
+    if (!group.has(command.targetGroupId)) {
+      return await this.#replyNotExist(command);
     }
-    this.#replyPlayers(g);
+    this.#replyPlayers(command);
   };
   /**
    *
-   * @param {*} command
-   * @param {*} user
+   * @param {import "wolf.js".CommandObject} command
    * @returns
    */
-  balance = async (command, user) => {
-    let g = this.find(command.targetGroupId);
-    if (!g) {
-      await this.#replyNotExist(command);
+  balance = async (command) => {
+    if (!group.has(command.targetGroupId)) {
+      return await this.#replyNotExist(command);
+    }
+
+    let tempGroup = group.get(command.targetGroupId);
+    if (!tempGroup.players.has(command.sourceSubscriberId)) {
+      await this.#replyPlayerNotFound(command);
       return;
     }
-    let player = this.#getPlayer(g.id, user.id);
-    if (!player) {
-      await this.#replyPlayerNotFound(g, user);
-      return;
-    }
-    await this.#replyPlayerBalance(g, player);
+    let tempPlayer = tempGroup.players.get(command.sourceSubscriberId);
+    await this.#replyPlayerBalance(command, tempPlayer);
   };
   /**
    *
    * @param {Number} gid
-   * @returns {Boolean}
    */
-  find = (gid) => {
-    return this.#Groups.find((g) => g.id === gid) ?? false;
-  };
-  /**
-   *
-   * @param {Number} g
-   */
-  start = async (g) => {
-    g.joinable = 0;
+  start = async (gid) => {
+    if (!group.has(gid)) {
+      return;
+    }
+    let g = group.get(gid);
+    g.joinable = false;
+    g.start = true;
     await this.#replyGameStart(g);
-    const ScoreAmont = g.players.length;
-    while (this.#getRichestPlayers(g).length !== 1) {
+    const ScoreAmount = g.players.size;
+    while (this.#getRichestPlayers(g.id).length !== 1) {
       await this.#API.utility().delay(2000);
-      g.rounds += 1;
       await this.#askPlayerToMakeGuesses(g);
       if (this.#checkGuessIsZero(g)) {
         await this.finish(g);
         break;
       }
-      let botDice = this.#rollDice(50);
-      let clousePalyer = await this.#closestGuesse(g, botDice);
+      let botDice = this.#rollDice(this.#BOT_DICE);
+      let closestPlayer = await this.#closestGuesses(g, botDice);
       await this.#API.utility().delay(2000);
-      await this.#replyPlayerTurn(g, clousePalyer, botDice);
-      let playerPicked = await this.#askPlayerPick(g, clousePalyer);
+      await this.#replyPlayerTurn(g, closestPlayer, botDice);
+      let playerPicked = await this.#askPlayerPick(g, closestPlayer);
       if (!playerPicked) {
         continue;
       }
       await this.#API.utility().delay(2000);
-      let bet = await this.#AskPlayerBalance(g, clousePalyer);
+      let bet = await this.#AskPlayerBalance(g, closestPlayer);
       let result = true;
       while (result) {
         await this.#API.utility().delay(2000);
-        let p1 = await this.#askPlayerRoll(g, clousePalyer);
+        let p1 = await this.#askPlayerRoll(g, closestPlayer);
         if (p1 == 0) {
-          result = await this.#checkWhoWon(g, clousePalyer, playerPicked, p1, 6, bet);
+          result = await this.#checkWhoWon(g, closestPlayer, playerPicked, p1, 6, bet);
           continue;
         }
         await this.#API.utility().delay(2000);
         let p2 = await this.#askPlayerRoll(g, playerPicked);
         await this.#API.utility().delay(2000);
-        result = await this.#checkWhoWon(g, clousePalyer, playerPicked, p1, p2, bet);
+        result = await this.#checkWhoWon(g, closestPlayer, playerPicked, p1, p2, bet);
       }
     }
     await this.#API.utility().delay(2000);
-    if (this.find(g.id)) {
-      await this.stop(g, ScoreAmont);
+    if (group.has(gid)) {
+      let tempGroup = group.get(g.id);
+      await this.stop(tempGroup, ScoreAmount);
+      group.delete(tempGroup.id);
     }
-    this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
   };
   /**
    *
    * @param {Number} gid
    */
   finish = async (g) => {
-    this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
-    await this.#replyGameFinish(g);
+    if (group.has(g.id)) {
+      let tempGroup = group.get(g.id);
+      await this.#replyGameFinish(tempGroup);
+      group.delete(tempGroup.id);
+    }
   };
   /**
    *
    * @param {Number} gid
    */
-  stop = async (g, ScoreAmont) => {
-    let winner = this.#getRichestPlayers(g)[0];
-    this.#addPointsToPlayer(g, winner.id, ScoreAmont);
+  stop = async (g, ScoreAmount) => {
+    let winner = this.#getRichestPlayers(g.id)[0];
+    this.#addPointsToPlayer(g, winner.id, ScoreAmount);
     await this.#rewardPlayers(g);
     await this.#replyGameWinner(g, winner);
-    this.#Groups = this.#Groups.filter((gg) => gg.id !== g.id);
   };
   /**
    *
@@ -189,42 +197,50 @@ class Game {
    * @returns
    */
   #setupGroup = (gid, language, defaultBalance = 500) => {
-    return {
-      id: gid,
-      joinable: 1,
-      language,
-      defaultBalance,
-      rounds: 0,
-      playersCount: 15,
-      players: [],
-      scores: new Map(),
-    };
+    if (!group.has(gid)) {
+      group.set(gid, {
+        id: gid,
+        joinable: true,
+        start: false,
+        language,
+        defaultBalance,
+        playersCount: this.#PLAYERS_COUNT,
+        players: new Map(),
+        scores: new Map(),
+      });
+    }
+    return group.get(gid);
   };
   /**
    *
-   * @param {*} player
-   * @param {*} defaultBalance
+   * @param {Map} players
+   * @param {Number} id
+   * @param {Number} defaultBalance
    * @returns
    */
-  #setupPlayer = (player, defaultBalance) => {
-    return {
-      id: player.id,
-      nickname: player.nickname,
-      balance: defaultBalance,
-      courrntGuesse: null,
-    };
+  #setupPlayer = (players, id, defaultBalance) => {
+    if (!players.has(id)) {
+      players.set(id, {
+        id,
+        balance: defaultBalance,
+        currentGuess: null,
+      });
+    }
   };
   /**
    *
    * @param {*} g
    */
   #askPlayerToMakeGuesses = async (g) => {
-    this.#resetGusses(g);
-    await this.#replyMakeAGuesse(g);
+    if (!group.has(g.id)) {
+      return;
+    }
+    this.#resetGussets(g);
+    await this.#replyMakeAGuess(g);
     let exit = true;
     setTimeout(function () {
       exit = false;
-    }, 15000);
+    }, this.#TIME_TO_CHOICE);
     while (exit) {
       let r = await this.#API
         .messaging()
@@ -234,36 +250,40 @@ class Game {
             message.isGroup &&
             this.#checkNumber(message.body) &&
             message.targetGroupId === g.id &&
-            this.#getRichestPlayers(g).some((p) => p.id === message.sourceSubscriberId),
+            this.#getRichestPlayers(g.id).some((p) => p.id === message.sourceSubscriberId),
           10000
         );
       if (r) {
-        this.#setPlayerGuess(g, r.sourceSubscriberId, r.body);
+        this.#setPlayerGuess(g.id, r.sourceSubscriberId, r.body);
       }
     }
   };
   /**
    *
-   * @param {*} g
-   * @param {*} player
+   * @param {number} gid
+   * @param {*} pid
    * @param {*} guess
    */
-  #setPlayerGuess = (g, player, guess) => {
+  #setPlayerGuess = (gid, pid, guess) => {
     if (this.#checkGuess(guess)) {
       let n = this.#getNumber(guess);
-      if (this.#getRichestPlayers(g).some((p) => p.courrntGuesse === n)) {
-        n = 150;
+      if (this.#getRichestPlayers(gid).some((p) => p.currentGuess === n)) {
+        n = this.#TIME_TO_CHOICE;
       }
-      this.#getPlayer(g.id, player).courrntGuesse = n;
+      if (group.has(gid)) {
+        let g = group.get(gid);
+        let player = g.players.get(pid);
+        player.currentGuess = n;
+      }
     }
   };
   /**
    *
    * @param {*} g
    */
-  #resetGusses = (g) => {
+  #resetGussets = (g) => {
     g.players.forEach((p) => {
-      p.courrntGuesse = null;
+      p.currentGuess = null;
     });
   };
   /**
@@ -281,7 +301,12 @@ class Game {
    * @returns
    */
   #checkGuessIsZero = (g) => {
-    return g.players.filter((p) => p.courrntGuesse !== null).length <= 0;
+    if (!group.has(g.id)) {
+      return true;
+    }
+    let tempGroup = group.get(g.id);
+    let tempArray = Array.from(tempGroup.players.values());
+    return tempArray.filter((p) => p.currentGuess !== null).length <= 0;
   };
   /**
    *
@@ -350,13 +375,17 @@ class Game {
    * @returns
    */
   #checkPlayerIsOut = async (g, player) => {
-    if (this.#getPlayer(g.id, player.id).balance > 0) {
+    if (!group.has(g.id)) {
       return;
     }
-    // remove the player
-    g.players = g.players.filter((p) => p.id !== player.id);
+    let tempGroup = group.get(g.id);
+    let tempPlayer = tempGroup.players.get(player.id);
+    if (tempPlayer.balance > 0) {
+      return;
+    }
+    tempGroup.players.delete(tempGroup.id);
     await this.#API.utility().delay(2000);
-    await this.#replyPlayerIsOut(g, player);
+    await this.#replyPlayerIsOut(g, tempPlayer);
   };
   /**
    *
@@ -410,17 +439,24 @@ class Game {
    * @param {*} botDice
    * @returns
    */
-  #closestGuesse = async (g, botDice) => {
-    let array = g.players.filter((p) => p.courrntGuesse !== null);
-    let w = array.sort(
-      (a, b) => Math.abs(botDice - a.courrntGuesse) - Math.abs(botDice - b.courrntGuesse)
-    )[0];
-    if (w.courrntGuesse === botDice) {
-      w.balance += 500;
-      this.#addPointsToPlayer(g, w.id, 2);
-      await this.#replyPlayerRewarded(g, w);
+  #closestGuesses = async (g, botDice) => {
+    if (!group.has(g.id)) {
+      return null;
     }
-    return this.#getPlayer(g.id, w.id);
+    let tempGroup = group.get(g.id);
+    let tempArray = Array.from(tempGroup.players.values());
+    let array = tempArray.filter((p) => p.currentGuess !== null);
+    let winner = array.sort(
+      (a, b) => Math.abs(botDice - a.currentGuess) - Math.abs(botDice - b.currentGuess)
+    )[0];
+    if (winner.currentGuess === botDice) {
+      winner.balance += 500;
+      this.#addPointsToPlayer(tempGroup, winner.id, 2);
+      await this.#replyPlayerRewarded(tempGroup, winner);
+    }
+
+    let player = tempGroup.players.get(winner.id);
+    return player;
   };
 
   /**
@@ -455,6 +491,10 @@ class Game {
    * @returns
    */
   #askPlayerPick = async (g, player) => {
+    if (!group.has(g.id)) {
+      return false;
+    }
+
     let r = await this.#API
       .messaging()
       .subscribe()
@@ -465,12 +505,12 @@ class Game {
           message.sourceSubscriberId === player.id &&
           this.#checkNumber(message.body) &&
           this.#getNumber(message.body) - 1 !==
-            this.#getRichestPlayers(g).findIndex((p) => p.id === player.id) &&
-          this.#getRichestPlayers(g).length >= this.#getNumber(message.body),
-        15000
+            this.#getRichestPlayers(g.id).findIndex((p) => p.id === player.id) &&
+          this.#getRichestPlayers(g.id).length >= this.#getNumber(message.body),
+        this.#TIME_TO_CHOICE
       );
     if (r) {
-      return this.#getRichestPlayers(g)[this.#getNumber(r.body) - 1];
+      return this.#getRichestPlayers(g.id)[this.#getNumber(r.body) - 1];
     }
     await this.#replyPlayerNotPick(g, player);
     return false;
@@ -482,8 +522,11 @@ class Game {
    * @returns
    */
   #AskPlayerBalance = async (g, player) => {
+    if (!group.has(g.id)) {
+      return;
+    }
     if (player.balance === 500) {
-      await this.#replyAskPlayerBalanceAlrady500(g);
+      await this.#replyAskPlayerBalanceAlready500(g);
       return 500;
     }
     await this.#replyAskPlayerBalance(g, player);
@@ -499,7 +542,7 @@ class Game {
             message.targetGroupId === g.id &&
             message.sourceSubscriberId === player.id &&
             this.#checkNumber(message.body),
-          15000
+          this.#TIME_TO_CHOICE
         );
       if (r) {
         exit = await this.#checkBalance(g, player, this.#getNumber(r.body));
@@ -516,6 +559,9 @@ class Game {
    * @returns
    */
   #askPlayerRoll = async (g, player) => {
+    if (!group.has(g.id)) {
+      return null;
+    }
     await this.#replyAskPlayerToRoll(g, player);
     let r = await this.#API
       .messaging()
@@ -529,7 +575,7 @@ class Game {
             .some((s) => s.value === message.body.toLocaleLowerCase()) &&
           message.targetGroupId === g.id &&
           message.sourceSubscriberId === player.id,
-        15000
+        this.#TIME_TO_CHOICE
       );
     if (r) {
       let dice = this.#rollDice(6);
@@ -541,44 +587,42 @@ class Game {
   };
   /**
    *
-   * @param {*} g
+   * @param {Number} gid
    * @returns
    */
-  #printPlayers = (g) => {
+  #printPlayers = async (gid) => {
+    if (!group.has(gid)) {
+      return "";
+    }
     let results = "";
-    this.#getRichestPlayers(g).forEach((p, index, array) => {
-      if (index === array.length - 1) {
-        results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}`;
+    let PlayersArray = this.#getRichestPlayers(gid);
+    for (let index = 0; index < PlayersArray.length; index++) {
+      let Player = PlayersArray[index];
+      let User = await this.#API.subscriber().getById(Player.id);
+      if (index === PlayersArray.length - 1) {
+        results += `${index + 1} ـ ${User.nickname} (${User.id}) ـ ${this.#formatNumber(
+          Player.balance
+        )}`;
         return results;
       }
-      results += `${index + 1} ـ ${p.nickname} (${p.id}) ـ ${this.#formatNumber(p.balance)}\n`;
-    });
+      results += `${index + 1} ـ ${User.nickname} (${User.id}) ـ ${this.#formatNumber(
+        Player.balance
+      )}\n`;
+    }
     return results;
   };
   /**
    *
-   * @param {*} g
+   * @param {Number} gid
    * @returns
    */
-  #getRichestPlayers = (g) => {
-    let gg = this.find(g.id);
-    if (!gg) {
+  #getRichestPlayers = (gid) => {
+    if (!group.has(gid)) {
       return [];
     }
-    return gg.players.filter((p) => p.balance >= 500);
-  };
-  /**
-   *
-   * @param {*} gid
-   * @param {*} player
-   * @returns
-   */
-  #getPlayer = (gid, player) => {
-    let g = this.find(gid);
-    if (g && g.players.length > 0) {
-      return g.players.filter((p) => p.id === player)[0];
-    }
-    return false;
+    let g = group.get(gid);
+    let Players = Array.from(g.players.values());
+    return Players.filter((p) => p.balance >= 500);
   };
   /**
    *
@@ -592,69 +636,67 @@ class Game {
   };
   /**
    *
-   * @param {*} gid
-   * @param {*} language
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyWrongCreate = async (gid, language) => {
+  #replyWrongCreate = async (command) => {
     let DICE_GAME_Wrong_Create = `${this.#API.config.keyword}_game_wrong_creation`;
-    let phrase = this.#getPhrase(language, DICE_GAME_Wrong_Create);
-    await this.#API.messaging().sendGroupMessage(gid, phrase);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Wrong_Create);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, phrase);
   };
   /**
    *
-   * @param {*} gid
-   * @param {*} language
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyInvalidBalance = async (gid, language) => {
+  #replyInvalidBalance = async (command) => {
     let DICE_GAME_Invalid_Balance = `${this.#API.config.keyword}_game_invalid_balance`;
-    let phrase = this.#getPhrase(language, DICE_GAME_Invalid_Balance);
-    await this.#API.messaging().sendGroupMessage(gid, phrase);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Invalid_Balance);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, phrase);
   };
   /**
    *
-   * @param {*} g
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyAlreadyCreated = async (g) => {
+  #replyAlreadyCreated = async (command) => {
     let DICE_GAME_Already_Created = `${this.#API.config.keyword}_game_already_created`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Already_Created);
-    await this.#API.messaging().sendGroupMessage(g.id, phrase);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Already_Created);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, phrase);
   };
   /**
    *
    * @param {*} command
    */
   #replyNotExist = async (command) => {
-    let DICE_GAME_NotExist = `${this.#API.config.keyword}_game_notexist`;
+    let DICE_GAME_NotExist = `${this.#API.config.keyword}_game_not_exist`;
     let phrase = this.#getPhrase(command.language, DICE_GAME_NotExist);
     await this.#API.messaging().sendGroupMessage(command.targetGroupId, phrase);
   };
   /**
    *
-   * @param {*} g
-   * @param {*} player
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyJoin = async (g, player) => {
+  #replyJoin = async (command) => {
     let DICE_GAME_JOIN = `${this.#API.config.keyword}_game_join`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_JOIN);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_JOIN);
+    let user = await this.#API.subscriber().getById(command.sourceSubscriberId);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
+      .replace(phrase, { nickname: user.nickname, id: user.id });
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
   };
   /**
    *
-   * @param {*} g
-   * @param {*} player
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyAlreadyJoin = async (g, player) => {
+  #replyAlreadyJoin = async (command) => {
     let DICE_GAME_Already_Join = `${this.#API.config.keyword}_game_already_join`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Already_Join);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Already_Join);
+    let user = await this.#API.subscriber().getById(command.sourceSubscriberId);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
+      .replace(phrase, { nickname: user.nickname, id: user.id });
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
   };
   /**
    *
@@ -666,80 +708,82 @@ class Game {
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { list: this.#printPlayers(g) });
+      .replace(phrase, { list: await this.#printPlayers(g.id) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
    *
-   * @param {*} g
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyPlayers = async (g) => {
+  #replyPlayers = async (command) => {
     let DICE_GAME_Players = `${this.#API.config.keyword}_game_players`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Players);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Players);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { list: this.#printPlayers(g) });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
+      .replace(phrase, { list: await this.#printPlayers(command.targetGroupId) });
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
   };
   /**
    *
-   * @param {*} g
+   * @param {import "wolf.js".CommandObject} command
    * @param {*} player
    */
-  #replyPlayerBalance = async (g, player) => {
+  #replyPlayerBalance = async (command, player) => {
     let DICE_GAME_Player_Balance = `${this.#API.config.keyword}_game_player_balance`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Player_Balance);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Player_Balance);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
       .replace(phrase, {
-        id: player.id,
-        nickname: player.nickname,
+        id: user.id,
+        nickname: user.nickname,
         balance: this.#formatNumber(player.balance),
       });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
   };
   /**
    *
-   * @param {*} g
-   * @param {*} user
+   * @param {import "wolf.js".CommandObject} command
    */
-  #replyPlayerNotFound = async (g, user) => {
+  #replyPlayerNotFound = async (command) => {
     let DICE_GAME_Player_NotFound = `${this.#API.config.keyword}_game_player_notfound`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Player_NotFound);
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Player_NotFound);
+    let user = await this.#API.subscriber().getById(command.sourceSubscriberId);
     let response = this.#API
       .utility()
       .string()
       .replace(phrase, { id: user.id, nickname: user.nickname });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
   };
   /**
    *
    * @param {*} g
    */
-  #replyMakeAGuesse = async (g) => {
-    let DICE_Make_A_Guesse = `${this.#API.config.keyword}_game_make_a_guess`;
-    let response = this.#getPhrase(g.language, DICE_Make_A_Guesse);
+  #replyMakeAGuess = async (g) => {
+    let DICE_Make_A_Guess = `${this.#API.config.keyword}_game_make_a_guess`;
+    let response = this.#getPhrase(g.language, DICE_Make_A_Guess);
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
    *
    * @param {*} g
    * @param {*} player
-   * @param {*} botdice
+   * @param {*} botDice
    */
-  #replyPlayerTurn = async (g, player, botdice) => {
+  #replyPlayerTurn = async (g, player, botDice) => {
     let DICE_GAME_Player_Turn = `${this.#API.config.keyword}_game_player_turn`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Player_Turn);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
       .replace(phrase, {
-        dice: botdice,
-        nickname: player.nickname,
-        id: player.id,
-        list: this.#printPlayers(g),
+        dice: botDice,
+        nickname: user.nickname,
+        id: user.id,
+        list: await this.#printPlayers(g.id),
       });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
@@ -761,11 +805,11 @@ class Game {
    *
    * @param {*} g
    */
-  #replyAskPlayerBalanceAlrady500 = async (g) => {
-    let DICE_Player_Balance_Alrady500 = `${
+  #replyAskPlayerBalanceAlready500 = async (g) => {
+    let DICE_Player_Balance_Already500 = `${
       this.#API.config.keyword
-    }_game_ask_player_balance_alrady_500`;
-    let phrase = this.#getPhrase(g.language, DICE_Player_Balance_Alrady500);
+    }_game_ask_player_balance_already_500`;
+    let phrase = this.#getPhrase(g.language, DICE_Player_Balance_Already500);
     await this.#API.messaging().sendGroupMessage(g.id, phrase);
   };
   /**
@@ -782,8 +826,10 @@ class Game {
    * @param {*} g
    */
   #replyAskPlayerBalanceError = async (g) => {
-    let DICE_Balance_Notenough = `${this.#API.config.keyword}_game_player_balance_notenough_error`;
-    let phrase = this.#getPhrase(g.language, DICE_Balance_Notenough);
+    let DICE_Balance_Not_Enough = `${
+      this.#API.config.keyword
+    }_game_player_balance_not_enough_error`;
+    let phrase = this.#getPhrase(g.language, DICE_Balance_Not_Enough);
     await this.#API.messaging().sendGroupMessage(g.id, phrase);
   };
   /**
@@ -794,10 +840,11 @@ class Game {
   #replyAskPlayerToRoll = async (g, player) => {
     let DICE_GAME_Ask_Player_Roll = `${this.#API.config.keyword}_game_ask_player_to_roll`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Ask_Player_Roll);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: user.nickname, id: user.id });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -809,10 +856,11 @@ class Game {
   #replyPlayerRolled = async (g, player, dice) => {
     let DICE_GAME_Plyer_Rolled = `${this.#API.config.keyword}_game_player_rolled`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Plyer_Rolled);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id, dice });
+      .replace(phrase, { nickname: user.nickname, id: user.id, dice });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -824,10 +872,11 @@ class Game {
   #replyPVPWinner = async (g, player, bet) => {
     let DICE_GAME_PVP_Winner = `${this.#API.config.keyword}_game_pvp_winner`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_PVP_Winner);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id, bet: this.#formatNumber(bet) });
+      .replace(phrase, { nickname: user.nickname, id: user.id, bet: this.#formatNumber(bet) });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -856,10 +905,11 @@ class Game {
   #replyPlayerIsOut = async (g, player) => {
     let DICE_GAME_Player_Out = `${this.#API.config.keyword}_game_player_out`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Player_Out);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: user.nickname, id: user.id });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -870,10 +920,11 @@ class Game {
   #replyPlayerTimeIsUpRoll = async (g, player) => {
     let DICE_GAME_Time_Is_Up = `${this.#API.config.keyword}_game_time_is_up_roll`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Time_Is_Up);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: user.nickname, id: user.id });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -884,10 +935,11 @@ class Game {
   #replyPlayerNotPick = async (g, player) => {
     let DICE_GAME_Not_Pick = `${this.#API.config.keyword}_game_player_not_pick`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Not_Pick);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: user.nickname, id: user.id });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -898,10 +950,11 @@ class Game {
   #replyPlayerRewarded = async (g, player) => {
     let DICE_GAME_Rewarded = `${this.#API.config.keyword}_game_player_rewarded`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Rewarded);
+    let user = await this.#API.subscriber().getById(player.id);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id });
+      .replace(phrase, { nickname: user.nickname, id: user.id });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
@@ -912,14 +965,14 @@ class Game {
   #replyGameWinner = async (g, player) => {
     let DICE_GAME_Winner = `${this.#API.config.keyword}_game_winner`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Winner);
+    let user = await this.#API.subscriber().getById(player.id);
     let list = await this.#gameWinners(g);
     let response = this.#API
       .utility()
       .string()
-      .replace(phrase, { nickname: player.nickname, id: player.id, list });
+      .replace(phrase, { nickname: user.nickname, id: user.id, list });
     await this.#API.messaging().sendGroupMessage(g.id, response);
   };
-  3;
   /**
    *
    * @param {*} language
@@ -928,6 +981,15 @@ class Game {
    */
   #getPhrase = (language, phrase) => {
     return this.#API.phrase().getByLanguageAndName(language, phrase);
+  };
+  /**
+   *
+   * @param {import "wolf.js".CommandObject} command
+   * @param {*} phrase
+   * @returns
+   */
+  #getPhraseByCommand = (command, phrase) => {
+    return this.#API.phrase().getByCommandAndName(command, phrase);
   };
 }
 
