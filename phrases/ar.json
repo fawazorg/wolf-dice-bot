@@ -20,10 +20,6 @@
     "value": "عرض"
   },
   {
-    "name": "dice_command_join",
-    "value": "انضم"
-  },
-  {
     "name": "dice_rank_command",
     "value": "مجموعي"
   },
@@ -40,8 +36,28 @@
     "value": "مساعدة"
   },
   {
+    "name": "dice_default_admin_command",
+    "value": "مدير"
+  },
+  {
+    "name": "dice_default_admin_command",
+    "value": "م"
+  },
+  {
+    "name": "dice_admin_join_command",
+    "value": "انضم"
+  },
+  {
+    "name": "dice_admin_refresh_command",
+    "value": "تحديث"
+  },
+  {
     "name": "dice_default_message",
     "value": "مرحبا بك في بوت نرد.\n!نرد مساعدة"
+  },
+  {
+    "name": "dice_default_admin_message",
+    "value": "مرحبا بك في بوت نرد.\n!نرد مدير مساعدة"
   },
   {
     "name": "dice_game_created",
@@ -177,6 +193,15 @@
     "value": "قائمة المساعدة : \n!نرد انشاء <الرصيد>\n!نرد دخول\n!نرد رصيد\n!نرد عرض\n!نرد مجموعي\n!نرد شامل\n!نرد مساعدة"
   },
   {
+    "name": "dice_help_admin_message",
+    "value": [
+      "قائمة مساعدة المدير: \n",
+      "!نرد مدير انضم <رقم الغرفة>",
+      "!نرد مدير تحديث - تحديث اخر نشاط الغرف",
+      "!نرد مدير مساعدة - لعرض هذه القائمة"
+    ]
+  },
+  {
     "name": "dice_join_message",
     "value": [
       "(y) تم الانضمام بنجاح",
@@ -187,5 +212,21 @@
       "(n) مستوى الدخول مرتفع",
       "(n) لم نتكمن من العثور على الغرفة"
     ]
+  },
+  {
+    "name": "dice_auto_leave_message",
+    "value": "/me عذراً، لم تقومواً باللعب خلال الخمسة أيام الماضية، لذلك سوف أغادر الغرفة. :("
+  },
+  {
+    "name": "dice_auto_leave_log",
+    "value": "/me لقد غادرت هذه الغرفة بسبب خمولها عن اللعب : {name} , مازلت متواجد في {count} غرفة."
+  },
+  {
+    "name": "dice_admin_not_authorized_message",
+    "value": "/me (n) انت لست مخولا لاستخدام هذا الامر."
+  },
+  {
+    "name": "dice_admin_refresh_message",
+    "value": "/me تم تحديث الغرف التالية :\n{list}"
   }
 ]

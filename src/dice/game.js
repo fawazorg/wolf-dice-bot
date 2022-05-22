@@ -1,6 +1,7 @@
 const { Validator } = require("wolf.js");
-const group = require("./data");
+const { setLastActive } = require("../dice/active");
 const { addPoint } = require("./score");
+const group = require("./data");
 class Game {
   /**
    * @type {import("wolf.js").WOLFBot}
@@ -27,6 +28,7 @@ class Game {
    * @param {String} options
    */
   create = async (command, options) => {
+    await setLastActive(command.targetGroupId);
     if (group.has(command.targetGroupId)) {
       await this.#replyAlreadyCreated(command);
       return false;
@@ -69,6 +71,7 @@ class Game {
     if (!group.has(command.targetGroupId)) {
       return await this.#replyNotExist(command);
     }
+
     let g = group.get(command.targetGroupId);
     if (!g.joinable) {
       return false;

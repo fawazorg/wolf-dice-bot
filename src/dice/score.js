@@ -1,7 +1,7 @@
 const Player = require("../model/player");
 
 const addPoint = async (id, points) => {
-  Player.findOrCreate({ id }, async (err, data) => {
+  await Player.findOrCreate({ id }, async (err, data) => {
     if (err) {
       throw err;
     }

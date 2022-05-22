@@ -1,7 +1,7 @@
 const { Validator, Command } = require("wolf.js");
-const { api } = require("../../bot");
+const { api } = require("../../../bot");
 
-const COMMAND_TRIGGER = `${api.config.keyword}_command_join`;
+const COMMAND_TRIGGER = `${api.config.keyword}_admin_join_command`;
 
 /**
  *
