@@ -5,7 +5,6 @@ const { getInactiveGroups, deleteGroup } = require("../dice/active");
  * @param {Number} days
  */
 const leaveInactiveGroups = async (api, days) => {
-  console.log("Job started");
   let inactiveGroups = await getInactiveGroups(days);
   inactiveGroups.reduce(async (pv, group) => {
     await pv;

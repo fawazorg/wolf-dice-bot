@@ -1,5 +1,5 @@
 const { Validator } = require("wolf.js");
-const { setLastActive } = require("../dice/active");
+const { setLastActive } = require("./active");
 const { addPoint } = require("./score");
 const group = require("./data");
 class Game {
