@@ -81,10 +81,11 @@ class Game {
       return false;
     }
     if (g.players.has(command.sourceSubscriberId)) {
-      return await this.#replyAlreadyJoin(command);
+      // return await this.#replyAlreadyJoin(command);
+      return;
     }
     this.#setupPlayer(g.players, command.sourceSubscriberId, g.defaultBalance);
-    await this.#replyJoin(command);
+    // await this.#replyJoin(command);
     if (g.players.size >= g.playersCount) {
       g.joinable = false;
       g.start = true;

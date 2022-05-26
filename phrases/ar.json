@@ -65,7 +65,7 @@
   },
   {
     "name": "dice_game_created",
-    "value": "تم انشاء اللعبة لعدد {count} من اللاعبين، امامكم 30 ثانية للانضمام ، استخدم !نرد دخول"
+    "value": "تم انشاء اللعبة لعدد {count} من اللاعبين، امامكم 30 ثانية للانضمام ، استخدم !نرد دخول\n\n*ملاحظة: لن يتم إرسال رسالة الانضمام، لتخفيف الضغط على البوت."
   },
   {
     "name": "dice_game_wrong_creation",
@@ -97,7 +97,7 @@
   },
   {
     "name": "dice_game_already_join",
-    "value": "(n) انت منظم للعبة.\n{nickname} ( {id} )"
+    "value": "(n) انت منضم للعبة.\n{nickname} ( {id} )"
   },
   {
     "name": "dice_game_not_exist",
@@ -181,7 +181,7 @@
     "value": "(n) مبلغ المنافسة لابد ان يكون من مضاعفات 500"
   },
   {
-    "name": "dice_game_player_balance_notenough_error",
+    "name": "dice_game_player_balance_not_enough_error",
     "value": "(n) ليس لديك رصيد كافي."
   },
   {
@@ -242,6 +242,10 @@
   {
     "name": "dice_admin_not_authorized_message",
     "value": "/me (n) انت لست مخولا لاستخدام هذا الامر."
+  },
+  {
+    "name": "dice_only_owner_message",
+    "value": "(n) فقط مالك الغرفة يستطيع استخدام هذا الأمر."
   },
   {
     "name": "dice_admin_refresh_message",

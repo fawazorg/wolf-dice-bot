@@ -247,6 +247,10 @@
     "value": "/me (n) You are not authorized to user this command"
   },
   {
+    "name": "dice_only_owner_message",
+    "value": "(n) Only owner can use this command."
+  },
+  {
     "name": "dice_admin_refresh_message",
     "value": "/me we just update this groups:\n{list}"
   }
