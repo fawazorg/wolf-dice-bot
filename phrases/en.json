@@ -16,6 +16,10 @@
     "value": "enter"
   },
   {
+    "name": "dice_cancel_command",
+    "value": "cancel"
+  },
+  {
     "name": "dice_balance_command",
     "value": "bal"
   },
@@ -74,6 +78,10 @@
   {
     "name": "dice_game_finish",
     "value": "(n) The game is over"
+  },
+  {
+    "name": "dice_game_removed",
+    "value": "(y) This game has been canceled."
   },
   {
     "name": "dice_game_already_created",
@@ -189,7 +197,17 @@
   },
   {
     "name": "dice_help_message",
-    "value": "Help menu:\n!dice new <balance>\n!dice join\n!dice bal\n!dice show\n!dice rank\n!dice top\n!dice help"
+    "value": [
+      "Help menu:\n",
+      "!dice new <balance>",
+      "!dice cancel",
+      "!dice join",
+      "!dice bal",
+      "!dice show",
+      "!dice rank",
+      "!dice top",
+      "!dice help"
+    ]
   },
   {
     "name": "dice_help_admin_message",

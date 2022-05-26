@@ -1,10 +1,11 @@
+const { v4: uuidv4 } = require("uuid");
 const { Validator } = require("wolf.js");
 const { setLastActive } = require("./active");
 const { addPoint } = require("./score");
 const group = require("./data");
 class Game {
   /**
-   * @type {import("wolf.js").WOLFBot}
+   * @type {import ("wolf.js").WOLFBot}
    */
   #API;
   #PLAYERS_COUNT;
@@ -13,7 +14,7 @@ class Game {
   #BOT_DICE;
   /**
    *
-   * @param {import("wolf.js").WOLFBot} api
+   * @param {import ("wolf.js").WOLFBot} api
    */
   constructor(api) {
     this.#API = api;
@@ -24,7 +25,7 @@ class Game {
   }
   /**
    *
-   * @param {import "wolf.js".CommandObject} command
+   * @param {import ("wolf.js").CommandObject} command
    * @param {String} options
    */
   create = async (command, options) => {
@@ -64,7 +65,7 @@ class Game {
   };
   /**
    *
-   * @param {import "wolf.js".CommandObject} command
+   * @param {import ("wolf.js").CommandObject} command
    * @returns
    */
   join = async (command) => {
@@ -93,7 +94,7 @@ class Game {
 
   /**
    *
-   * @param {*} command
+   * @param {import ("wolf.js").CommandObject} command
    * @returns
    */
   show = async (command) => {
@@ -104,7 +105,18 @@ class Game {
   };
   /**
    *
-   * @param {import "wolf.js".CommandObject} command
+   * @param {import ("wolf.js").CommandObject} command
+   */
+  remove = async (command) => {
+    if (!group.has(command.targetGroupId)) {
+      return await this.#replyNotExist(command);
+    }
+    group.delete(command.targetGroupId);
+    return await this.#replyGameRemoved(command);
+  };
+  /**
+   *
+   * @param {import ("wolf.js").CommandObject} command
    * @returns
    */
   balance = async (command) => {
@@ -165,7 +177,7 @@ class Game {
       }
     }
     await this.#API.utility().delay(2000);
-    if (group.has(gid)) {
+    if (this.#isGroupHasGame(g)) {
       let tempGroup = group.get(g.id);
       await this.stop(tempGroup, ScoreAmount);
       group.delete(tempGroup.id);
@@ -176,12 +188,13 @@ class Game {
    * @param {Number} gid
    */
   finish = async (g) => {
-    if (group.has(g.id)) {
+    if (this.#isGroupHasGame(g)) {
       let tempGroup = group.get(g.id);
       await this.#replyGameFinish(tempGroup);
       group.delete(tempGroup.id);
     }
   };
+
   /**
    *
    * @param {Number} gid
@@ -203,6 +216,7 @@ class Game {
     if (!group.has(gid)) {
       group.set(gid, {
         id: gid,
+        uuid: uuidv4(),
         joinable: true,
         start: false,
         language,
@@ -235,7 +249,7 @@ class Game {
    * @param {*} g
    */
   #askPlayerToMakeGuesses = async (g) => {
-    if (!group.has(g.id)) {
+    if (!this.#isGroupHasGame(g)) {
       return;
     }
     this.#resetGussets(g);
@@ -304,7 +318,7 @@ class Game {
    * @returns
    */
   #checkGuessIsZero = (g) => {
-    if (!group.has(g.id)) {
+    if (!this.#isGroupHasGame(g)) {
       return true;
     }
     let tempGroup = group.get(g.id);
@@ -378,7 +392,7 @@ class Game {
    * @returns
    */
   #checkPlayerIsOut = async (g, player) => {
-    if (!group.has(g.id)) {
+    if (!this.#isGroupHasGame(g)) {
       return;
     }
     let tempGroup = group.get(g.id);
@@ -419,6 +433,9 @@ class Game {
    * @returns
    */
   #checkWhoWon = async (g, playerOne, playerTow, p1, p2, bet) => {
+    if (!this.#isGroupHasGame(g)) {
+      return true;
+    }
     if (p1 > p2) {
       playerTow.balance -= bet;
       await this.#replyPVPWinner(g, playerTow, bet);
@@ -443,7 +460,7 @@ class Game {
    * @returns
    */
   #closestGuesses = async (g, botDice) => {
-    if (!group.has(g.id)) {
+    if (!this.#isGroupHasGame(g)) {
       return null;
     }
     let tempGroup = group.get(g.id);
@@ -494,7 +511,7 @@ class Game {
    * @returns
    */
   #askPlayerPick = async (g, player) => {
-    if (!group.has(g.id)) {
+    if (!this.#isGroupHasGame(g)) {
       return false;
     }
 
@@ -512,9 +529,13 @@ class Game {
           this.#getRichestPlayers(g.id).length >= this.#getNumber(message.body),
         this.#TIME_TO_CHOICE
       );
+    if (!this.#isGroupHasGame(g)) {
+      return false;
+    }
     if (r) {
       return this.#getRichestPlayers(g.id)[this.#getNumber(r.body) - 1];
     }
+
     await this.#replyPlayerNotPick(g, player);
     return false;
   };
@@ -525,8 +546,8 @@ class Game {
    * @returns
    */
   #AskPlayerBalance = async (g, player) => {
-    if (!group.has(g.id)) {
-      return;
+    if (!this.#isGroupHasGame(g)) {
+      return 500;
     }
     if (player.balance === 500) {
       await this.#replyAskPlayerBalanceAlready500(g);
@@ -547,6 +568,9 @@ class Game {
             this.#checkNumber(message.body),
           this.#TIME_TO_CHOICE
         );
+      if (!this.#isGroupHasGame(g)) {
+        exit = true;
+      }
       if (r) {
         exit = await this.#checkBalance(g, player, this.#getNumber(r.body));
       } else {
@@ -562,8 +586,8 @@ class Game {
    * @returns
    */
   #askPlayerRoll = async (g, player) => {
-    if (!group.has(g.id)) {
-      return null;
+    if (!this.#isGroupHasGame(g)) {
+      return 0;
     }
     await this.#replyAskPlayerToRoll(g, player);
     let r = await this.#API
@@ -580,6 +604,9 @@ class Game {
           message.sourceSubscriberId === player.id,
         this.#TIME_TO_CHOICE
       );
+    if (!this.#isGroupHasGame(g)) {
+      return 0;
+    }
     if (r) {
       let dice = this.#rollDice(6);
       await this.#replyPlayerRolled(g, player, dice);
@@ -587,6 +614,21 @@ class Game {
     }
     await this.#replyPlayerTimeIsUpRoll(g, player);
     return 0;
+  };
+  /**
+   *
+   * @param {*} g
+   * @returns {boolean}
+   */
+  #isGroupHasGame = (g) => {
+    if (!group.has(g.id)) {
+      return false;
+    }
+    let newCopyGroup = group.get(g.id);
+    if (g.uuid !== newCopyGroup.uuid) {
+      return false;
+    }
+    return true;
   };
   /**
    *
@@ -729,7 +771,7 @@ class Game {
   };
   /**
    *
-   * @param {import "wolf.js".CommandObject} command
+   * @param {import ("wolf.js").CommandObject} command
    * @param {*} player
    */
   #replyPlayerBalance = async (command, player) => {
@@ -748,7 +790,7 @@ class Game {
   };
   /**
    *
-   * @param {import "wolf.js".CommandObject} command
+   * @param {import ("wolf.js").CommandObject} command
    */
   #replyPlayerNotFound = async (command) => {
     let DICE_GAME_Player_NotFound = `${this.#API.config.keyword}_game_player_notfound`;
@@ -759,6 +801,15 @@ class Game {
       .string()
       .replace(phrase, { id: user.id, nickname: user.nickname });
     await this.#API.messaging().sendGroupMessage(command.targetGroupId, response);
+  };
+  /**
+   *
+   * @param {import ("wolf.js").CommandObject} command
+   */
+  #replyGameRemoved = async (command) => {
+    let DICE_GAME_Player_NotFound = `${this.#API.config.keyword}_game_removed`;
+    let phrase = this.#getPhraseByCommand(command, DICE_GAME_Player_NotFound);
+    await this.#API.messaging().sendGroupMessage(command.targetGroupId, phrase);
   };
   /**
    *

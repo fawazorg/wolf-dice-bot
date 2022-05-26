@@ -12,6 +12,10 @@
     "value": "دخول"
   },
   {
+    "name": "dice_cancel_command",
+    "value": "الغاء"
+  },
+  {
     "name": "dice_balance_command",
     "value": "رصيد"
   },
@@ -74,6 +78,10 @@
   {
     "name": "dice_game_finish",
     "value": "(n) توقف الحماس ، وانتهت اللعبة :("
+  },
+  {
+    "name": "dice_game_removed",
+    "value": "(y) تم حذف اللعبة بنجاح."
   },
   {
     "name": "dice_game_already_created",
@@ -190,7 +198,17 @@
   },
   {
     "name": "dice_help_message",
-    "value": "قائمة المساعدة : \n!نرد انشاء <الرصيد>\n!نرد دخول\n!نرد رصيد\n!نرد عرض\n!نرد مجموعي\n!نرد شامل\n!نرد مساعدة"
+    "value": [
+      "قائمة المساعدة : \n",
+      "!نرد انشاء <الرصيد>",
+      "!نرد الغاء",
+      "!نرد دخول",
+      "!نرد رصيد",
+      "!نرد عرض",
+      "!نرد مجموعي",
+      "!نرد شامل",
+      "!نرد مساعدة"
+    ]
   },
   {
     "name": "dice_help_admin_message",
