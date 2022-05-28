@@ -1,4 +1,4 @@
-const group = require("../dice/data");
+const { group } = require("../dice/data");
 /**
  *
  * @param {import('wolf.js').WOLFBot} api

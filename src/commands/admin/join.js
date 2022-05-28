@@ -1,6 +1,6 @@
 const { Validator, Command } = require("wolf.js");
 const { api } = require("../../../bot");
-
+const { admins } = require("../../dice/data");
 const COMMAND_TRIGGER = `${api.config.keyword}_admin_join_command`;
 
 /**
@@ -10,7 +10,10 @@ const COMMAND_TRIGGER = `${api.config.keyword}_admin_join_command`;
  */
 const Join = async (api, command) => {
   const jm = api.phrase().getByCommandAndName(command, `${api.config.keyword}_join_message`);
-  if (command.sourceSubscriberId !== 12500068) {
+  const isDeveloper = command.sourceSubscriberId === api.options.developerId;
+  const isAdmin = admins.includes(command.sourceSubscriberId);
+  const okay = isDeveloper || isAdmin;
+  if (!okay) {
     return await api.messaging().sendMessage(command, jm[1]);
   }
   let [roomID, password] = command.argument.split(" ");

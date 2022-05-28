@@ -56,6 +56,10 @@
     "value": "refresh"
   },
   {
+    "name": "dice_admin_count_command",
+    "value": "count"
+  },
+  {
     "name": "dice_default_message",
     "value": "Welcome to Dice game bot\n!dice help"
   },
@@ -215,6 +219,7 @@
       "Admin help menu : \n",
       "!dice admin join <group ID>",
       "!dice admin refresh = update last active date",
+      "!dice admin count - get group count",
       "!dice admin help - show this menu"
     ]
   },
@@ -237,6 +242,10 @@
   {
     "name": "dice_auto_leave_log",
     "value": "/me I left this group [{name}] becurse it inactive group, i am still in {count} groups."
+  },
+  {
+    "name": "dice_admin_count_message",
+    "value": "/me Count Groups : {count}."
   },
   {
     "name": "dice_admin_not_authorized_message",

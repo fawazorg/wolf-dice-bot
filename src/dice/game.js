@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const { Validator } = require("wolf.js");
 const { setLastActive } = require("./active");
 const { addPoint } = require("./score");
-const group = require("./data");
+const { group } = require("./data");
 class Game {
   /**
    * @type {import ("wolf.js").WOLFBot}
