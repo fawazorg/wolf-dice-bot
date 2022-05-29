@@ -1,4 +1,5 @@
 const { getInactiveGroups, deleteGroup } = require("../dice/active");
+const { ignoreGroups, AdminGroup } = require("../dice/data");
 /**
  *
  * @param {import ("wolf.js").WOLFBot} api
@@ -6,15 +7,30 @@ const { getInactiveGroups, deleteGroup } = require("../dice/active");
  */
 const leaveInactiveGroups = async (api, days) => {
   let inactiveGroups = await getInactiveGroups(days);
-  inactiveGroups.reduce(async (pv, group) => {
-    await pv;
-    let inactiveGroup = await api.group().getById(group.gid);
-    await sendLeaveMessage(api, inactiveGroup);
-    await api.group().leaveById(group.gid);
-    await sendLogMessage(api, inactiveGroup);
-    await deleteGroup(group.gid);
-    await api.utility().delay(2000);
-  }, Promise.resolve());
+  if (inactiveGroups.length <= 0) {
+    return;
+  }
+  let inGroups = await api.group().list();
+  if (inGroups.length <= 0) {
+    return;
+  }
+  let toExitGroups = [];
+  inGroups.forEach((group) => {
+    if (!ignoreGroups.includes(group.id) && inArray(inactiveGroups, "gid", group.id)) {
+      toExitGroups.push(group);
+    }
+  });
+  if (toExitGroups.length > 0) {
+    let groupsNames = await toExitGroups.reduce(async (pv, group) => {
+      let names = await pv;
+      await sendLeaveMessage(api, group);
+      await api.group().leaveById(group.id);
+      await deleteGroup(group.id);
+      await api.utility().delay(2000);
+      return [...names, `[${group.name}]`];
+    }, []);
+    await sendLogMessage(api, groupsNames);
+  }
 };
 /**
  *
@@ -29,16 +45,29 @@ const sendLeaveMessage = async (api, group) => {
 /**
  *
  * @param {import ("wolf.js").WOLFBot} api
- * @param {import ("wolf.js").GroupObject} group
+ * @param {Array} names
  */
-const sendLogMessage = async (api, group) => {
-  let language = group.language === "ar" ? "ar" : "en";
-  let phrase = api.phrase().getByLanguageAndName(language, "dice_auto_leave_log");
+const sendLogMessage = async (api, names) => {
+  let phrase = api.phrase().getByLanguageAndName("ar", "dice_auto_leave_log");
   let groupsCount = await api.group().list();
   let content = api
     .utility()
     .string()
-    .replace(phrase, { name: group.name, count: groupsCount.length - 1 });
-  await api.messaging().sendPrivateMessage(api.options.developerId, content);
+    .replace(phrase, {
+      count: groupsCount.length,
+      inactiveCount: names.length,
+      groupsName: names.join("\n"),
+    });
+  await api.messaging().sendGroupMessage(AdminGroup, content);
+};
+/**
+ *
+ * @param {Array} array
+ * @param {String} key
+ * @param {*} value
+ * @returns
+ */
+const inArray = (array, key, value) => {
+  return array.filter((item) => item[key] === value).length > 0 ? true : false;
 };
 module.exports = { leaveInactiveGroups };

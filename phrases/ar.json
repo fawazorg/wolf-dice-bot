@@ -246,7 +246,11 @@
   },
   {
     "name": "dice_auto_leave_log",
-    "value": "/me لقد غادرت هذه الغرفة بسبب خمولها عن اللعب : {name} , مازلت متواجد في {count} غرفة."
+    "value": "/me 📊 تقرير الصيانة:\n\nعدد الغرف المتبقي:{count}\nعدد الغرف الخاملة:{inactiveCount}\nخرجت من الغرف التالية:\n{groupsName}"
+  },
+  {
+    "name": "dice_admin_join_log",
+    "value": "/alert ⚙ أمر إداري\n\n•الامر:انضمام\n•المدير : {adminNickname} ({adminID})\n•البوت:\n{botNickname} ({botID})\n•الغرفة:[{groupName}] ({groupID})"
   },
   {
     "name": "dice_admin_not_authorized_message",

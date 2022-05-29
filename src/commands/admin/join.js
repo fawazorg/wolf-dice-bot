@@ -1,8 +1,8 @@
 const { Validator, Command } = require("wolf.js");
 const { api } = require("../../../bot");
-const { admins } = require("../../dice/data");
+const { admins, AdminGroup } = require("../../dice/data");
 const COMMAND_TRIGGER = `${api.config.keyword}_admin_join_command`;
-
+const COMMAND_JOIN_LOG = `${api.config.keyword}_admin_join_log`;
 /**
  *
  * @param {import('wolf.js').WOLFBot} api
@@ -42,7 +42,19 @@ const Join = async (api, command) => {
   if (response.headers.subCode === 4) {
     return await api.messaging().sendMessage(command, jm[5]);
   }
-  return await api.messaging().sendMessage(command, jm[0]);
+  await api.messaging().sendMessage(command, jm[0]);
+  let log_phrase = api.phrase().getByCommandAndName(command, COMMAND_JOIN_LOG);
+  let AdminUser = await api.subscriber().getById(command.sourceSubscriberId);
+  let Group = await api.group().getById(parseInt(roomID));
+  let content = api.utility().string().replace(log_phrase, {
+    adminNickname: AdminUser.nickname,
+    adminID: AdminUser.id,
+    botNickname: api.currentSubscriber.nickname,
+    botID: api.currentSubscriber.id,
+    groupName: Group.name,
+    groupID: Group.id,
+  });
+  return await api.messaging().sendGroupMessage(AdminGroup, content);
 };
 
 module.exports = new Command(COMMAND_TRIGGER, {
