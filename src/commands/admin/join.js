@@ -49,8 +49,6 @@ const Join = async (api, command) => {
   let content = api.utility().string().replace(log_phrase, {
     adminNickname: AdminUser.nickname,
     adminID: AdminUser.id,
-    botNickname: api.currentSubscriber.nickname,
-    botID: api.currentSubscriber.id,
     groupName: Group.name,
     groupID: Group.id,
   });

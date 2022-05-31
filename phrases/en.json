@@ -52,6 +52,10 @@
     "value": "join"
   },
   {
+    "name": "dice_admin_update_command",
+    "value": "update"
+  },
+  {
     "name": "dice_admin_refresh_command",
     "value": "refresh"
   },
@@ -245,11 +249,15 @@
   },
   {
     "name": "dice_admin_join_log",
-    "value": "/alert ⚙ Command Action\n\n•Command : Join\n•ِAdmin : {adminNickname} ({adminID})\n•Bot:\n{botNickname} ({botID})\n•Group:[{groupName}] ({groupID})"
+    "value": "/alert ⚙ Command Action\n\n•Command : Join\n•ِAdmin : {adminNickname} ({adminID})\n•Group:[{groupName}] ({groupID})"
   },
   {
     "name": "dice_admin_count_message",
     "value": "/me Count Groups : {count}."
+  },
+  {
+    "name": "dice_admin_update_message",
+    "value": "/me Status updated to:\n{status}"
   },
   {
     "name": "dice_admin_not_authorized_message",

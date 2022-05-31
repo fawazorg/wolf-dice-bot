@@ -56,6 +56,10 @@
     "value": "مجموع"
   },
   {
+    "name": "dice_admin_update_command",
+    "value": "حالة"
+  },
+  {
     "name": "dice_admin_refresh_command",
     "value": "تحديث"
   },
@@ -245,12 +249,16 @@
     "value": "/me عدد الغرف المتواجد بها حاليا : {count} غرفة."
   },
   {
+    "name": "dice_admin_update_message",
+    "value": "/me تم تحديث حالة البوت الى :\n{status}"
+  },
+  {
     "name": "dice_auto_leave_log",
     "value": "/me 📊 تقرير الصيانة:\n\nعدد الغرف المتبقي:{count}\nعدد الغرف الخاملة:{inactiveCount}\nخرجت من الغرف التالية:\n{groupsName}"
   },
   {
     "name": "dice_admin_join_log",
-    "value": "/alert ⚙ أمر إداري\n\n•الامر:انضمام\n•المدير : {adminNickname} ({adminID})\n•البوت:\n{botNickname} ({botID})\n•الغرفة:[{groupName}] ({groupID})"
+    "value": "/alert ⚙ أمر إداري\n\n•الامر:انضمام\n•المدير : {adminNickname} ({adminID})\n•الغرفة:[{groupName}] ({groupID})"
   },
   {
     "name": "dice_admin_not_authorized_message",
