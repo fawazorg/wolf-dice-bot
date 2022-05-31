@@ -18,7 +18,7 @@ class Game {
    */
   constructor(api) {
     this.#API = api;
-    this.#PLAYERS_COUNT = 15;
+    this.#PLAYERS_COUNT = 16;
     this.#TIME_TO_JOIN = 30 * 1000;
     this.#TIME_TO_CHOICE = 15 * 1000;
     this.#BOT_DICE = 50;
@@ -401,7 +401,7 @@ class Game {
     if (tempPlayer.balance > 0) {
       return;
     }
-    tempGroup.players.delete(tempGroup.id);
+    tempGroup.players.delete(player.id);
     await this.#API.utility().delay(2000);
     await this.#replyPlayerIsOut(g, tempPlayer);
   };
