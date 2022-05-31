@@ -3,6 +3,7 @@ const { api } = require("../../../bot");
 
 const COMMAND_TRIGGER = `${api.config.keyword}_default_admin_command`;
 const COMMAND_RESPONSE = `${api.config.keyword}_default_admin_message`;
+const COMMAND_NOT_AUTHORIZES = `${api.config.keyword}_admin_not_authorized_message`;
 
 DefaultAdmin = async (api, command) => {
   let okay = command.sourceSubscriberId === api.options.developerId;
