@@ -170,7 +170,7 @@
   },
   {
     "name": "dice_game_pvp_winner",
-    "value": "(y) خسر المنافسة على {bet}\n{nickname} ( {id} )"
+    "value": "(y) خسر المنافسة على {bet}"
   },
   {
     "name": "dice_game_pvp_draw",
@@ -178,7 +178,11 @@
   },
   {
     "name": "dice_game_player_out",
-    "value": "(y) تم إقصاء اللاعب، حظاً أوفر \n{nickname} ( {id} )"
+    "value": " ، وتم إقصاء اللاعب حظاً أوفر."
+  },
+  {
+    "name": "dice_game_player",
+    "value": "\n{nickname} ( {id} )"
   },
   {
     "name": "dice_game_winner",

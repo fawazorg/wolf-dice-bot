@@ -29,7 +29,6 @@ class Game {
    * @param {String} options
    */
   create = async (command, options) => {
-    await setLastActive(command.targetGroupId);
     if (group.has(command.targetGroupId)) {
       await this.#replyAlreadyCreated(command);
       return false;
@@ -147,7 +146,7 @@ class Game {
     await this.#replyGameStart(g);
     const ScoreAmount = g.players.size;
     while (this.#getRichestPlayers(g.id).length !== 1) {
-      await this.#API.utility().delay(2000);
+      await this.#API.utility().delay(1000);
       await this.#askPlayerToMakeGuesses(g);
       if (this.#checkGuessIsZero(g)) {
         await this.finish(g);
@@ -155,29 +154,29 @@ class Game {
       }
       let botDice = this.#rollDice(this.#BOT_DICE);
       let closestPlayer = await this.#closestGuesses(g, botDice);
-      await this.#API.utility().delay(2000);
+      await this.#API.utility().delay(1000);
       await this.#replyPlayerTurn(g, closestPlayer, botDice);
       let playerPicked = await this.#askPlayerPick(g, closestPlayer);
       if (!playerPicked) {
         continue;
       }
-      await this.#API.utility().delay(2000);
+      await this.#API.utility().delay(1000);
       let bet = await this.#AskPlayerBalance(g, closestPlayer);
       let result = true;
       while (result) {
-        await this.#API.utility().delay(2000);
+        await this.#API.utility().delay(1000);
         let p1 = await this.#askPlayerRoll(g, closestPlayer);
         if (p1 == 0) {
           result = await this.#checkWhoWon(g, closestPlayer, playerPicked, p1, 6, bet);
           continue;
         }
-        await this.#API.utility().delay(2000);
+        await this.#API.utility().delay(1000);
         let p2 = await this.#askPlayerRoll(g, playerPicked);
-        await this.#API.utility().delay(2000);
+        await this.#API.utility().delay(1000);
         result = await this.#checkWhoWon(g, closestPlayer, playerPicked, p1, p2, bet);
       }
     }
-    await this.#API.utility().delay(2000);
+    await this.#API.utility().delay(1000);
     if (this.#isGroupHasGame(g)) {
       let tempGroup = group.get(g.id);
       await this.stop(tempGroup, ScoreAmount);
@@ -192,6 +191,7 @@ class Game {
     if (this.#isGroupHasGame(g)) {
       let tempGroup = group.get(g.id);
       await this.#replyGameFinish(tempGroup);
+      await setLastActive(tempGroup.id);
       group.delete(tempGroup.id);
     }
   };
@@ -392,18 +392,17 @@ class Game {
    * @param {*} player
    * @returns
    */
-  #checkPlayerIsOut = async (g, player) => {
+  #checkPlayerIsOut = (g, player) => {
     if (!this.#isGroupHasGame(g)) {
-      return;
+      return false;
     }
     let tempGroup = group.get(g.id);
     let tempPlayer = tempGroup.players.get(player.id);
     if (tempPlayer.balance > 0) {
-      return;
+      return false;
     }
     tempGroup.players.delete(player.id);
-    await this.#API.utility().delay(2000);
-    await this.#replyPlayerIsOut(g, tempPlayer);
+    return true;
   };
   /**
    *
@@ -439,16 +438,16 @@ class Game {
     }
     if (p1 > p2) {
       playerTow.balance -= bet;
-      await this.#replyPVPWinner(g, playerTow, bet);
+      let isOut = this.#checkPlayerIsOut(g, playerTow);
+      await this.#replyPVPWinner(g, playerTow, bet, isOut);
       this.#addPointsToPlayer(g, playerOne.id, 1);
-      await this.#checkPlayerIsOut(g, playerTow);
       return false;
     }
     if (p2 > p1) {
       playerOne.balance -= bet;
-      await this.#replyPVPWinner(g, playerOne, bet);
+      let isOut = this.#checkPlayerIsOut(g, playerOne);
+      await this.#replyPVPWinner(g, playerOne, bet, isOut);
       this.#addPointsToPlayer(g, playerTow.id, 1);
-      await this.#checkPlayerIsOut(g, playerOne);
       return false;
     }
     await this.#replyPVPDraw(g);
@@ -924,10 +923,15 @@ class Game {
    * @param {*} player
    * @param {*} bet
    */
-  #replyPVPWinner = async (g, player, bet) => {
+  #replyPVPWinner = async (g, player, bet, isOut) => {
     let DICE_GAME_PVP_Winner = `${this.#API.config.keyword}_game_pvp_winner`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_PVP_Winner);
+    let DICE_GAME_Player_Out = `${this.#API.config.keyword}_game_player_out`;
+    let DICE_GAME_Player = `${this.#API.config.keyword}_game_player`;
+    let phrase_winner = this.#getPhrase(g.language, DICE_GAME_PVP_Winner);
+    let phrase_out = this.#getPhrase(g.language, DICE_GAME_Player_Out);
+    let phrase_player = this.#getPhrase(g.language, DICE_GAME_Player);
     let user = await this.#API.subscriber().getById(player.id);
+    let phrase = isOut ? phrase_winner + phrase_out + phrase_player : phrase_winner + phrase_player;
     let response = this.#API
       .utility()
       .string()
@@ -951,21 +955,6 @@ class Game {
     let DICE_GAME_Finish = `${this.#API.config.keyword}_game_finish`;
     let phrase = this.#getPhrase(g.language, DICE_GAME_Finish);
     await this.#API.messaging().sendGroupMessage(g.id, phrase);
-  };
-  /**
-   *
-   * @param {*} g
-   * @param {*} player
-   */
-  #replyPlayerIsOut = async (g, player) => {
-    let DICE_GAME_Player_Out = `${this.#API.config.keyword}_game_player_out`;
-    let phrase = this.#getPhrase(g.language, DICE_GAME_Player_Out);
-    let user = await this.#API.subscriber().getById(player.id);
-    let response = this.#API
-      .utility()
-      .string()
-      .replace(phrase, { nickname: user.nickname, id: user.id });
-    await this.#API.messaging().sendGroupMessage(g.id, response);
   };
   /**
    *

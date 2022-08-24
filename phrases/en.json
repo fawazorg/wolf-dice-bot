@@ -169,7 +169,7 @@
   },
   {
     "name": "dice_game_pvp_winner",
-    "value": "(y) Your opponent has lost : {bet}\n{nickname} ({id} )"
+    "value": "(y) Your opponent has lost : {bet}."
   },
   {
     "name": "dice_game_pvp_draw",
@@ -177,7 +177,11 @@
   },
   {
     "name": "dice_game_player_out",
-    "value": "(y) The player lost, better luck in the next time\n{nickname} ({id} )"
+    "value": "And you have been eliminated, better luck next time."
+  },
+  {
+    "name": "dice_game_player",
+    "value": "\n{nickname} ( {id} )"
   },
   {
     "name": "dice_game_winner",
