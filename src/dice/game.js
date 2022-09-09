@@ -191,7 +191,6 @@ class Game {
     if (this.#isGroupHasGame(g)) {
       let tempGroup = group.get(g.id);
       await this.#replyGameFinish(tempGroup);
-      await setLastActive(tempGroup.id);
       group.delete(tempGroup.id);
     }
   };
@@ -436,6 +435,7 @@ class Game {
     if (!this.#isGroupHasGame(g)) {
       return true;
     }
+    await setLastActive(g.id);
     if (p1 > p2) {
       playerTow.balance -= bet;
       let isOut = this.#checkPlayerIsOut(g, playerTow);
