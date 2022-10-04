@@ -550,7 +550,7 @@ class Game {
       return 500;
     }
     if (player.balance === 500) {
-      await this.#replyAskPlayerBalanceAlready500(g);
+      //  await this.#replyAskPlayerBalanceAlready500(g);
       return 500;
     }
     await this.#replyAskPlayerBalance(g, player);
