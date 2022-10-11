@@ -440,14 +440,18 @@ class Game {
       playerTow.balance -= bet;
       let isOut = this.#checkPlayerIsOut(g, playerTow);
       await this.#replyPVPWinner(g, playerTow, bet, isOut);
-      this.#addPointsToPlayer(g, playerOne.id, 1);
+      if (p1 > 0 && p2 > 0) {
+        this.#addPointsToPlayer(g, playerOne.id, 1);
+      }
       return false;
     }
     if (p2 > p1) {
       playerOne.balance -= bet;
       let isOut = this.#checkPlayerIsOut(g, playerOne);
       await this.#replyPVPWinner(g, playerOne, bet, isOut);
-      this.#addPointsToPlayer(g, playerTow.id, 1);
+      if (p1 > 0 && p2 > 0) {
+        this.#addPointsToPlayer(g, playerTow.id, 1);
+      }
       return false;
     }
     await this.#replyPVPDraw(g);
