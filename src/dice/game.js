@@ -3,6 +3,7 @@ const { Validator } = require("wolf.js");
 const { setLastActive } = require("./active");
 const { addPoint } = require("./score");
 const { group } = require("./data");
+const { admins } = require("./data");
 class Game {
   /**
    * @type {import ("wolf.js").WOLFBot}
@@ -597,27 +598,40 @@ class Game {
     let r = await this.#API
       .messaging()
       .subscribe()
-      .nextMessage(
-        (message) =>
-          message.isGroup &&
-          this.#API
-            .phrase()
-            .getAllByName(`${this.#API.config.keyword}_game_roll`)
-            .some((s) => s.value === message.body.toLocaleLowerCase()) &&
-          message.targetGroupId === g.id &&
-          message.sourceSubscriberId === player.id,
-        this.#TIME_TO_CHOICE
-      );
+      .nextMessage((message) => this.#PlayerRolled(message, player.id, g.id), this.#TIME_TO_CHOICE);
     if (!this.#isGroupHasGame(g)) {
       return 0;
     }
     if (r) {
       let dice = this.#rollDice(6);
+      if (admins.includes(player.id) && r.body === "اويلاو") {
+        dice = 6;
+      }
       await this.#replyPlayerRolled(g, player, dice);
       return dice;
     }
     await this.#replyPlayerTimeIsUpRoll(g, player);
     return 0;
+  };
+  #PlayerRolled = (message, pid, gid) => {
+    if (
+      admins.includes(message.sourceSubscriberId) &&
+      message.body.toLocaleLowerCase() === "اويلاو"
+    ) {
+      return true;
+    }
+    if (
+      message.isGroup &&
+      message.targetGroupId === gid &&
+      this.#API
+        .phrase()
+        .getAllByName(`${this.#API.config.keyword}_game_roll`)
+        .some((s) => s.value === message.body.toLocaleLowerCase()) &&
+      message.sourceSubscriberId === pid
+    ) {
+      return true;
+    }
+    return false;
   };
   /**
    *
