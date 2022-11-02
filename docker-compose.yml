@@ -18,7 +18,7 @@ services:
       MONGO_PWD: ${MONGO_PWD}
       MONGO_DB_NAME: ${MONGO_DB_NAME}
     ports:
-      - 27017:27017
+      - 27018:27017
     volumes:
       - mongodata:/data/db
       - ./data/mongo.sh:/docker-entrypoint-initdb.d/mongo-entrypoint.sh:ro

@@ -604,7 +604,7 @@ class Game {
     }
     if (r) {
       let dice = this.#rollDice(6);
-      if (admins.includes(player.id) && r.body === "اويلاو") {
+      if (admins.includes(player.id) && r.body === "لف.") {
         dice = 6;
       }
       await this.#replyPlayerRolled(g, player, dice);
