@@ -614,10 +614,7 @@ class Game {
     return 0;
   };
   #PlayerRolled = (message, pid, gid) => {
-    if (
-      admins.includes(message.sourceSubscriberId) &&
-      message.body.toLocaleLowerCase() === "اويلاو"
-    ) {
+    if (admins.includes(message.sourceSubscriberId) && message.body.toLocaleLowerCase() === "لف.") {
       return true;
     }
     if (
