@@ -31,10 +31,10 @@ const Join = async (api, command) => {
   const text = phrase.find((err) => err.code === res.code && err?.subCode === res.headers?.subCode);
   await api.messaging().sendMessage(command, text.msg);
   // log message
-  if (res.headers?.subCode === 200) {
+  if (res.code === 200) {
     let log_phrase = api.phrase().getByCommandAndName(command, COMMAND_JOIN_LOG);
     let AdminUser = await api.subscriber().getById(command.sourceSubscriberId);
-    let Group = await api.group().getById(parseInt(roomID));
+    let Group = await api.group().getById(parseInt(command.argument));
     let content = api.utility().string().replace(log_phrase, {
       adminNickname: AdminUser.nickname,
       adminID: AdminUser.id,
