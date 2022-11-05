@@ -40,4 +40,5 @@ const refreshUnsetGroup = async (api) => {
   }, []);
   return groupsNames;
 };
+
 module.exports = { setLastActive, getInactiveGroups, refreshUnsetGroup, deleteGroup };

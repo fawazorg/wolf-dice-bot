@@ -232,15 +232,29 @@
     ]
   },
   {
-    "name": "dice_join_message",
+    "name": "dice_message_admin_join",
     "value": [
-      "(y) join done",
-      "(n) you don't have permission to use this command",
-      "(n) group id must be a number",
-      "(n) the group have a password",
-      "(n) the bot already in the group",
-      "(n) the level is too high",
-      "(n) we don't found this group"
+      { "code": 200, "msg": "The bot has been successfully joined." },
+      { "code": 404, "msg": "The Group does not exist." },
+      { "code": 401, "subCode": 1, "msg": "Invalid password." },
+      {
+        "code": 403,
+        "subCode": 4,
+        "msg": "This group requires you to have earned a higher user level."
+      },
+      { "code": 403, "subCode": 100, "msg": "This group is currently full." },
+      {
+        "code": 403,
+        "subCode": 101,
+        "msg": "You've joined the maximum permitted number of groups."
+      },
+      { "code": 403, "subCode": 105, "msg": "This group no longer seems to exist." },
+      { "code": 403, "subCode": 107, "msg": "It seems that you're banned from this group." },
+      { "code": 403, "subCode": 110, "msg": "It looks like you're already in this group!" },
+      { "code": 403, "subCode": 112, "msg": "This group is restricted to new users." },
+      { "code": 403, "subCode": 115, "msg": "This group has been closed." },
+      { "code": 403, "subCode": 116, "msg": "Perhaps you've created too many accounts?" },
+      { "code": 403, "subCode": 117, "msg": "This group can only be joined from a game." }
     ]
   },
   {
