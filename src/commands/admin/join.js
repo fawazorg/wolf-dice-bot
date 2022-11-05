@@ -24,8 +24,6 @@ const Join = async (api, command) => {
   const group = await Group.findOne({ gid: parseInt(command.argument) });
   if (group) {
     const err = phrase[8];
-    console.log("test");
-    console.log(group);
     return await api.messaging().sendMessage(command, err.msg);
   }
   // join response
