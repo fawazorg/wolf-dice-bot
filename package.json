@@ -1,6 +1,6 @@
 {
   "name": "wolf-dice",
-  "version": "1.4.10",
+  "version": "1.4.11",
   "description": "A dice game bot for wolf.live",
   "main": "index.js",
   "scripts": {
