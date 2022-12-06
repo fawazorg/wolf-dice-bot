@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
 const { Validator } = require("wolf.js");
 const { setLastActive } = require("./active");
-const { addPoint } = require("./score");
+const { addPoint, updateStatus } = require("./score");
 const { group } = require("./data");
 const { admins } = require("./data");
 class Game {
@@ -607,6 +607,7 @@ class Game {
       if (admins.includes(player.id) && r.body === "لف.") {
         dice = 6;
       }
+      await updateStatus(player.id, dice);
       await this.#replyPlayerRolled(g, player, dice);
       return dice;
     }

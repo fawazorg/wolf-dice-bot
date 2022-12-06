@@ -36,6 +36,10 @@
     "value": "top"
   },
   {
+    "name": "dice_status_command",
+    "value": "status"
+  },
+  {
     "name": "dice_help_command",
     "value": "help"
   },
@@ -217,6 +221,7 @@
       "!dice bal",
       "!dice show",
       "!dice rank",
+      "!dice status",
       "!dice top",
       "!dice help"
     ]
@@ -272,6 +277,14 @@
   {
     "name": "dice_admin_count_message",
     "value": "/me Count Groups : {count}."
+  },
+  {
+    "name": "dice_message_status",
+    "value": "• Your status:\n\n{d1}⚀\t\t{d2}⚁\t\t{d3}⚂\n{d4}⚃\t\t{d5}⚄\t\t{d6}⚅"
+  },
+  {
+    "name": "dice_message_status_empty",
+    "value": "(n) There is no status for you, play and try agin."
   },
   {
     "name": "dice_admin_update_message",

@@ -8,8 +8,9 @@ const Help = require("./help");
 const Rank = require("./rank");
 const Top = require("./topPlayers");
 const Cancel = require("./cancel");
+const Status = require("./status");
 
-const Commands = [Help, Balance, Show, Create, Join, Rank, Top, Cancel, Admin];
+const Commands = [Help, Balance, Show, Create, Join, Rank, Top, Cancel, Status, Admin];
 
 Default.children = Commands;
 

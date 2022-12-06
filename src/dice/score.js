@@ -98,4 +98,12 @@ const top10 = async (command, api) => {
     });
 };
 
-module.exports = { addPoint, myRank, top10 };
+const updateStatus = async (playerID, key) => {
+  let player = await Player.findOne({ id: playerID });
+  if (!player) {
+    player = await Player.create({ id: playerID });
+  }
+  await player.increase(key);
+};
+
+module.exports = { addPoint, myRank, top10, updateStatus };
