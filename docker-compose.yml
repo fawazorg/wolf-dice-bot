@@ -1,12 +1,12 @@
-version: "3.6"
+version: "3.7"
 services:
   redis:
     image: "redis:alpine"
-    hostname: redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
   mongo:
-    image: mongo
+    image: mongo:latest
     restart: unless-stopped
     env_file:
       - .env
@@ -18,9 +18,9 @@ services:
       MONGO_PWD: ${MONGO_PWD}
       MONGO_DB_NAME: ${MONGO_DB_NAME}
     ports:
-      - 27018:27017
+      - "27018:27017"
     volumes:
       - mongodata:/data/db
-      - ./data/mongo.sh:/docker-entrypoint-initdb.d/mongo-entrypoint.sh:ro
+      - ./mongo_init/mongo-entrypoint.js:/docker-entrypoint-initdb.d/mongo-entrypoint.js:ro
 volumes:
   mongodata:
