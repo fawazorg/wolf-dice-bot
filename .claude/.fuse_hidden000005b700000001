@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node --version:*)",
+      "Bash(npx eslint:*)",
+      "Bash(./node_modules/.bin/eslint:*)",
+      "Bash(npm view:*)",
+      "Bash(node:*)",
+      "Bash(npm install)"
+    ]
+  }
+}

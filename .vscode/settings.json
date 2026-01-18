@@ -1,0 +1,75 @@
+{
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FORMATTING - Auto-format on save with Prettier
+  // ═══════════════════════════════════════════════════════════════════════════
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ESLINT - Real-time linting with project-local eslint
+  // ═══════════════════════════════════════════════════════════════════════════
+  "eslint.enable": true,
+  // Use flat config format (eslint.config.js)
+  "eslint.useFlatConfig": true,
+  // Run ESLint on save for auto-fixable issues
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  // Validate JavaScript files
+  "eslint.validate": ["javascript"],
+  // Use workspace version of ESLint (not global)
+  "eslint.nodePath": "./node_modules",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // EDITOR - Fast feedback while typing
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Show errors/warnings inline
+  "editor.inlayHints.enabled": "onUnlessPressed",
+  // Highlight matching brackets
+  "editor.bracketPairColorization.enabled": true,
+  // Quick suggestions
+  "editor.quickSuggestions": {
+    "strings": true,
+    "comments": false,
+    "other": true
+  },
+  // Show parameter hints
+  "editor.parameterHints.enabled": true,
+  // Reduce delay for diagnostics
+  "editor.hover.delay": 200,
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FILE HANDLING - Clean workspace
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Insert final newline
+  "files.insertFinalNewline": true,
+  // Trim trailing whitespace
+  "files.trimTrailingWhitespace": true,
+  // Hide node_modules from explorer (optional - comment out if you prefer visible)
+  "files.exclude": {
+    "**/node_modules": true
+  },
+  // Don't include node_modules in search
+  "search.exclude": {
+    "**/node_modules": true
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // JAVASCRIPT/NODE.JS SPECIFIC
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Enable npm scripts in explorer
+  "npm.enableScriptExplorer": true,
+  // Automatic import updates when moving files
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  // Suggest imports from dependencies
+  "javascript.suggest.autoImports": true
+}
