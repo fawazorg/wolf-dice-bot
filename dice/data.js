@@ -1,6 +1,5 @@
-const group = new Map();
-const admins = [22368186, 12500068];
-const ignoreGroups = [18813644, 18448720, 17311121];
-const AdminGroup = 18813644;
+const admins = [82366923];
+const ignoreGroups = [81967172];
+const AdminGroup = 81967172;
 
-export { AdminGroup, admins, group, ignoreGroups };
+export { AdminGroup, admins, ignoreGroups };

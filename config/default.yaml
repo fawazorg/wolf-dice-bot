@@ -1,7 +1,7 @@
 keyword: dice
 app:
   defaultLanguage: en
-  developerId: 12500068
+  developerId: 82366923
   commandSettings:
     ignoreOfficialBots: true
     ignoreUnofficialBots: true

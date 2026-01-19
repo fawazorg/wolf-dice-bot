@@ -10,7 +10,7 @@ export default async (client, command) => {
   const isAdmin = admins.includes(command.sourceSubscriberId);
   const okay = isDeveloper || isAdmin;
   if (!okay) {
-    return command.reply(client.phrase().getByCommandAndName(command, ""));
+    return command.reply(client.phrase.getByCommandAndName(command, ""));
   }
-  return command.reply(client.phrase().getByCommandAndName(command, "dice_help_admin_message"));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_help_admin_message"));
 };

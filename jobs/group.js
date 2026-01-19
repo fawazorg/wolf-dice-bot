@@ -1,22 +1,15 @@
-import { group } from "../dice/data.js";
 /**
- *
- * @param {import('wolf.js').WOLF} api
- * @param {object} g
- * @param {import('../dice/game')} game
+ * Factory function to create the UpdateTimer handler
+ * @param {import('../src/managers/GameManager.js').default} gameManager
+ * @returns {Function} Timer handler function
  */
-export default async function UpdateTimer(api, { gid }, game) {
-  if (!group.has(gid)) {
-    return;
-  }
-
-  const tempGroup = group.get(gid);
-
-  if (tempGroup.players.size <= 1) {
-    return game.finish(tempGroup);
-  } else {
-    if (!tempGroup.start) {
-      return game.start(tempGroup.id);
-    }
-  }
-};
+export function createUpdateTimer(gameManager) {
+  /**
+   * Timer callback for join period expiration
+   * @param {Object} params
+   * @param {number} params.channleId - Channel ID (note: typo preserved for compatibility)
+   */
+  return async function UpdateTimer({ channleId }) {
+    await gameManager.onJoinTimeout(channleId);
+  };
+}

@@ -36,10 +36,6 @@
     "value": "شامل"
   },
   {
-    "name": "dice_top_command",
-    "value": "جلادين"
-  },
-  {
     "name": "dice_help_command",
     "value": "مساعدة"
   },
@@ -209,8 +205,12 @@
     "value": "ليس لديك نقاط حاليا في هذا البوت\n{nickname} ( {id} )"
   },
   {
-    "name": "dice_message_g_score",
+    "name": "dice_message_top_score",
     "value": "قائمة جلادين بوت نرد : \n\n{list}"
+  },
+  {
+    "name": "dice_message_top_no_score",
+    "value": "لا توجد نتائج للاعبين بالبوت حاليا"
   },
   {
     "name": "dice_message_status",

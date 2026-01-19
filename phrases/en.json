@@ -208,8 +208,12 @@
     "value": "You currently have no points in this bot\n{nickname} ( {id} )"
   },
   {
-    "name": "dice_message_g_score",
+    "name": "dice_message_top_score",
     "value": "Top 10 List: \n\n{list}"
+  },
+  {
+    "name": "dice_message_top_no_score",
+    "value": "(N) The bot did not have top player yet."
   },
   {
     "name": "dice_help_message",

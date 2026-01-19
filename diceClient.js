@@ -2,15 +2,21 @@ import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "./commands/index.js";
 import { deleteGroup, setLastActive } from "./dice/active.js";
-import Game from "./dice/game.js";
+import { GameManager } from "./src/index.js";
+import { admins } from "./dice/data.js";
 import { leaveInactiveGroups } from "./jobs/active.js";
-import UpdateTimer from "./jobs/group.js";
+import { createUpdateTimer } from "./jobs/group.js";
 
 class diceClient {
   constructor(email, password) {
     this.client = new WOLF();
-    this.game = new Game(this.client);
-    this.client.login(email, password, OnlineState.ONLINE);
+    this.game = new GameManager(this.client, {
+      maxPlayers: 16,
+      timeToJoin: 30000,
+      timeToChoice: 15000,
+      admins
+    });
+    this.client.login(email, password, "", OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());
     this.client.on("loginSuccess", async (subscriber) => this._onLoginSuccess(subscriber));
     this.client.on("joinedGroup", async (group) => this._onJoinedGroup(group));
@@ -36,7 +42,7 @@ class diceClient {
         /* Help command */
         new Command("dice_help_command", { both: (command) => Dice.help(this.client, command) }),
         /* Join command */
-        new Command("dice_command_join", { channel: (command) => Dice.join(command, this.game) }),
+        new Command("dice_join_command", { channel: (command) => Dice.join(command, this.game) }),
         /* Rank command */
         new Command("dice_rank_command", { channel: (command) => Dice.rank(this.client, command) }),
         /* Show command */
@@ -82,7 +88,9 @@ class diceClient {
 
   async _onReady() {
     scheduleJob("0 * * * *", async () => leaveInactiveGroups(this.client, 5));
-    await this.client.utility().timer().initialise({ UpdateTimer }, this.game);
+
+    const UpdateTimer = createUpdateTimer(this.game);
+    await this.client.utility.timer.register({ UpdateTimer });
   }
 
   async channels() {

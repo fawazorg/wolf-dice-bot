@@ -5,5 +5,5 @@
  * @returns {Promise<Response<MessageResponse>>}
  */
 export default async (client, command) => {
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_message_help").join("\n"));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_help_message").join("\n"));
 };

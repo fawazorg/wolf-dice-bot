@@ -11,14 +11,14 @@ export default async (client, command) => {
   const okay = isDeveloper || isAdmin;
   if (!okay) {
     return command.reply(
-      client.phrase().getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );
   }
-  const count = (await client.channel().list()).length;
+  const count = (await client.channel.list()).length;
   return command.reply(
-    client
-      .utility()
-      .string()
-      .replace(client.phrase().getByCommandAndName(command, "dice_admin_count_message"), { count })
+    client.utility.string.replace(
+      client.phrase.getByCommandAndName(command, "dice_admin_count_message"),
+      { count }
+    )
   );
 };

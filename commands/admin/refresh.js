@@ -12,15 +12,12 @@ export default async (client, command) => {
   const okay = isDeveloper || isAdmin;
   if (!okay) {
     return command.reply(
-      client.phrase().getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );
   }
   const names = await refreshUnsetGroup(client);
-  const phrase = client.phrase().getByCommandAndName(command, "dice_admin_refresh_message");
-  const content = client
-    .utility()
-    .string()
-    .replace(phrase, { list: names.join("\n") });
+  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_refresh_message");
+  const content = client.utility.string.replace(phrase, { list: names.join("\n") });
 
   return command.reply(content);
 };

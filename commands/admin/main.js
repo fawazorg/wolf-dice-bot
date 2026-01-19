@@ -11,8 +11,8 @@ export default async (client, command) => {
   const okay = isDeveloper || isAdmin;
   if (!okay) {
     return command.reply(
-      client.phrase().getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );
   }
-  return command.reply(client.phrase().getByCommandAndName(command, "dice_default_admin_message"));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_default_admin_message"));
 };
