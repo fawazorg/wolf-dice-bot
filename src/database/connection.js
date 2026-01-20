@@ -32,6 +32,3 @@ const db = mongoose.connection;
 
 // Set up connection event handlers
 db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => {
-  console.log("[*] Database is a live!");
-});

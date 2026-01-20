@@ -162,13 +162,12 @@ class DiceClient {
 
   /**
    * Handle successful login event.
-   * Logs the bot account ID and keyword to console.
    * @private
-   * @param {import('wolf.js').Subscriber} subscriber - The logged-in subscriber
+   * @param {import('wolf.js').Subscriber} _subscriber - The logged-in subscriber
    * @returns {void}
    */
-  _onLoginSuccess(subscriber) {
-    console.log(`[*] ${this.client.config.keyword} (${subscriber.id}) start.`);
+  _onLoginSuccess(_subscriber) {
+    // Login successful
   }
 }
 

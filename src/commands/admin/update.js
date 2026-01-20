@@ -5,7 +5,7 @@
  * @module commands/admin/update
  */
 
-import { admins } from "../../dice/data.js";
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin update command.
@@ -18,16 +18,13 @@ import { admins } from "../../dice/data.js";
  * @returns {Promise<Response<MessageResponse>>} Response confirming status update or unauthorized message
  */
 export default async (client, command) => {
-  const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");
-  const isAdmin = admins.includes(command.sourceSubscriberId);
-  const okay = isDeveloper || isAdmin;
-  if (!okay) {
+  if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(
       client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );
   }
   const status = command.argument;
-  // TODO: handle errors
+  // TODO: Add error handling for failed status updates (network errors, API failures)
   await client.currentSubscriber.update({ status });
 
   const phrase = client.phrase.getByCommandAndName(command, "dice_admin_update_message");

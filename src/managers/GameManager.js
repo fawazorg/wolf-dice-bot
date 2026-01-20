@@ -498,15 +498,11 @@ class GameManager {
   async #onPhaseRolling(data) {
     const { channelId, candidateId } = data;
 
-    console.log(`[GameManager] #onPhaseRolling called for channel ${channelId}, candidateId: ${candidateId}`);
-
     // Prevent duplicate listeners
     if (this.#activeRollListeners.has(channelId)) {
-      console.warn(`[GameManager] Roll listener already active for channel ${channelId}, skipping`);
       return;
     }
 
-    console.log(`[GameManager] Starting new roll listener for channel ${channelId}`);
     this.#activeRollListeners.add(channelId);
 
     try {
@@ -521,7 +517,6 @@ class GameManager {
       await this.#listenForRolls(channelId, candidateId);
     } finally {
       // Always remove the listener lock
-      console.log(`[GameManager] Removing roll listener for channel ${channelId}`);
       this.#activeRollListeners.delete(channelId);
     }
   }
@@ -798,24 +793,15 @@ class GameManager {
   async #listenForRolls(channelId, startingPlayerId) {
     const language = this.#languages.get(channelId) || 'en';
 
-    console.log(`[GameManager] #listenForRolls starting for channel ${channelId}, startingPlayer: ${startingPlayerId}`);
-
     // Listen for rolls from both players
     // Reset tracking on each iteration to handle draws
-    let loopCount = 0;
     let currentPlayerToRoll = startingPlayerId;
     while (this.#engine.getState(channelId) === 'rolling') {
-      loopCount++;
-      console.log(`[GameManager] Roll listener loop iteration ${loopCount} for channel ${channelId}`);
-
       const round = this.#engine.getRoundInfo(channelId);
 
       if (!round) {
-        console.error(`[GameManager] No round info found for channel ${channelId}`);
         return;
       }
-
-      console.log(`[GameManager] Waiting for roll from player ${currentPlayerToRoll}, state: ${this.#engine.getState(channelId)}`);
 
       // Wait for a message from the current player with the roll phrase
       const message = await this.#client.messaging.subscription.nextMessage(
@@ -829,43 +815,34 @@ class GameManager {
 
       if (!message) {
         // Timeout - player loses automatically
-        console.log(`[GameManager] Timeout waiting for roll from player ${currentPlayerToRoll}`);
         await this.#messages.replyPlayerTimeIsUpRoll(channelId, language, currentPlayerToRoll);
         this.#engine.handleRollTimeout(channelId, currentPlayerToRoll);
         return;
       }
 
       const playerId = message.sourceSubscriberId;
-      console.log(`[GameManager] Received roll command from ${playerId}: "${message.body}"`);
 
       const result = this.#engine.handleRoll(channelId, playerId, null);
-      console.log(`[GameManager] Roll result:`, result);
 
       // Check if game ended while waiting
       if (this.#engine.getState(channelId) !== 'rolling') {
-        console.log(`[GameManager] Game ended, exiting listener (state: ${this.#engine.getState(channelId)})`);
         return;
       }
 
       if (result.success) {
-        console.log(`[GameManager] Roll successful for ${playerId}, new state: ${this.#engine.getState(channelId)}`);
-
         // After candidate rolls, switch to opponent and prompt them
         if (playerId === round.candidateId) {
           // Check if we should prompt opponent (only if still in rolling state)
           await new Promise(resolve => setTimeout(resolve, 100));
 
           const currentState = this.#engine.getState(channelId);
-          console.log(`[GameManager] After candidate roll, state: ${currentState}`);
 
           if (currentState === 'rolling') {
-            console.log(`[GameManager] Prompting opponent ${round.opponentId}`);
             await this.#messages.replyAskPlayerToRoll(channelId, language, round.opponentId);
             // Continue loop to wait for opponent's roll
             currentPlayerToRoll = round.opponentId;
           } else {
             // State changed - game ended or draw
-            console.log(`[GameManager] State changed to ${currentState}, exiting listener`);
             return;
           }
         } else {
@@ -873,24 +850,17 @@ class GameManager {
           await new Promise(resolve => setTimeout(resolve, 100));
 
           const currentState = this.#engine.getState(channelId);
-          console.log(`[GameManager] After opponent roll, state: ${currentState}`);
 
           if (currentState !== 'rolling') {
             // PVP was resolved, game moved to next phase or ended
-            console.log(`[GameManager] PVP resolved, state: ${currentState}, exiting listener`);
             return;
           }
           // Still rolling - must be a draw, reset to candidate and prompt them
-          console.log(`[GameManager] Draw detected, prompting candidate ${round.candidateId} to roll again`);
           currentPlayerToRoll = round.candidateId;
           await this.#messages.replyAskPlayerToRoll(channelId, language, round.candidateId);
         }
-      } else {
-        console.log(`[GameManager] Roll failed:`, result);
       }
     }
-
-    console.log(`[GameManager] #listenForRolls exiting for channel ${channelId}`);
   }
 
   /**

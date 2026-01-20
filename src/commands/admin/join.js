@@ -6,8 +6,9 @@
  */
 
 import { Validator } from "wolf.js";
-import { AdminGroup, admins } from "../../dice/data.js";
 import Group from "../../database/models/group.js";
+import { AdminGroup } from "../../dice/data.js";
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin join command.
@@ -21,10 +22,10 @@ import Group from "../../database/models/group.js";
  * @returns {Promise<Response<MessageResponse>>} Response with join result or error message
  */
 export default async (client, command) => {
-  const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");
-  const isAdmin = admins.includes(command.sourceSubscriberId);
-  const okay = isDeveloper || isAdmin;
-  if (!okay || !Validator.isValidNumber(command.argument)) {
+  if (
+    !isAuthorizedAdmin(client, command.sourceSubscriberId) ||
+    !Validator.isValidNumber(command.argument)
+  ) {
     return Promise.resolve();
   }
 
@@ -54,6 +55,6 @@ export default async (client, command) => {
       groupName: channel.name,
       groupID: channel.id
     });
-    return client.messaging.sendGroupMessage(AdminGroup, content);
+    return client.messaging.sendChannelMessage(AdminGroup, content);
   }
 };

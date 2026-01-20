@@ -5,7 +5,7 @@
  * @module commands/admin/help
  */
 
-import { admins } from "../../dice/data.js";
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin help command.
@@ -20,11 +20,10 @@ import { admins } from "../../dice/data.js";
  * @returns {Promise<Response<MessageResponse>>} Response with admin help message or unauthorized message
  */
 export default async (client, command) => {
-  const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");
-  const isAdmin = admins.includes(command.sourceSubscriberId);
-  const okay = isDeveloper || isAdmin;
-  if (!okay) {
-    return command.reply(client.phrase.getByCommandAndName(command, ""));
+  if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
+    return command.reply(
+      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
+    );
   }
   return command.reply(client.phrase.getByCommandAndName(command, "dice_help_admin_message"));
 };

@@ -5,7 +5,7 @@
  * @module commands/admin/count
  */
 
-import { admins } from "../../dice/data.js";
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin count command.
@@ -17,10 +17,7 @@ import { admins } from "../../dice/data.js";
  * @returns {Promise<Response<MessageResponse>>} Response with channel count or unauthorized message
  */
 export default async (client, command) => {
-  const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");
-  const isAdmin = admins.includes(command.sourceSubscriberId);
-  const okay = isDeveloper || isAdmin;
-  if (!okay) {
+  if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(
       client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );

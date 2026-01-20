@@ -61,19 +61,5 @@ const getPlayerRankData = async (subscriberId) => {
 const getTopPlayers = async () => {
   return Player.find().sort({ score: -1 }).limit(10).lean(); // Use .lean() for faster, read-only performance
 };
-/**
- * Update a player's status field by incrementing it.
- * Creates the player if they don't exist in the database.
- * @param {number} playerID - Player's unique ID
- * @param {string} key - Status field name to increment
- * @returns {Promise<void>}
- */
-const updateStatus = async (playerID, key) => {
-  await Player.findOneAndUpdate(
-    { id: playerID },
-    { $inc: { [key]: 1 } }, // Dynamic key increment
-    { upsert: true, setDefaultsOnInsert: true }
-  );
-};
 
-export { addPoint, getPlayerRankData, getTopPlayers, updateStatus };
+export { addPoint, getPlayerRankData, getTopPlayers };
