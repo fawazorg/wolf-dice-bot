@@ -28,6 +28,9 @@ class GameEngine {
   /** @type {Map<number, Timer>} Active timers by channel ID */
   #timers;
 
+  /** @type {Map<number, NodeJS.Timeout>} Pending delays by channel ID */
+  #pendingDelays;
+
   /** @type {Map<string, Function>} Event listeners */
   #listeners;
 
@@ -56,6 +59,7 @@ class GameEngine {
     this.#currentRounds = new Map();
     this.#scores = new Map();
     this.#timers = new Map();
+    this.#pendingDelays = new Map();
     this.#listeners = new Map();
     this.#maxPlayers = options.maxPlayers || 16;
     this.#debug = options.debug || false;
@@ -181,6 +185,14 @@ class GameEngine {
     }
 
     this.#cancelTimer(channelId);
+
+    // Cancel any pending delays
+    const pendingDelay = this.#pendingDelays.get(channelId);
+    if (pendingDelay) {
+      clearTimeout(pendingDelay);
+      this.#pendingDelays.delete(channelId);
+    }
+
     this.#games.delete(channelId);
     this.#states.delete(channelId);
     this.#rounds.delete(channelId);
@@ -226,6 +238,13 @@ class GameEngine {
    * @param {number} channelId - Channel ID
    */
   #startGuessingPhase(channelId) {
+    // Cancel any pending delays from previous rounds
+    const pendingDelay = this.#pendingDelays.get(channelId);
+    if (pendingDelay) {
+      clearTimeout(pendingDelay);
+      this.#pendingDelays.delete(channelId);
+    }
+
     this.#cancelTimer(channelId);
 
     const channel = this.#games.get(channelId);
@@ -389,6 +408,9 @@ class GameEngine {
     const opponent = eligiblePlayers[validation.normalizedIndex];
     round.setOpponent(opponent);
 
+    // Cancel picking timer to prevent it from firing during later phases
+    this.#cancelTimer(channelId);
+
     this.#log('OPPONENT_SELECTED', {
       channelId,
       pickerId,
@@ -439,6 +461,9 @@ class GameEngine {
     if (!validation.valid) {
       return { success: false, error: validation.error };
     }
+
+    // Cancel betting timer to prevent duplicate phase:rolling events
+    this.#cancelTimer(channelId);
 
     const round = this.#currentRounds.get(channelId);
     round.setBet(amount);
@@ -515,6 +540,73 @@ class GameEngine {
   }
 
   /**
+   * Handle roll timeout - player loses automatically
+   * @param {number} channelId - Channel ID
+   * @param {number} playerId - Player who timed out
+   * @returns {{success: boolean, error?: string}}
+   */
+  handleRollTimeout(channelId, playerId) {
+    const channel = this.#games.get(channelId);
+    if (!channel) {
+      return { success: false, error: 'game_not_exists' };
+    }
+
+    if (this.#states.get(channelId) !== GameState.ROLLING) {
+      return { success: false, error: 'not_rolling_phase' };
+    }
+
+    const round = this.#currentRounds.get(channelId);
+    const bet = round.bet;
+
+    const isCandidate = round.candidate?.id === playerId;
+    const isOpponent = round.opponent?.id === playerId;
+
+    if (!isCandidate && !isOpponent) {
+      return { success: false, error: 'player_not_in_round' };
+    }
+
+    // Determine winner (the other player) and loser (who timed out)
+    const winnerId = isCandidate ? round.opponent.id : round.candidate.id;
+    const loserId = playerId;
+    const loser = channel.getPlayer(loserId);
+
+    // Deduct bet from loser
+    const isEliminated = loser.deductBalance(bet);
+
+    if (isEliminated) {
+      channel.removePlayer(loserId);
+    }
+
+    this.#addPoints(channelId, winnerId, 1);
+
+    this.#log('ROLL_TIMEOUT', {
+      channelId,
+      timeoutPlayerId: playerId,
+      winnerId,
+      loserId,
+      bet,
+      isEliminated,
+      loserBalance: loser.balance
+    });
+
+    this.#emit('roll:timeout', { channelId, playerId, winnerId, loserId, bet, isEliminated });
+
+    // Change state immediately to prevent further rolls during the delay
+    this.#states.delete(channelId);
+
+    // Check if game should end
+    const endCheck = this.#checkGameEnd(channelId);
+    if (endCheck.ended) {
+      this.#endGame(channelId, endCheck.winner);
+    } else {
+      // Start next round after delay
+      this.#delay(channelId, () => this.#startGuessingPhase(channelId), 1000);
+    }
+
+    return { success: true };
+  }
+
+  /**
    * Resolve PVP round result
    * @param {number} channelId - Channel ID
    */
@@ -571,13 +663,16 @@ class GameEngine {
       isEliminated
     });
 
+    // Change state immediately to prevent further rolls during the delay
+    this.#states.delete(channelId);
+
     // Check if game should end
     const endCheck = this.#checkGameEnd(channelId);
     if (endCheck.ended) {
       this.#endGame(channelId, endCheck.winner);
     } else {
-      // Start next round
-      this.#delay(() => this.#startGuessingPhase(channelId), 1000);
+      // Start next round after delay
+      this.#delay(channelId, () => this.#startGuessingPhase(channelId), 1000);
     }
   }
 
@@ -807,8 +902,12 @@ class GameEngine {
    * @param {Function} callback - Callback function
    * @param {number} ms - Milliseconds
    */
-  #delay(callback, ms) {
-    setTimeout(callback, ms);
+  #delay(channelId, callback, ms) {
+    const timeoutId = setTimeout(() => {
+      this.#pendingDelays.delete(channelId);
+      callback();
+    }, ms);
+    this.#pendingDelays.set(channelId, timeoutId);
   }
 }
 
