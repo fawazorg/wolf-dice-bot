@@ -4,8 +4,8 @@
  * @module jobs/active
  */
 
-import { deleteGroup, getInactiveGroups } from "../dice/active.js";
-import { AdminGroup, ignoreGroups } from "../dice/data.js";
+import { deleteGroup, getInactiveGroups } from "../database/helpers/group.js";
+import { getAdminGroupId, getIgnoreGroupIds } from "../utils/config.js";
 
 /**
  * Leave groups that have been inactive for a specified number of days.
@@ -30,6 +30,7 @@ const leaveInactiveGroups = async (api, days) => {
 
   const toExitGroups = [];
 
+  const ignoreGroups = getIgnoreGroupIds();
   inGroups.forEach((group) => {
     if (!ignoreGroups.includes(group.id) && inArray(inactiveGroups, "gid", group.id)) {
       toExitGroups.push(group);
@@ -83,7 +84,10 @@ const sendLogMessage = async (api, names) => {
       groupsName: names.join("\n")
     });
 
-  await api.messaging().sendGroupMessage(AdminGroup, content);
+  const adminGroupId = getAdminGroupId();
+  if (adminGroupId) {
+    await api.messaging().sendGroupMessage(adminGroupId, content);
+  }
 };
 /**
  * Check if an array contains an object with a specific key-value pair.

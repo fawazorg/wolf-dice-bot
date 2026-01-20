@@ -1,10 +1,10 @@
 /**
- * @fileoverview Player scoring and ranking helpers.
+ * @fileoverview Player database helper functions.
  * Provides functions for managing player scores, rankings, and leaderboards.
- * @module dice/score
+ * @module database/helpers/player
  */
 
-import Player from "../database/models/player.js";
+import Player from "../models/player.js";
 
 /**
  * Add points to a player's score.
@@ -13,7 +13,7 @@ import Player from "../database/models/player.js";
  * @param {number} points - Number of points to add (can be negative to subtract)
  * @returns {Promise<boolean>} True if the operation was successful
  */
-const addPoint = async (id, points) => {
+export const addPoint = async (id, points) => {
   try {
     const updatedPlayer = await Player.findOneAndUpdate(
       { id },
@@ -37,7 +37,7 @@ const addPoint = async (id, points) => {
  * @param {number} subscriberId - Player's unique ID
  * @returns {Promise<{id: number, score: number, GlobalRank: number}|null>} Player data with global rank, or null if not found
  */
-const getPlayerRankData = async (subscriberId) => {
+export const getPlayerRankData = async (subscriberId) => {
   const [data] = await Player.aggregate([
     {
       $setWindowFields: {
@@ -58,8 +58,6 @@ const getPlayerRankData = async (subscriberId) => {
  * Returns players sorted by score in descending order.
  * @returns {Promise<Array<{id: number, score: number}>>} Array of top 10 players
  */
-const getTopPlayers = async () => {
+export const getTopPlayers = async () => {
   return Player.find().sort({ score: -1 }).limit(10).lean(); // Use .lean() for faster, read-only performance
 };
-
-export { addPoint, getPlayerRankData, getTopPlayers };

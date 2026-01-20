@@ -5,7 +5,7 @@
  * @module commands/admin/refresh
  */
 
-import { refreshUnsetGroup } from "../../dice/active.js";
+import { refreshUnsetGroup } from "../../database/helpers/group.js";
 import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**

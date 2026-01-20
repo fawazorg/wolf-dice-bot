@@ -7,11 +7,11 @@
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "../commands/index.js";
-import { deleteGroup, setLastActive } from "../dice/active.js";
-import { admins } from "../dice/data.js";
+import { deleteGroup, setLastActive } from "../database/helpers/group.js";
 import { GameManager } from "../index.js";
 import { leaveInactiveGroups } from "../jobs/active.js";
 import { createUpdateTimer } from "../jobs/group.js";
+import { getAdminIds } from "../utils/config.js";
 
 /**
  * DiceClient wraps a WOLF client instance with dice game functionality.
@@ -41,7 +41,7 @@ class DiceClient {
       maxPlayers: 16,
       timeToJoin: 30000,
       timeToChoice: 15000,
-      admins
+      admins: getAdminIds()
     });
     this.client.login(email, password, "", OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());

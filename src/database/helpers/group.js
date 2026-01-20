@@ -1,10 +1,10 @@
 /**
- * @fileoverview Group activity tracking helpers.
+ * @fileoverview Group database helper functions.
  * Provides functions for tracking group activity and managing inactive groups.
- * @module dice/active
+ * @module database/helpers/group
  */
 
-import Group from '../database/models/group.js';
+import Group from '../models/group.js';
 
 /**
  * Set the last active timestamp for a group to the current time.
@@ -12,7 +12,7 @@ import Group from '../database/models/group.js';
  * @param {number} gid - Group/channel ID
  * @returns {Promise<void>}
  */
-const setLastActive = async (gid) => {
+export const setLastActive = async (gid) => {
   await Group.findOneAndUpdate({ gid }, { lastActiveAt: new Date() }, { upsert: true });
 };
 
@@ -22,7 +22,7 @@ const setLastActive = async (gid) => {
  * @param {number} daysPass - Minimum number of days of inactivity to filter by
  * @returns {Promise<Array<{gid: number, days: number}>>} Array of inactive groups with their inactivity duration
  */
-const getInactiveGroups = async (daysPass) => {
+export const getInactiveGroups = async (daysPass) => {
   const groups = await Group.aggregate([
     {
       $project: {
@@ -48,7 +48,7 @@ const getInactiveGroups = async (daysPass) => {
  * @param {number} gid - Group/channel ID to delete
  * @returns {Promise<void>}
  */
-const deleteGroup = async (gid) => {
+export const deleteGroup = async (gid) => {
   await Group.findOneAndDelete({ gid });
 };
 
@@ -58,7 +58,7 @@ const deleteGroup = async (gid) => {
  * @param {import ("wolf.js").WOLF} api - WOLF client instance
  * @returns {Promise<Array<string>>} Array of group names that were refreshed
  */
-const refreshUnsetGroup = async (api) => {
+export const refreshUnsetGroup = async (api) => {
   const groups = await api.channel().list();
   const groupsNames = groups.reduce(async (pv, group) => {
     const names = await pv;
@@ -70,6 +70,3 @@ const refreshUnsetGroup = async (api) => {
 
   return groupsNames;
 };
-
-export { deleteGroup, getInactiveGroups, refreshUnsetGroup, setLastActive };
-

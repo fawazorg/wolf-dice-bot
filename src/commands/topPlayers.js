@@ -5,7 +5,7 @@
  * @module commands/topPlayers
  */
 
-import { getTopPlayers } from "../dice/score.js";
+import { getTopPlayers } from "../database/helpers/player.js";
 
 /**
  * Handle the top players leaderboard command.
