@@ -1,6 +1,6 @@
-import { admins } from "../../dice/data.js";
+import { admins } from "../../../dice/data.js";
 /**
- * help command
+ * count command
  * @param {import('wolf.js').WOLF} client
  * @param {import('wolf.js').CommandContext} command
  * @returns {Promise<Response<MessageResponse>>}
@@ -10,7 +10,15 @@ export default async (client, command) => {
   const isAdmin = admins.includes(command.sourceSubscriberId);
   const okay = isDeveloper || isAdmin;
   if (!okay) {
-    return command.reply(client.phrase.getByCommandAndName(command, ""));
+    return command.reply(
+      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
+    );
   }
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_help_admin_message"));
+  const count = (await client.channel.list()).length;
+  return command.reply(
+    client.utility.string.replace(
+      client.phrase.getByCommandAndName(command, "dice_admin_count_message"),
+      { count }
+    )
+  );
 };

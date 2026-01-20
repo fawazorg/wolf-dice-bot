@@ -1,4 +1,4 @@
-import { getPlayerRankData } from "../dice/score.js";
+import { getPlayerRankData } from "../../dice/score.js";
 /**
  * rank command
  * @param {import('wolf.js').WOLF} client

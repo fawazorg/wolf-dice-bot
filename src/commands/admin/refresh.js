@@ -1,6 +1,7 @@
-import { admins } from "../../dice/data.js";
+import { refreshUnsetGroup } from "../../../dice/active.js";
+import { admins } from "../../../dice/data.js";
 /**
- * update command
+ * refresh command
  * @param {import('wolf.js').WOLF} client
  * @param {import('wolf.js').CommandContext} command
  * @returns {Promise<Response<MessageResponse>>}
@@ -14,12 +15,9 @@ export default async (client, command) => {
       client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
     );
   }
-  const status = command.argument;
-  // TODO: handle errors
-  await client.currentSubscriber.update({ status });
-
-  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_update_message");
-  const content = client.utility.string.replace(phrase, { status });
+  const names = await refreshUnsetGroup(client);
+  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_refresh_message");
+  const content = client.utility.string.replace(phrase, { list: names.join("\n") });
 
   return command.reply(content);
 };
