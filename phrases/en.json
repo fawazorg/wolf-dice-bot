@@ -73,171 +73,171 @@
   },
   {
     "name": "dice_game_created",
-    "value": "The game is created for {count} of players, you have 30 seconds to join send !dice join"
+    "value": "🎮 The game has been created for {count} players! You have 30 seconds to join - send !dice join"
   },
   {
     "name": "dice_game_wrong_creation",
-    "value": "(n) You have to put a balance, send \"!dice <balance>\""
+    "value": "(n) You must specify a balance. Send \"!dice new <balance>\""
   },
   {
     "name": "dice_game_invalid_balance",
-    "value": "(n) The balance must be multiples of 500 and less than 5000"
+    "value": "(n) The balance must be a multiple of 500 and less than or equal to 5000"
   },
   {
-    "name": "dice_game_finish",
-    "value": "(n) The game is over"
+    "name": "dice_game_finished",
+    "value": "(n) The game is over 🎲"
   },
   {
-    "name": "dice_game_removed",
-    "value": "(y) This game has been canceled."
+    "name": "dice_game_cancelled",
+    "value": "(y) This game has been cancelled ❌"
   },
   {
     "name": "dice_game_already_created",
-    "value": "(n) There is a game already created send \"!dice join\" to join"
+    "value": "(n) There is already a game created. Send \"!dice join\" to join"
   },
   {
-    "name": "dice_game_already_start",
-    "value": "(n) There is already a game, please wait for game to end"
+    "name": "dice_game_already_started",
+    "value": "(n) There is already a game in progress. Please wait for it to end"
   },
   {
-    "name": "dice_game_join",
-    "value": "(y) {nickname} ({id} ) joined the game"
+    "name": "dice_game_player_joined",
+    "value": "(y) {nickname} ({id}) joined the game ✅"
   },
   {
-    "name": "dice_game_already_join",
-    "value": "(n) {nickname} ({id} ) You are already joined"
+    "name": "dice_game_already_joined",
+    "value": "(n) {nickname} ({id}) You have already joined"
   },
   {
     "name": "dice_game_not_exist",
-    "value": "(n) There is no game available right now send \"!dice new\" to create a new game"
+    "value": "(n) There is no game available right now. Send \"!dice new <balance>\" to create a new game"
   },
   {
-    "name": "dice_game_players",
-    "value": "Player List: \n\n{list}"
+    "name": "dice_game_players_list",
+    "value": "👥 Player List:\n\n{list}"
   },
   {
     "name": "dice_game_player_balance",
-    "value": "💰 Your balance is : {balance}\n{nickname}({id} )"
+    "value": "💰 Your balance: {balance}\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_player_notfound",
-    "value": "(n) You have not joined the game\n{nickname}({id})"
+    "name": "dice_game_player_not_found",
+    "value": "(n) You have not joined the game\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_start",
-    "value": "The game has started and the players are:\n\n{list}"
+    "name": "dice_game_started",
+    "value": "🎮 The game has started! The players are:\n\n{list}"
   },
   {
-    "name": "dice_game_make_a_guess",
-    "value": "/me You have 15 seconds to guess a number between 1 and 50."
+    "name": "dice_game_guessing_phase",
+    "value": "/me 🎯 You have 15 seconds to guess a number between 1 and 50!"
   },
   {
     "name": "dice_game_player_turn",
-    "value": "{list}\n\n🎲The dice number is {dice}\n\nyou have 15 seconds to choose your opponent\n{nickname} ({id} )"
+    "value": "{list}\n\n🎲 The dice number is {dice}\n\n⏱️ You have 15 seconds to choose your opponent\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_player_not_pick",
-    "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id} )"
+    "name": "dice_game_player_did_not_pick",
+    "value": "(n) You didn't choose your opponent, so this round will be skipped\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_auto_pick",
-    "value": "🎲 The dice number is {dice}\n\n🎯 Only one opponent available, auto-selecting:\n{opponentNickname} ({opponentId} )\n\n💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500\n{nickname} ({id} )"
+    "name": "dice_game_auto_pick_opponent",
+    "value": "🎲 The dice number is {dice}\n\n🎯 Only one opponent available, auto-selecting:\n{opponentNickname} ({opponentId})\n\n💰 Your balance: {balance}\nPlease select your bet amount in multiples of 500\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_player_rewarded",
-    "value": "🥳 Congratulations, you guessed the correct number, you will be rewarded with 500 points\n\n{nickname} ( {id} )"
+    "name": "dice_game_correct_guess_reward",
+    "value": "🥳 Congratulations! You guessed the correct number and will be rewarded with 500 points!\n\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_ask_player_balance",
-    "value": "💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500"
+    "name": "dice_game_betting_phase",
+    "value": "💰 Your balance: {balance}\nPlease select your bet amount in multiples of 500"
   },
   {
-    "name": "dice_game_ask_player_balance_already_500",
-    "value": "💰 Your balance is: 500, All your balance will be bet."
+    "name": "dice_game_betting_all_in",
+    "value": "💰 Your balance: 500 - All your balance will be bet"
   },
   {
-    "name": "dice_game_ask_player_to_roll",
-    "value": "🎲 Send \"roll\" to roll!\n{nickname} ({id} )"
+    "name": "dice_game_rolling_phase",
+    "value": "🎲 Send \"roll\" to roll your dice!\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_time_is_up_roll",
-    "value": "(n) Your time is out\n{nickname} ({id} )"
+    "name": "dice_game_time_expired",
+    "value": "(n) ⏱️ Your time has expired\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_roll",
+    "name": "dice_game_roll_command",
     "value": "roll"
   },
   {
-    "name": "dice_game_player_rolled",
-    "value": "🎲 you've got : {dice}\n{nickname} ({id} )"
+    "name": "dice_game_roll_result",
+    "value": "🎲 You rolled: {dice}\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_pvp_winner",
-    "value": "(y) Your opponent has lost : {bet}."
+    "name": "dice_game_round_won",
+    "value": "(y) 🎉 Your opponent lost {bet} coins!"
   },
   {
-    "name": "dice_game_pvp_draw",
-    "value": "(n) This game draw, so the game will be replay"
+    "name": "dice_game_round_draw",
+    "value": "(n) 🔄 It's a draw! The round will be replayed"
   },
   {
-    "name": "dice_game_player_out",
-    "value": "And you have been eliminated, better luck next time."
+    "name": "dice_game_player_eliminated",
+    "value": "💔 You have been eliminated. Better luck next time!"
   },
   {
-    "name": "dice_game_player",
-    "value": "\n{nickname} ( {id} )"
+    "name": "dice_game_player_format",
+    "value": "\n{nickname} ({id})"
   },
   {
-    "name": "dice_game_winner",
-    "value": "🎉 Congratulations to the winning player: {nickname} ({id} )\n\nOther winners:{list}"
+    "name": "dice_game_winner_announcement",
+    "value": "🎉🏆 Congratulations to the winner: {nickname} ({id})\n\n🥈 Other participants:{list}"
   },
   {
-    "name": "dice_game_player_balance_500_error",
-    "value": "(n) The amount must be a multiple of 500"
+    "name": "dice_game_invalid_bet_amount",
+    "value": "(n) ❌ The bet amount must be a multiple of 500"
   },
   {
-    "name": "dice_game_player_balance_not_enough_error",
-    "value": "(n) You don't have enough balance"
+    "name": "dice_game_insufficient_balance",
+    "value": "(n) ❌ You don't have enough balance"
   },
   {
-    "name": "dice_message_score",
-    "value": "Your rank and total points:\n\nRank: {rank}\nTotal: {total} points \n{nickname} ( {id} )"
+    "name": "dice_player_rank_display",
+    "value": "📊 Your rank and total points:\n\n🏅 Rank: {rank}\n⭐ Total: {total} points\n{nickname} ({id})"
   },
   {
-    "name": "dice_message_no_score",
-    "value": "You currently have no points in this bot\n{nickname} ( {id} )"
+    "name": "dice_player_no_score",
+    "value": "📊 You currently have no points in this bot\n{nickname} ({id})"
   },
   {
-    "name": "dice_message_top_score",
-    "value": "Top 10 List: \n\n{list}"
+    "name": "dice_leaderboard_top_players",
+    "value": "🏆 Top 10 Leaderboard:\n\n{list}"
   },
   {
-    "name": "dice_message_top_no_score",
-    "value": "(N) The bot did not have top player yet."
+    "name": "dice_leaderboard_empty",
+    "value": "(n) No players have scored yet"
   },
   {
     "name": "dice_help_message",
     "value": [
-      "Help menu:\n",
-      "!dice new <balance>",
-      "!dice cancel",
-      "!dice join",
-      "!dice bal",
-      "!dice show",
-      "!dice rank",
-      "!dice status",
-      "!dice top",
-      "!dice help"
+      "📖 Help Menu:\n",
+      "🎮 !dice new <balance> - Create a new game",
+      "❌ !dice cancel - Cancel the current game",
+      "✅ !dice join - Join an existing game",
+      "💰 !dice bal - Check your balance",
+      "👥 !dice show - Show player list",
+      "🏅 !dice rank - View your rank",
+      "📊 !dice status - View your dice statistics",
+      "🏆 !dice top - View top 10 leaderboard",
+      "❓ !dice help - Show this menu"
     ]
   },
   {
-    "name": "dice_help_admin_message",
+    "name": "dice_admin_help_message",
     "value": [
-      "Admin help menu : \n",
-      "!dice admin join <group ID>",
-      "!dice admin refresh = update last active date",
-      "!dice admin count - get group count",
-      "!dice admin help - show this menu"
+      "⚙️ Admin Help Menu:\n",
+      "➕ !dice admin join <group ID> - Join a specific group",
+      "🔄 !dice admin refresh - Update last active date for all groups",
+      "📊 !dice admin count - Get total group count",
+      "❓ !dice admin help - Show this menu"
     ]
   },
   {
@@ -268,42 +268,42 @@
   },
   {
     "name": "dice_auto_leave_message",
-    "value": "/me Sorry, You haven't played for the past five days so I'm leaving this group :("
+    "value": "/me 👋 Sorry! You haven't played for the past five days, so I'm leaving this group. Hope to see you again!"
   },
   {
-    "name": "dice_auto_leave_log",
-    "value": "/me Maintenance Report:\n\nRemaining groups:{count}\nInactive groups:{inactiveCount}\nLeft from groups:\n{groupsName}"
+    "name": "dice_maintenance_report",
+    "value": "/me 🔧 Maintenance Report:\n\n✅ Remaining groups: {count}\n⚠️ Inactive groups: {inactiveCount}\n👋 Left from groups:\n{groupsName}"
   },
   {
     "name": "dice_admin_join_log",
-    "value": "/alert ⚙ Command Action\n\n•Command : Join\n•ِAdmin : {adminNickname} ({adminID})\n•Group:[{groupName}] ({groupID})"
+    "value": "/alert ⚙️ Admin Action\n\n• Command: Join\n• Admin: {adminNickname} ({adminID})\n• Group: [{groupName}] ({groupID})"
   },
   {
-    "name": "dice_admin_count_message",
-    "value": "/me Count Groups : {count}."
+    "name": "dice_admin_group_count",
+    "value": "/me 📊 Total Groups: {count}"
   },
   {
-    "name": "dice_message_status",
-    "value": "• Your status:\n\n{d1}⚀\t\t{d2}⚁\t\t{d3}⚂\n{d4}⚃\t\t{d5}⚄\t\t{d6}⚅"
+    "name": "dice_player_statistics",
+    "value": "📊 Your Dice Statistics:\n\n{d1}⚀\t\t{d2}⚁\t\t{d3}⚂\n{d4}⚃\t\t{d5}⚄\t\t{d6}⚅"
   },
   {
-    "name": "dice_message_status_empty",
-    "value": "(n) There is no status for you, play and try agin."
+    "name": "dice_player_no_statistics",
+    "value": "(n) You don't have any statistics yet. Play some games and try again!"
   },
   {
-    "name": "dice_admin_update_message",
-    "value": "/me Status updated to:\n{status}"
+    "name": "dice_admin_status_updated",
+    "value": "/me ✅ Status updated to:\n{status}"
   },
   {
-    "name": "dice_admin_not_authorized_message",
-    "value": "/me (n) You are not authorized to user this command"
+    "name": "dice_admin_unauthorized",
+    "value": "/me (n) ❌ You are not authorized to use this command"
   },
   {
-    "name": "dice_only_owner_message",
-    "value": "(n) Only owner can use this command."
+    "name": "dice_owner_only_command",
+    "value": "(n) ❌ Only the game owner can use this command"
   },
   {
-    "name": "dice_admin_refresh_message",
-    "value": "/me we just update this groups:\n{list}"
+    "name": "dice_admin_groups_refreshed",
+    "value": "/me 🔄 Successfully refreshed these groups:\n{list}"
   }
 ]

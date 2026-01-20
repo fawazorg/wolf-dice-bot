@@ -19,13 +19,13 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(
-      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
     );
   }
   const count = (await client.channel.list()).length;
   return command.reply(
     client.utility.string.replace(
-      client.phrase.getByCommandAndName(command, "dice_admin_count_message"),
+      client.phrase.getByCommandAndName(command, "dice_admin_group_count"),
       { count }
     )
   );

@@ -23,11 +23,11 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(
-      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
     );
   }
   const names = await refreshUnsetGroup(client);
-  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_refresh_message");
+  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_groups_refreshed");
   const content = client.utility.string.replace(phrase, { list: names.join("\n") });
 
   return command.reply(content);

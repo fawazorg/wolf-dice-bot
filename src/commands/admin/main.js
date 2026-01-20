@@ -18,7 +18,7 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(
-      client.phrase.getByCommandAndName(command, "dice_admin_not_authorized_message")
+      client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
     );
   }
   return command.reply(client.phrase.getByCommandAndName(command, "dice_default_admin_message"));

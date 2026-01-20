@@ -22,7 +22,7 @@ export default async (client, command) => {
   if (!data) {
     return command.reply(
       client.utility.string.replace(
-        client.phrase.getByCommandAndName(command, "dice_message_no_score"),
+        client.phrase.getByCommandAndName(command, "dice_player_no_score"),
         {
           nickname: user.nickname,
           id: user.id
@@ -32,7 +32,7 @@ export default async (client, command) => {
   }
   return command.reply(
     client.utility.string.replace(
-      client.phrase.getByCommandAndName(command, "dice_message_score"),
+      client.phrase.getByCommandAndName(command, "dice_player_rank_display"),
       {
         rank: data.GlobalRank,
         total: data.score,

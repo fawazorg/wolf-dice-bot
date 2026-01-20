@@ -73,7 +73,7 @@ const sendLeaveMessage = async (api, group) => {
  * @returns {Promise<void>}
  */
 const sendLogMessage = async (api, names) => {
-  const phrase = api.phrase().getByLanguageAndName("ar", "dice_auto_leave_log");
+  const phrase = api.phrase().getByLanguageAndName("ar", "dice_maintenance_report");
   const groupsCount = await api.channel().list();
   const content = api
     .utility()

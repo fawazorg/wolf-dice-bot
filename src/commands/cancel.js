@@ -25,7 +25,7 @@ export default async (api, command, game) => {
   const IsGroupOwner = Group.owner.id === command.sourceSubscriberId;
   const okay = IsVolunteer || IsGroupOwner;
   if (!okay) {
-    const phrase = api.phrase.getByCommandAndName(command, "dice_only_owner_message");
+    const phrase = api.phrase.getByCommandAndName(command, "dice_owner_only_command");
 
     return command.reply(phrase);
   }

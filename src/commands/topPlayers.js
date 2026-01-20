@@ -31,12 +31,12 @@ export default async (client, command) => {
     }
     return command.reply(
       client.utility.string.replace(
-        client.phrase.getByCommandAndName(command, "dice_message_top_score"),
+        client.phrase.getByCommandAndName(command, "dice_leaderboard_top_players"),
         {
           list: r
         }
       )
     );
   }
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_message_top_no_score"));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_leaderboard_empty"));
 };
