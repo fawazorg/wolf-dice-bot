@@ -1,7 +1,7 @@
 {
-  "watch": ["."],
+  "watch": ["src"],
   "ext": "js,json",
   "ignore": ["node_modules", ".git"],
-  "exec": "node index.js",
+  "exec": "node src/main.js",
   "delay": "2000"
 }

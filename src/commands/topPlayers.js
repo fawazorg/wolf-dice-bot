@@ -7,7 +7,7 @@ import { getTopPlayers } from "../dice/score.js";
  */
 export default async (client, command) => {
   const data = await getTopPlayers();
-  if (data.length < 0) {
+  if (data.length > 0) {
     let r = "";
     for (let index = 0; index < data.length; index++) {
       const user = data[index];

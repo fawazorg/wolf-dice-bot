@@ -1,6 +1,6 @@
 import "dotenv/config";
-import diceClient from "./diceClient.js";
-import("./db.js");
+import DiceClient from "./bot/DiceClient.js";
+import("./database/connection.js");
 
 const clients = new Map();
 const accounts = process.env.ACCOUNTS.split("|");
@@ -8,7 +8,7 @@ const main = async () => {
   await accounts.reduce(async (previousValue, account) => {
     await previousValue;
 
-    const client = new diceClient(account.split(":")[0], account.split(":")[1]);
+    const client = new DiceClient(account.split(":")[0], account.split(":")[1]);
 
     client.commandRegister();
 

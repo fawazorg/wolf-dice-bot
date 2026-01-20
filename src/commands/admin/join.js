@@ -1,6 +1,6 @@
 import { Validator } from "wolf.js";
 import { AdminGroup, admins } from "../../dice/data.js";
-import Group from "../../models/group.js";
+import Group from "../../database/models/group.js";
 /**
  * join command
  * @param {import('wolf.js').WOLF} client

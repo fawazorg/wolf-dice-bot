@@ -1,4 +1,4 @@
-import Player from "../models/player.js";
+import Player from "../database/models/player.js";
 
 const getTotal = (arr = []) => arr.reduce((prev, num) => prev + num.value, 0);
 const getByKey = (arr = [], key) => arr.find((item) => item.key === key)?.percentage || "0%";

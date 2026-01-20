@@ -1,13 +1,13 @@
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
-import * as Dice from "./src/commands/index.js";
-import { deleteGroup, setLastActive } from "./src/dice/active.js";
-import { admins } from "./src/dice/data.js";
-import { GameManager } from "./src/index.js";
-import { leaveInactiveGroups } from "./src/jobs/active.js";
-import { createUpdateTimer } from "./src/jobs/group.js";
+import * as Dice from "../commands/index.js";
+import { deleteGroup, setLastActive } from "../dice/active.js";
+import { admins } from "../dice/data.js";
+import { GameManager } from "../index.js";
+import { leaveInactiveGroups } from "../jobs/active.js";
+import { createUpdateTimer } from "../jobs/group.js";
 
-class diceClient {
+class DiceClient {
   constructor(email, password) {
     this.client = new WOLF();
     this.game = new GameManager(this.client, {
@@ -111,4 +111,4 @@ class diceClient {
   }
 }
 
-export default diceClient;
+export default DiceClient;

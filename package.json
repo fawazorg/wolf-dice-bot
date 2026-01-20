@@ -2,9 +2,9 @@
   "name": "wolf-dice",
   "version": "1.5.1",
   "description": "A dice game bot for wolf.live",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
-    "dev": "nodemon index.js",
+    "dev": "nodemon src/main.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
