@@ -48,10 +48,6 @@
     "value": "admin"
   },
   {
-    "name": "dice_default_admin_command",
-    "value": "a"
-  },
-  {
     "name": "dice_admin_join_command",
     "value": "join"
   },
@@ -272,7 +268,7 @@
   },
   {
     "name": "dice_auto_leave_log",
-    "value": "/me I left this group [{name}] becurse it inactive group, i am still in {count} groups."
+    "value": "/me Maintenance Report:\n\nRemaining groups:{count}\nInactive groups:{inactiveCount}\nLeft from groups:\n{groupsName}"
   },
   {
     "name": "dice_admin_join_log",
@@ -293,10 +289,6 @@
   {
     "name": "dice_admin_update_message",
     "value": "/me Status updated to:\n{status}"
-  },
-  {
-    "name": "dice_admin_not_authorized_message",
-    "value": "/me (n) You are not authorized to user this command"
   },
   {
     "name": "dice_admin_not_authorized_message",

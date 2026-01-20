@@ -405,13 +405,16 @@ class GameManager {
    * @private
    */
   async #onPlayerJoined(data) {
-    const { channelId } = data;
+    const { channelId, playerId } = data;
     const language = this.#languages.get(channelId) || 'en';
 
-    // We need to construct a minimal command-like object for the reply
-    await this.#messages.send(channelId,
-      this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_join`)
-    );
+    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_join`);
+    const user = await this.#messages.getUser(playerId);
+    const response = this.#messages.replacePlaceholders(phrase, {
+      nickname: user.nickname,
+      id: user.id
+    });
+    await this.#messages.send(channelId, response);
   }
 
   /**

@@ -44,10 +44,6 @@
     "value": "مدير"
   },
   {
-    "name": "dice_default_admin_command",
-    "value": "م"
-  },
-  {
     "name": "dice_admin_join_command",
     "value": "انضم"
   },
