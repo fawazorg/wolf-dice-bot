@@ -1,6 +1,8 @@
-# Wolf Dice Bot
-
 <div align="center">
+
+<img src="assets/logo.png" alt="Wolf Dice Bot Logo" width="200"/>
+
+# Wolf Dice Bot
 
 A multiplayer dice game bot for [wolf.live](https://wolf.live) chat platform
 
@@ -155,19 +157,33 @@ wolf-dice-bot/
 │   │   └── GameManager.js # Bridges core logic with WOLF platform
 │   ├── services/          # External services
 │   │   └── MessageService.js # Multi-language message handling
+│   ├── database/          # Database layer
+│   │   ├── helpers/       # Database helper functions
+│   │   │   ├── group.js   # Group activity tracking
+│   │   │   └── player.js  # Player scoring and ranking
+│   │   └── models/        # Mongoose schemas
 │   ├── utils/             # Utility functions
-│   │   └── Random.js      # Random number generation
+│   │   ├── Random.js      # Random number generation
+│   │   ├── config.js      # Environment variable parsing
+│   │   └── authorization.js # Admin authorization
 │   ├── commands/          # Command handlers
 │   │   ├── admin/         # Admin-specific commands
 │   │   └── *.js           # Player commands
 │   ├── jobs/              # Scheduled tasks
-│   ├── dice/              # Legacy helpers
+│   ├── bot/               # Bot client
+│   │   └── DiceClient.js  # WOLF client wrapper
 │   └── main.js            # Application entry point
 ├── phrases/               # Localization files
 │   ├── en.json           # English messages
 │   └── ar.json           # Arabic messages
 ├── config/
 │   └── default.yaml      # Bot configuration
+├── docker/
+│   └── mongodb/          # MongoDB initialization
+│       ├── init-db.sh    # User creation script
+│       └── README.md     # MongoDB setup docs
+├── assets/
+│   └── logo.png          # Bot logo
 └── docker-compose.yml    # Infrastructure setup
 ```
 
