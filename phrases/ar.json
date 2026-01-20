@@ -137,6 +137,10 @@
     "value": "(n) لم تقم باختيار منافس لك ، سأتجاهل هذه الجولة\n{nickname} ( {id} )"
   },
   {
+    "name": "dice_game_auto_pick",
+    "value": "🎲 رقم النرد ( {dice} )\n\n🎯 يوجد منافس واحد فقط، تم اختياره تلقائياً:\n{opponentNickname} ( {opponentId} )\n\n💰 رصيدك هو {balance}\nفضلا اختر مبلغ المنافسة على ان يكون من مضاعفات 500\n{nickname} ( {id} )"
+  },
+  {
     "name": "dice_game_player_rewarded",
     "value": "🥳 تهانينا، لقد خمنت الرقم الصحيح، ستتمم مكافأتك بـ 500 نقطة \n\n{nickname} ( {id} )"
   },

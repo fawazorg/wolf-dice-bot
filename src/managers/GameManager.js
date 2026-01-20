@@ -87,6 +87,7 @@ class GameManager {
     // Game action events
     this.#engine.on('guess:received', (data) => this.#onGuessReceived(data));
     this.#engine.on('guess:exact', (data) => this.#onGuessExact(data));
+    this.#engine.on('pick:auto', (data) => this.#onPickAuto(data));
     this.#engine.on('roll:received', (data) => this.#onRollReceived(data));
     this.#engine.on('roll:timeout', (data) => this.#onRollTimeout(data));
     this.#engine.on('pvp:draw', (data) => this.#onPVPDraw(data));
@@ -470,18 +471,21 @@ class GameManager {
 
   /**
    * Handle phase:betting event
-   * @param {{channelId: number, pickerId: number, opponentId: number, pickerBalance: number}} data
+   * @param {{channelId: number, pickerId: number, opponentId: number, pickerBalance: number, isAutoPick?: boolean}} data
    * @private
    */
   async #onPhaseBetting(data) {
-    const { channelId, pickerBalance } = data;
+    const { channelId, pickerBalance, isAutoPick } = data;
     const language = this.#languages.get(channelId) || 'en';
 
     if (pickerBalance === this.#engine.minBet) {
       // Skip betting, use minimum
       this.#engine.handleBet(channelId, data.pickerId, this.#engine.minBet);
     } else {
-      await this.#messages.replyAskPlayerBalance(channelId, language, pickerBalance);
+      // Skip sending bet message if auto-pick (already included in auto-pick message)
+      if (!isAutoPick) {
+        await this.#messages.replyAskPlayerBalance(channelId, language, pickerBalance);
+      }
       this.#listenForBet(channelId, data.pickerId);
     }
   }
@@ -539,6 +543,29 @@ class GameManager {
    */
   async #onGuessExact(_data) {
     // Exact match bonus handled in phase:picking
+  }
+
+  /**
+   * Handle pick:auto event
+   * @param {{channelId: number, roll: number, candidateId: number, opponentId: number, candidateBalance: number}} data
+   * @private
+   */
+  async #onPickAuto(data) {
+    const { channelId, roll, candidateId, opponentId, candidateBalance } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_auto_pick`);
+    const candidate = await this.#messages.getUser(candidateId);
+    const opponent = await this.#messages.getUser(opponentId);
+    const response = this.#messages.replacePlaceholders(phrase, {
+      dice: roll,
+      nickname: candidate.nickname,
+      id: candidate.id,
+      opponentNickname: opponent.nickname,
+      opponentId: opponent.id,
+      balance: candidateBalance
+    });
+    await this.#messages.send(channelId, response);
   }
 
   /**
@@ -625,6 +652,7 @@ class GameManager {
    */
   async #listenForBet(channelId, playerId) {
     const language = this.#languages.get(channelId) || 'en';
+    let hasReceivedAnyMessage = false;
 
     while (this.#engine.getState(channelId) === 'betting') {
       const message = await this.#client.messaging.subscription.nextMessage(
@@ -636,12 +664,23 @@ class GameManager {
         this.#timeToChoice
       );
 
-      if (!message) {
-        // Timeout - use minimum bet
-        this.#engine.handleBet(channelId, playerId, this.#engine.minBet);
+      // Check if state changed (game ended or timer triggered default bet)
+      if (this.#engine.getState(channelId) !== 'betting') {
         return;
       }
 
+      if (!message) {
+        // Timeout with no message
+        if (!hasReceivedAnyMessage) {
+          // Player never tried - use default bet
+          this.#engine.handleBet(channelId, playerId, this.#engine.minBet);
+          return;
+        }
+        // Player tried but entered wrong - keep waiting indefinitely
+        continue;
+      }
+
+      hasReceivedAnyMessage = true;
       const amount = this.#parseNumber(message.body);
       const result = this.#engine.handleBet(channelId, playerId, amount);
 
@@ -649,15 +688,16 @@ class GameManager {
         return;
       }
 
-      // Show error based on validation result
+      // Show error based on validation result and let player try again
       if (result.error === 'invalid_bet_increment') {
         await this.#messages.replyAskPlayerBalanceError500(channelId, language);
       } else if (result.error === 'insufficient_balance') {
         await this.#messages.replyAskPlayerBalanceError(channelId, language);
-      } else {
-        // Exit on other errors
-        return;
       }
+
+      // Reset the betting timer to give player full time to enter correct amount
+      this.#engine.resetBettingTimer(channelId, playerId);
+      // Continue looping - player can try again with fresh timeout
     }
   }
 
@@ -683,15 +723,11 @@ class GameManager {
     }
 
     const pick = this.#parseNumber(message.body);
-    const eligiblePlayers = this.#engine.getEligiblePlayers(channelId);
-    const pickerIndex = eligiblePlayers.findIndex((p) => p.id === pickerId);
+    // Get eligible players excluding the picker (same list shown to user)
+    const allEligible = this.#engine.getEligiblePlayers(channelId);
+    const eligiblePlayers = allEligible.filter((p) => p.id !== pickerId);
 
-    // Can't pick yourself (pick is 1-indexed, pickerIndex is 0-indexed)
-    if (pick - 1 === pickerIndex) {
-      return false;
-    }
-
-    // Pick must be within range of eligible players
+    // Pick must be within range of eligible opponents (1-indexed)
     return pick >= 1 && pick <= eligiblePlayers.length;
   }
 
@@ -742,6 +778,18 @@ class GameManager {
   }
 
   /**
+   * Check if message is a valid roll command
+   * @param {string} body - Message body
+   * @param {string} language - Language code
+   * @returns {boolean}
+   * @private
+   */
+  #isValidRollCommand(body, language) {
+    const rollPhrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_roll`);
+    return body.trim().toLowerCase() === rollPhrase.toLowerCase();
+  }
+
+  /**
    * Listen for roll messages from candidate and opponent
    * @param {number} channelId
    * @param {number} startingPlayerId - ID of player who should roll first
@@ -769,12 +817,13 @@ class GameManager {
 
       console.log(`[GameManager] Waiting for roll from player ${currentPlayerToRoll}, state: ${this.#engine.getState(channelId)}`);
 
-      // Wait for a message from the current player
+      // Wait for a message from the current player with the roll phrase
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
           msg.targetChannelId === channelId &&
-          msg.sourceSubscriberId === currentPlayerToRoll,
+          msg.sourceSubscriberId === currentPlayerToRoll &&
+          this.#isValidRollCommand(msg.body, language),
         this.#timeToChoice
       );
 
@@ -787,7 +836,7 @@ class GameManager {
       }
 
       const playerId = message.sourceSubscriberId;
-      console.log(`[GameManager] Received message from ${playerId}: "${message.body}"`);
+      console.log(`[GameManager] Received roll command from ${playerId}: "${message.body}"`);
 
       const result = this.#engine.handleRoll(channelId, playerId, null);
       console.log(`[GameManager] Roll result:`, result);

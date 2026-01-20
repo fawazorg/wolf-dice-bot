@@ -355,7 +355,50 @@ class GameEngine {
     this.#states.set(channelId, GameState.PICKING);
     this.#log('PHASE_PICKING_START', { channelId, winnerId: winner.id });
 
-    const eligiblePlayers = channel.getRichestPlayers(this.#config.minBet);
+    // Get eligible players and filter out the candidate (they can't pick themselves)
+    const allEligible = channel.getRichestPlayers(this.#config.minBet);
+    const eligiblePlayers = allEligible.filter(p => p.id !== winner.id);
+
+    // If only one eligible player remains, auto-pick them
+    if (eligiblePlayers.length === 1) {
+      const autoPickedOpponent = eligiblePlayers[0];
+      this.#log('AUTO_PICK', { channelId, winnerId: winner.id, autoPickedId: autoPickedOpponent.id });
+      round.setOpponent(autoPickedOpponent);
+      this.#cancelTimer(channelId);
+
+      // Emit auto-pick event to notify players (includes betting info)
+      this.#emit('pick:auto', {
+        channelId,
+        roll,
+        candidateId: winner.id,
+        opponentId: autoPickedOpponent.id,
+        candidateBalance: round.candidate.balance
+      });
+
+      this.#states.set(channelId, GameState.BETTING);
+      this.#log('PHASE_BETTING_START', { channelId, pickerId: winner.id, opponentId: autoPickedOpponent.id });
+      this.#emit('phase:betting', {
+        channelId,
+        pickerId: winner.id,
+        opponentId: autoPickedOpponent.id,
+        pickerBalance: round.candidate.balance,
+        isAutoPick: true
+      });
+
+      // Start betting timer (only triggers if player doesn't respond at all)
+      this.#startTimer(channelId, () => {
+        this.#handleBet(channelId, winner.id, this.#config.minBet);
+      }, this.#config.timeToChoice);
+      return { success: true };
+    }
+
+    // No eligible opponents (shouldn't happen with proper game logic)
+    if (eligiblePlayers.length === 0) {
+      this.#log('NO_ELIGIBLE_OPPONENTS', { channelId, winnerId: winner.id });
+      this.#startGuessingPhase(channelId);
+      return { success: true };
+    }
+
     const playerData = eligiblePlayers.map(p => ({ id: p.id, balance: p.balance }));
 
     this.#emit('phase:picking', {
@@ -396,16 +439,18 @@ class GameEngine {
       return { success: false, error: 'not_candidate' };
     }
 
-    const eligiblePlayers = channel.getRichestPlayers(this.#config.minBet);
-    const pickerIndex = eligiblePlayers.findIndex(p => p.id === pickerId);
+    const allEligible = channel.getRichestPlayers(this.#config.minBet);
+    // Filter out the picker - they can't pick themselves
+    const eligiblePlayers = allEligible.filter(p => p.id !== pickerId);
 
-    const validation = Validator.validatePick(pickIndex, eligiblePlayers.length, pickerIndex);
-    if (!validation.valid) {
-      this.#log('PICK_INVALID', { channelId, pickerId, pickIndex, error: validation.error });
-      return { success: false, error: validation.error };
+    // Validate pick index (1-based from user input)
+    const normalizedIndex = pickIndex - 1;
+    if (normalizedIndex < 0 || normalizedIndex >= eligiblePlayers.length) {
+      this.#log('PICK_INVALID', { channelId, pickerId, pickIndex, error: 'pick_out_of_range' });
+      return { success: false, error: 'pick_out_of_range' };
     }
 
-    const opponent = eligiblePlayers[validation.normalizedIndex];
+    const opponent = eligiblePlayers[normalizedIndex];
     round.setOpponent(opponent);
 
     // Cancel picking timer to prevent it from firing during later phases
@@ -415,7 +460,7 @@ class GameEngine {
       channelId,
       pickerId,
       pickIndex,
-      normalizedIndex: validation.normalizedIndex,
+      normalizedIndex,
       opponentId: opponent.id,
       totalEligible: eligiblePlayers.length
     });
@@ -430,9 +475,8 @@ class GameEngine {
       pickerBalance: round.candidate.balance
     });
 
-    // Start betting timer
+    // Start betting timer (only triggers if player doesn't respond at all)
     this.#startTimer(channelId, () => {
-      // On timeout, use minimum bet
       this.#handleBet(channelId, pickerId, this.#config.minBet);
     }, this.#config.timeToChoice);
 
@@ -895,6 +939,21 @@ class GameEngine {
       timer.stop();
       this.#timers.delete(channelId);
     }
+  }
+
+  /**
+   * Reset betting timer (called when player enters wrong bet amount)
+   * @param {number} channelId - Channel ID
+   * @param {number} playerId - Player ID who is betting
+   */
+  resetBettingTimer(channelId, playerId) {
+    if (this.#states.get(channelId) !== GameState.BETTING) {
+      return;
+    }
+
+    this.#startTimer(channelId, () => {
+      this.#handleBet(channelId, playerId, this.#config.minBet);
+    }, this.#config.timeToChoice);
   }
 
   /**

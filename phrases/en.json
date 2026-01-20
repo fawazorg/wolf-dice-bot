@@ -140,6 +140,10 @@
     "value": "(n) You didn't choose your opponent so this round will be ignored\n{nickname} ({id} )"
   },
   {
+    "name": "dice_game_auto_pick",
+    "value": "🎲 The dice number is {dice}\n\n🎯 Only one opponent available, auto-selecting:\n{opponentNickname} ({opponentId} )\n\n💰 Your balance is: {balance}\nPlease select your bet amount in multiples of 500\n{nickname} ({id} )"
+  },
+  {
     "name": "dice_game_player_rewarded",
     "value": "🥳 Congratulations, you guessed the correct number, you will be rewarded with 500 points\n\n{nickname} ( {id} )"
   },
