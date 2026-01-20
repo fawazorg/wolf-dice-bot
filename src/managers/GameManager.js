@@ -1,16 +1,19 @@
 import { Validator } from "wolf.js";
-import Game from "../core/Game.js";
+import { GameEngine } from "../engine/index.js";
 import MessageService from "../services/MessageService.js";
+
 /**
- * GameManager integrates Game logic with MessageService and WOLF.js client
- * Handles timers, message subscriptions, and game flow coordination
+ * GameManager integrates GameEngine with MessageService and WOLF.js client
+ * Listens to engine events and handles all messaging and platform integration
+ *
+ * This is a thin integration layer - all game logic is in GameEngine
  */
 class GameManager {
   /** @type {import('wolf.js').WOLF} */
   #client;
 
-  /** @type {Game} */
-  #game;
+  /** @type {GameEngine} */
+  #engine;
 
   /** @type {MessageService} */
   #messages;
@@ -24,6 +27,12 @@ class GameManager {
   /** @type {Set<number>} Admin user IDs */
   #admins;
 
+  /** @type {Map<number, string>} Channel languages (cached for messaging) */
+  #languages;
+
+  /** @type {Map<number, number>} Initial player counts (for final scoring) */
+  #initialPlayerCounts;
+
   /**
    * @param {import('wolf.js').WOLF} client - WOLF client instance
    * @param {Object} options - Configuration options
@@ -34,11 +43,49 @@ class GameManager {
    */
   constructor(client, options = {}) {
     this.#client = client;
-    this.#game = new Game(options.maxPlayers || 16);
+    this.#engine = new GameEngine({
+      maxPlayers: options.maxPlayers || 16,
+      timeToJoin: options.timeToJoin || 30000,
+      timeToChoice: options.timeToChoice || 15000,
+      maxGuessRoll: 50,
+      minBet: 500
+    });
     this.#messages = new MessageService(client);
     this.#timeToJoin = options.timeToJoin || 30000;
     this.#timeToChoice = options.timeToChoice || 15000;
     this.#admins = new Set(options.admins || []);
+    this.#languages = new Map();
+    this.#initialPlayerCounts = new Map();
+
+    this.#setupEventListeners();
+  }
+
+  /**
+   * Set up event listeners for GameEngine events
+   * @private
+   */
+  #setupEventListeners() {
+    // Game lifecycle events
+    this.#engine.on('game:created', (data) => this.#onGameCreated(data));
+    this.#engine.on('game:removed', (data) => this.#onGameRemoved(data));
+    this.#engine.on('game:ended', (data) => this.#onGameEnded(data));
+    this.#engine.on('game:finished', (data) => this.#onGameFinished(data));
+
+    // Player events
+    this.#engine.on('player:joined', (data) => this.#onPlayerJoined(data));
+
+    // Phase events
+    this.#engine.on('phase:guessing', (data) => this.#onPhaseGuessing(data));
+    this.#engine.on('phase:picking', (data) => this.#onPhasePicking(data));
+    this.#engine.on('phase:betting', (data) => this.#onPhaseBetting(data));
+    this.#engine.on('phase:rolling', (data) => this.#onPhaseRolling(data));
+
+    // Game action events
+    this.#engine.on('guess:received', (data) => this.#onGuessReceived(data));
+    this.#engine.on('guess:exact', (data) => this.#onGuessExact(data));
+    this.#engine.on('roll:received', (data) => this.#onRollReceived(data));
+    this.#engine.on('pvp:draw', (data) => this.#onPVPDraw(data));
+    this.#engine.on('pvp:result', (data) => this.#onPVPResult(data));
   }
 
   // ===== Public API =====
@@ -53,7 +100,7 @@ class GameManager {
     const channelId = command.targetChannelId;
 
     // Check if game already exists
-    if (this.#game.hasGame(channelId)) {
+    if (this.#engine.hasGame(channelId)) {
       await this.#messages.replyAlreadyCreated(command);
       return false;
     }
@@ -71,14 +118,17 @@ class GameManager {
       return false;
     }
 
+    // Cache language
+    this.#languages.set(channelId, command.language);
+
     // Create the game
-    const result = this.#game.createGame(channelId, command.language, balance);
+    const result = this.#engine.createGame(channelId, command.language, balance);
     if (!result.success) {
       return false;
     }
 
     // Add creator as first player
-    this.#game.addPlayer(channelId, command.sourceSubscriberId);
+    this.#engine.addPlayer(channelId, command.sourceSubscriberId);
 
     // Set join timer
     await this.#client.utility.timer.add(
@@ -87,9 +137,6 @@ class GameManager {
       { channleId: channelId },
       this.#timeToJoin
     );
-
-    // Send created message
-    await this.#messages.replyCreated(channelId, command.language, this.#game.maxPlayers);
 
     return true;
   }
@@ -104,33 +151,19 @@ class GameManager {
     const playerId = command.sourceSubscriberId;
 
     // Check if game exists
-    if (!this.#game.hasGame(channelId)) {
+    if (!this.#engine.hasGame(channelId)) {
       await this.#messages.replyNotExist(command);
       return false;
     }
 
-    // Check if joinable
-    if (!this.#game.isJoinable(channelId)) {
-      return false;
-    }
-
     // Try to add player
-    const result = this.#game.addPlayer(channelId, playerId);
+    const result = this.#engine.addPlayer(channelId, playerId);
 
     if (!result.success) {
       if (result.error === "already_joined") {
         await this.#messages.replyAlreadyJoin(command);
       }
       return false;
-    }
-
-    // Send join message
-    await this.#messages.replyJoin(command);
-
-    // Check if game is full and should start
-    const channel = this.#game.getChannel(channelId);
-    if (channel && channel.isFull()) {
-      await this.start(channelId);
     }
 
     return true;
@@ -143,14 +176,13 @@ class GameManager {
   async show(command) {
     const channelId = command.targetChannelId;
 
-    if (!this.#game.hasGame(channelId)) {
+    if (!this.#engine.hasGame(channelId)) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    const players = this.#game.getEligiblePlayers(channelId);
-    const playerData = players.map((p) => ({ id: p.id, balance: p.balance }));
-    const playerList = await this.#messages.formatPlayerList(playerData);
+    const players = this.#engine.getEligiblePlayers(channelId);
+    const playerList = await this.#messages.formatPlayerList(players);
     await this.#messages.replyPlayers(command, playerList);
   }
 
@@ -161,12 +193,12 @@ class GameManager {
   async remove(command) {
     const channelId = command.targetChannelId;
 
-    if (!this.#game.hasGame(channelId)) {
+    if (!this.#engine.hasGame(channelId)) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    this.#game.endGame(channelId);
+    this.#engine.removeGame(channelId);
     await this.#messages.replyGameRemoved(command);
   }
 
@@ -178,18 +210,18 @@ class GameManager {
     const channelId = command.targetChannelId;
     const playerId = command.sourceSubscriberId;
 
-    if (!this.#game.hasGame(channelId)) {
+    if (!this.#engine.hasGame(channelId)) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    const player = this.#game.getPlayer(channelId, playerId);
-    if (!player) {
+    const balance = this.#engine.getPlayerBalance(channelId, playerId);
+    if (balance === null) {
       await this.#messages.replyPlayerNotFound(command);
       return;
     }
 
-    await this.#messages.replyPlayerBalance(command, playerId, player.balance);
+    await this.#messages.replyPlayerBalance(command, playerId, balance);
   }
 
   /**
@@ -198,23 +230,66 @@ class GameManager {
    * @param {number} channelId
    */
   async onJoinTimeout(channelId) {
-    if (!this.#game.hasGame(channelId)) {
-      return;
-    }
+    this.#engine.onJoinTimeout(channelId);
+  }
 
-    const playerCount = this.#game.getPlayerCount(channelId);
-    const isStarted = this.#game.isStarted(channelId);
+  /**
+   * Handle a player's guess message
+   * @param {import('wolf.js').Message} message
+   * @returns {Promise<boolean>} True if guess was accepted
+   */
+  async handleGuessMessage(message) {
+    const channelId = message.targetChannelId;
+    const playerId = message.sourceSubscriberId;
+    const guess = this.#parseNumber(message.body);
 
-    // Not enough players - end the game
-    if (playerCount <= 1) {
-      await this.#finishNoGuesses(channelId);
-      return;
-    }
+    const result = this.#engine.handleGuess(channelId, playerId, guess);
+    return result.success;
+  }
 
-    // Game hasn't started yet - start it
-    if (!isStarted) {
-      await this.start(channelId);
-    }
+  /**
+   * Handle a player's pick message
+   * @param {import('wolf.js').Message} message
+   * @returns {Promise<boolean>} True if pick was accepted
+   */
+  async handlePickMessage(message) {
+    const channelId = message.targetChannelId;
+    const playerId = message.sourceSubscriberId;
+    const pickIndex = this.#parseNumber(message.body);
+
+    const result = this.#engine.handlePick(channelId, playerId, pickIndex);
+    return result.success;
+  }
+
+  /**
+   * Handle a player's bet message
+   * @param {import('wolf.js').Message} message
+   * @returns {Promise<boolean>} True if bet was accepted
+   */
+  async handleBetMessage(message) {
+    const channelId = message.targetChannelId;
+    const playerId = message.sourceSubscriberId;
+    const amount = this.#parseNumber(message.body);
+
+    const result = this.#engine.handleBet(channelId, playerId, amount);
+    return result.success;
+  }
+
+  /**
+   * Handle a player's roll command
+   * @param {import('wolf.js').Message} message
+   * @returns {Promise<boolean>} True if roll was accepted
+   */
+  async handleRollCommand(message) {
+    const channelId = message.targetChannelId;
+    const playerId = message.sourceSubscriberId;
+
+    // Check for admin cheat
+    const isAdminCheat = this.#admins.has(playerId) && message.body === "لف.";
+    const fixedValue = isAdminCheat ? 6 : null;
+
+    const result = this.#engine.handleRoll(channelId, playerId, fixedValue);
+    return result.success;
   }
 
   /**
@@ -223,420 +298,324 @@ class GameManager {
    * @returns {boolean}
    */
   hasGame(channelId) {
-    return this.#game.hasGame(channelId);
+    return this.#engine.hasGame(channelId);
   }
 
   /**
-   * Start the game
+   * Get game state
    * @param {number} channelId
+   * @returns {string|null}
    */
-  async start(channelId) {
-    if (!this.#game.hasGame(channelId)) {
-      return;
-    }
-
-    const gameUUID = this.#game.getGameUUID(channelId);
-    const language = this.#game.getLanguage(channelId);
-    const initialPlayerCount = this.#game.getPlayerCount(channelId);
-
-    // Send game start message
-    const players = this.#game.getEligiblePlayers(channelId);
-    const playerData = players.map((p) => ({ id: p.id, balance: p.balance }));
-    const playerList = await this.#messages.formatPlayerList(playerData);
-    await this.#messages.replyGameStart(channelId, language, playerList);
-
-    // Main game loop
-    while (this.#game.isGameValid(channelId, gameUUID)) {
-      // Check if game should end
-      const endCheck = this.#game.checkGameEnd(channelId);
-      if (endCheck.ended) {
-        break;
-      }
-
-      await this.#delay(1000);
-
-      // Guessing phase
-      const guessResult = await this.#runGuessingPhase(channelId, gameUUID);
-      if (!guessResult.success) {
-        if (guessResult.noGuesses) {
-          await this.#finishNoGuesses(channelId);
-        }
-        return;
-      }
-
-      await this.#delay(1000);
-
-      // Announce winner and show player list
-      const eligiblePlayers = this.#game.getEligiblePlayers(channelId);
-      const listData = eligiblePlayers.map((p) => ({ id: p.id, balance: p.balance }));
-      const list = await this.#messages.formatPlayerList(listData);
-      await this.#messages.replyPlayerTurn(
-        channelId,
-        language,
-        guessResult.winner.id,
-        guessResult.roll,
-        list
-      );
-
-      // Picking phase
-      const opponent = await this.#runPickingPhase(channelId, gameUUID, guessResult.winner);
-      if (!opponent) {
-        continue;
-      }
-
-      await this.#delay(1000);
-
-      // Betting phase
-      const bet = await this.#runBettingPhase(channelId, gameUUID, guessResult.winner);
-
-      // PVP rolling phase
-      let pvpContinue = true;
-      while (pvpContinue && this.#game.isGameValid(channelId, gameUUID)) {
-        await this.#delay(1000);
-
-        const roll1 = await this.#askPlayerRoll(channelId, gameUUID, guessResult.winner);
-        if (roll1 === 0) {
-          // First player timed out, opponent wins by default
-          const pvpResult = this.#game.resolvePVP(
-            channelId,
-            guessResult.winner.id,
-            0,
-            opponent.id,
-            6,
-            bet
-          );
-          await this.#announcePVPResult(channelId, language, pvpResult, bet);
-          pvpContinue = false;
-          continue;
-        }
-
-        await this.#delay(1000);
-
-        const roll2 = await this.#askPlayerRoll(channelId, gameUUID, opponent);
-
-        await this.#delay(1000);
-
-        // Resolve PVP
-        const pvpResult = this.#game.resolvePVP(
-          channelId,
-          guessResult.winner.id,
-          roll1,
-          opponent.id,
-          roll2,
-          bet
-        );
-
-        pvpContinue = await this.#announcePVPResult(channelId, language, pvpResult, bet);
-      }
-    }
-
-    await this.#delay(1000);
-
-    // Game ended - announce winner
-    if (this.#game.hasGame(channelId)) {
-      const endCheck = this.#game.checkGameEnd(channelId);
-      if (endCheck.winner) {
-        // Add final points to winner
-        this.#game.addPoints(channelId, endCheck.winner.id, initialPlayerCount);
-        await this.#rewardPlayers(channelId);
-        await this.#announceWinner(channelId, language, endCheck.winner);
-      }
-      this.#game.endGame(channelId);
-    }
+  getState(channelId) {
+    return this.#engine.getState(channelId);
   }
 
-  // ===== Phase Runners =====
+  /**
+   * Get game language
+   * @param {number} channelId
+   * @returns {string|null}
+   */
+  getLanguage(channelId) {
+    return this.#engine.getLanguage(channelId);
+  }
 
   /**
-   * Run the guessing phase
+   * Get eligible players
    * @param {number} channelId
-   * @param {string} gameUUID
-   * @returns {Promise<{success: boolean, noGuesses?: boolean, roll?: number, winner?: import('../core/Player.js').default, isExact?: boolean}>}
+   * @returns {Array<{id: number, balance: number}>}
    */
-  async #runGuessingPhase(channelId, gameUUID) {
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return { success: false };
+  getEligiblePlayers(channelId) {
+    return this.#engine.getEligiblePlayers(channelId);
+  }
+
+  /**
+   * Get sorted scores
+   * @param {number} channelId
+   * @returns {Array<{playerId: number, points: number}>}
+   */
+  getSortedScores(channelId) {
+    return this.#engine.getSortedScores(channelId);
+  }
+
+  // ===== Event Handlers =====
+
+  /**
+   * Handle game:created event
+   * @param {{channelId: number, language: string, balance: number}} data
+   * @private
+   */
+  async #onGameCreated(data) {
+    const { channelId, language } = data;
+    await this.#messages.replyCreated(channelId, language, this.#engine.maxPlayers);
+  }
+
+  /**
+   * Handle game:removed event
+   * @param {{channelId: number}} data
+   * @private
+   */
+  async #onGameRemoved(data) {
+    // Cleanup cached data
+    this.#languages.delete(data.channelId);
+    this.#initialPlayerCounts.delete(data.channelId);
+  }
+
+  /**
+   * Handle game:ended event (normal completion)
+   * @param {{channelId: number, winnerId?: number, scores: Array}} data
+   * @private
+   */
+  async #onGameEnded(data) {
+    const { channelId, winnerId, scores } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    // Reward players (save points to database)
+    await this.#rewardPlayers(channelId, scores);
+
+    if (winnerId) {
+      await this.#announceWinner(channelId, language, winnerId, scores);
     }
 
-    const language = this.#game.getLanguage(channelId);
-    this.#game.startGuessingPhase(channelId);
+    // Cleanup
+    this.#languages.delete(channelId);
+    this.#initialPlayerCounts.delete(channelId);
+  }
 
-    // Ask players to guess
+  /**
+   * Handle game:finished event (early termination)
+   * @param {{channelId: number, reason: string}} data
+   * @private
+   */
+  async #onGameFinished(data) {
+    const { channelId, reason } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    if (reason === 'no_guesses' || reason === 'insufficient_players') {
+      await this.#messages.replyGameFinish(channelId, language);
+    }
+
+    // Cleanup
+    this.#languages.delete(channelId);
+    this.#initialPlayerCounts.delete(channelId);
+  }
+
+  /**
+   * Handle player:joined event
+   * @param {{channelId: number, playerId: number}} data
+   * @private
+   */
+  async #onPlayerJoined(data) {
+    const { channelId } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    // We need to construct a minimal command-like object for the reply
+    await this.#messages.send(channelId,
+      this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_join`)
+    );
+  }
+
+  /**
+   * Handle phase:guessing event
+   * @param {{channelId: number, round: number, players: Array}} data
+   * @private
+   */
+  async #onPhaseGuessing(data) {
+    const { channelId, round } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    // Store initial player count for final scoring
+    if (round === 1) {
+      const players = this.#engine.getEligiblePlayers(channelId);
+      this.#initialPlayerCounts.set(channelId, players.length);
+    }
+
     await this.#messages.replyMakeAGuess(channelId, language);
-
-    // Wait for guesses
-    let timeRemaining = true;
-    setTimeout(() => {
-      timeRemaining = false;
-    }, this.#timeToChoice);
-
-    while (timeRemaining && this.#game.isGameValid(channelId, gameUUID)) {
-      const message = await this.#client.messaging.subscription.nextMessage(
-        (msg) => this.#isValidGuessMessage(msg, channelId),
-        10000
-      );
-
-      if (message) {
-        const guess = this.#parseNumber(message.body);
-        this.#game.setPlayerGuess(channelId, message.sourceSubscriberId, guess);
-      }
-
-      // Break after first guess received (matching original behavior)
-      //  break;
-    }
-
-    // Check if any guesses were made
-    if (this.#game.hasNoGuesses(channelId)) {
-      return { success: false, noGuesses: true };
-    }
-
-    // End guessing and get result
-    const result = this.#game.endGuessingPhase(channelId);
-    if (!result.success) {
-      return { success: false, noGuesses: true };
-    }
-
-    // Announce if exact match
-    if (result.isExact) {
-      await this.#messages.replyPlayerRewarded(channelId, language, result.winner.id);
-    }
-
-    return {
-      success: true,
-      roll: result.roll,
-      winner: result.winner,
-      isExact: result.isExact
-    };
   }
 
   /**
-   * Run the picking phase
-   * @param {number} channelId
-   * @param {string} gameUUID
-   * @param {import('../core/Player.js').default} picker
-   * @returns {Promise<import('../core/Player.js').default|null>}
+   * Handle phase:picking event
+   * @param {{channelId: number, round: number, roll: number, winnerId: number, isExact: boolean, players: Array}} data
+   * @private
    */
-  async #runPickingPhase(channelId, gameUUID, picker) {
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return null;
+  async #onPhasePicking(data) {
+    const { channelId, roll, winnerId, isExact, players } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    // Announce exact match reward
+    if (isExact) {
+      await this.#messages.replyPlayerRewarded(channelId, language, winnerId);
     }
 
-    const language = this.#game.getLanguage(channelId);
+    // Format player list
+    const playerList = await this.#messages.formatPlayerList(players);
 
-    // Wait for pick
+    // Announce winner and show player list
+    await this.#messages.replyPlayerTurn(channelId, language, winnerId, roll, playerList);
+
+    // Start listening for pick
+    this.#listenForPick(channelId, winnerId);
+  }
+
+  /**
+   * Handle phase:betting event
+   * @param {{channelId: number, pickerId: number, opponentId: number, pickerBalance: number}} data
+   * @private
+   */
+  async #onPhaseBetting(data) {
+    const { channelId, pickerBalance } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    if (pickerBalance === this.#engine.minBet) {
+      // Skip betting, use minimum
+      this.#engine.handleBet(channelId, data.pickerId, this.#engine.minBet);
+    } else {
+      await this.#messages.replyAskPlayerBalance(channelId, language, pickerBalance);
+      this.#listenForBet(channelId, data.pickerId);
+    }
+  }
+
+  /**
+   * Handle phase:rolling event
+   * @param {{channelId: number, bet: number, candidateId: number, opponentId: number}} data
+   * @private
+   */
+  async #onPhaseRolling(data) {
+    const { channelId, candidateId } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    await this.#messages.replyAskPlayerToRoll(channelId, language, candidateId);
+  }
+
+  /**
+   * Handle guess:received event
+   * @param {{channelId: number, playerId: number, guess: number}} data
+   * @private
+   */
+  async #onGuessReceived(_data) {
+    // Guess was received - engine handles validation
+    // No additional action needed
+  }
+
+  /**
+   * Handle guess:exact event
+   * @param {{channelId: number, playerId: number, bonus: number}} data
+   * @private
+   */
+  async #onGuessExact(_data) {
+    // Exact match bonus handled in phase:picking
+  }
+
+  /**
+   * Handle roll:received event
+   * @param {{channelId: number, playerId: number, roll: number}} data
+   * @private
+   */
+  async #onRollReceived(data) {
+    const { channelId, playerId, roll } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    await this.#messages.replyPlayerRolled(channelId, language, playerId, roll);
+
+    // Get round info to check if both have rolled
+    const round = this.#engine.getRoundInfo(channelId);
+    if (round && round.candidateRoll && round.opponentRoll) {
+      // Both rolled, second player should roll next
+      // This is handled by the engine's PVP resolution
+    } else if (round && round.candidateRoll && !round.opponentRoll) {
+      // Ask opponent to roll
+      const opponentId = round.opponentId;
+      await this.#messages.replyAskPlayerToRoll(channelId, language, opponentId);
+    }
+  }
+
+  /**
+   * Handle pvp:draw event
+   * @param {{channelId: number, bet: number}} data
+   * @private
+   */
+  async #onPVPDraw(data) {
+    const { channelId } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    await this.#messages.replyPVPDraw(channelId, language);
+  }
+
+  /**
+   * Handle pvp:result event
+   * @param {{channelId: number, winnerId: number, loserId: number, bet: number, isEliminated: boolean}} data
+   * @private
+   */
+  async #onPVPResult(data) {
+    const { channelId, loserId, bet, isEliminated } = data;
+    const language = this.#languages.get(channelId) || 'en';
+
+    await this.#messages.replyPVPWinner(channelId, language, loserId, bet, isEliminated);
+  }
+
+  // ===== Private Helpers =====
+
+  /**
+   * Listen for opponent pick message
+   * @param {number} channelId
+   * @param {number} pickerId
+   * @private
+   */
+  async #listenForPick(channelId, pickerId) {
+    // Wait for pick with timeout
     const message = await this.#client.messaging.subscription.nextMessage(
-      (msg) => this.#isValidPickMessage(msg, channelId, picker.id),
+      (msg) => this.#isValidPickMessage(msg, channelId, pickerId),
       this.#timeToChoice
     );
 
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return null;
-    }
-
     if (message) {
-      const pickIndex = this.#parseNumber(message.body) - 1;
-      const eligiblePlayers = this.#game.getEligiblePlayers(channelId);
-      return eligiblePlayers[pickIndex] || null;
+      const pickIndex = this.#parseNumber(message.body);
+      this.#engine.handlePick(channelId, pickerId, pickIndex);
     }
-
-    // Player didn't pick
-    await this.#messages.replyPlayerNotPick(channelId, language, picker.id);
-    return null;
+    // If timeout, engine will auto-advance
   }
 
   /**
-   * Run the betting phase
+   * Listen for bet message
    * @param {number} channelId
-   * @param {string} gameUUID
-   * @param {import('../core/Player.js').default} player
-   * @returns {Promise<number>}
+   * @param {number} playerId
+   * @private
    */
-  async #runBettingPhase(channelId, gameUUID, player) {
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return 500;
-    }
+  async #listenForBet(channelId, playerId) {
+    const language = this.#languages.get(channelId) || 'en';
 
-    const language = this.#game.getLanguage(channelId);
-    const minBet = this.#game.minBet;
-
-    // If player only has minimum balance, skip betting
-    if (player.balance === minBet) {
-      return minBet;
-    }
-
-    // Ask for bet
-    await this.#messages.replyAskPlayerBalance(channelId, language, player.balance);
-
-    let validBet = false;
-    let betAmount = minBet;
-
-    while (!validBet) {
+    while (this.#engine.getState(channelId) === 'betting') {
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
           msg.targetChannelId === channelId &&
-          msg.sourceSubscriberId === player.id &&
+          msg.sourceSubscriberId === playerId &&
           this.#isValidNumber(msg.body),
         this.#timeToChoice
       );
 
-      if (!this.#game.isGameValid(channelId, gameUUID)) {
-        return minBet;
-      }
-
       if (!message) {
-        return minBet;
+        // Timeout - use minimum bet
+        this.#engine.handleBet(channelId, playerId, this.#engine.minBet);
+        return;
       }
 
-      betAmount = this.#parseNumber(message.body);
-      const validateResult = this.#game.validateBet(channelId, player.id, betAmount);
+      const amount = this.#parseNumber(message.body);
+      const result = this.#engine.handleBet(channelId, playerId, amount);
 
-      if (validateResult.success) {
-        validBet = true;
-      } else if (validateResult.error === "invalid_bet_increment") {
+      if (result.success) {
+        return;
+      }
+
+      // Show error based on validation result
+      if (result.error === 'invalid_bet_increment') {
         await this.#messages.replyAskPlayerBalanceError500(channelId, language);
-      } else if (validateResult.error === "insufficient_balance") {
+      } else if (result.error === 'insufficient_balance') {
         await this.#messages.replyAskPlayerBalanceError(channelId, language);
       } else {
-        validBet = true; // Exit on other errors
+        // Exit on other errors
+        return;
       }
     }
-
-    return betAmount;
-  }
-
-  /**
-   * Ask a player to roll
-   * @param {number} channelId
-   * @param {string} gameUUID
-   * @param {import('../core/Player.js').default} player
-   * @returns {Promise<number>} Roll value or 0 if timed out
-   */
-  async #askPlayerRoll(channelId, gameUUID, player) {
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return 0;
-    }
-
-    const language = this.#game.getLanguage(channelId);
-
-    // Ask player to roll
-    await this.#messages.replyAskPlayerToRoll(channelId, language, player.id);
-
-    // Wait for roll command
-    const message = await this.#client.messaging.subscription.nextMessage(
-      (msg) => this.#isRollMessage(msg, player.id, channelId),
-      this.#timeToChoice
-    );
-
-    if (!this.#game.isGameValid(channelId, gameUUID)) {
-      return 0;
-    }
-
-    if (message) {
-      // Check for admin cheat
-      const isAdminCheat = this.#admins.has(player.id) && message.body === "لف.";
-      const rollResult = isAdminCheat
-        ? this.#game.playerRollFixed(channelId, 6)
-        : this.#game.playerRoll(channelId);
-
-      if (rollResult.success) {
-        await this.#messages.replyPlayerRolled(channelId, language, player.id, rollResult.roll);
-        return rollResult.roll;
-      }
-    }
-
-    // Player timed out
-    await this.#messages.replyPlayerTimeIsUpRoll(channelId, language, player.id);
-    return 0;
-  }
-
-  // ===== Helper Methods =====
-
-  /**
-   * Announce PVP result
-   * @param {number} channelId
-   * @param {string} language
-   * @param {Object} pvpResult
-   * @param {number} bet
-   * @returns {Promise<boolean>} True if should continue (draw), false otherwise
-   */
-  async #announcePVPResult(channelId, language, pvpResult, bet) {
-    if (pvpResult.result === "draw") {
-      await this.#messages.replyPVPDraw(channelId, language);
-      return true;
-    }
-
-    if (pvpResult.loser) {
-      await this.#messages.replyPVPWinner(
-        channelId,
-        language,
-        pvpResult.loser.id,
-        bet,
-        pvpResult.isEliminated
-      );
-    }
-
-    return false;
-  }
-
-  /**
-   * Finish game with no guesses
-   * @param {number} channelId
-   */
-  async #finishNoGuesses(channelId) {
-    if (!this.#game.hasGame(channelId)) {
-      return;
-    }
-
-    const language = this.#game.getLanguage(channelId);
-    await this.#messages.replyGameFinish(channelId, language);
-    this.#game.endGame(channelId);
-  }
-
-  /**
-   * Announce game winner
-   * @param {number} channelId
-   * @param {string} language
-   * @param {import('../core/Player.js').default} winner
-   */
-  async #announceWinner(channelId, language, winner) {
-    const scores = this.#game.getSortedScores(channelId);
-    const winnersList = await this.#messages.formatWinnersList(scores);
-    await this.#messages.replyGameWinner(channelId, language, winner.id, winnersList);
-  }
-
-  /**
-   * Reward players (save points to database)
-   * @param {number} channelId
-   */
-  async #rewardPlayers(channelId) {
-    // Import score module dynamically to avoid circular deps
-    const { addPoint } = await import("../../dice/score.js");
-    const scores = this.#game.getScores(channelId);
-
-    for (const [playerId, points] of scores) {
-      await addPoint(playerId, points);
-    }
-  }
-
-  /**
-   * Check if message is a valid guess
-   * @param {import('wolf.js').Message} message
-   * @param {number} channelId
-   * @returns {boolean}
-   */
-  #isValidGuessMessage(message, channelId) {
-    if (!message.isGroup || message.targetChannelId !== channelId) {
-      return false;
-    }
-
-    if (!this.#isValidNumber(message.body)) {
-      return false;
-    }
-
-    // Check if sender is an eligible player
-    const eligiblePlayers = this.#game.getEligiblePlayers(channelId);
-    return eligiblePlayers.some((p) => p.id === message.sourceSubscriberId);
   }
 
   /**
@@ -645,6 +624,7 @@ class GameManager {
    * @param {number} channelId
    * @param {number} pickerId
    * @returns {boolean}
+   * @private
    */
   #isValidPickMessage(message, channelId, pickerId) {
     if (!message.isGroup || message.targetChannelId !== channelId) {
@@ -660,7 +640,7 @@ class GameManager {
     }
 
     const pick = this.#parseNumber(message.body);
-    const eligiblePlayers = this.#game.getEligiblePlayers(channelId);
+    const eligiblePlayers = this.#engine.getEligiblePlayers(channelId);
     const pickerIndex = eligiblePlayers.findIndex((p) => p.id === pickerId);
 
     // Can't pick yourself (pick is 1-indexed, pickerIndex is 0-indexed)
@@ -673,35 +653,10 @@ class GameManager {
   }
 
   /**
-   * Check if message is a roll command
-   * @param {import('wolf.js').Message} message
-   * @param {number} playerId
-   * @param {number} channelId
-   * @returns {boolean}
-   */
-  #isRollMessage(message, playerId, channelId) {
-    // Admin cheat
-    if (this.#admins.has(message.sourceSubscriberId) && message.body.toLowerCase() === "لف.") {
-      return true;
-    }
-
-    if (!message.isGroup || message.targetChannelId !== channelId) {
-      return false;
-    }
-
-    if (message.sourceSubscriberId !== playerId) {
-      return false;
-    }
-
-    // Check against roll phrases
-    const rollPhrases = this.#client.phrase.getAllByName("dice_game_roll");
-    return rollPhrases.some((s) => s.value === message.body.toLowerCase());
-  }
-
-  /**
    * Check if string is a valid number
    * @param {string} input
    * @returns {boolean}
+   * @private
    */
   #isValidNumber(input) {
     const normalized = this.#client.utility.number.toEnglishNumbers(input);
@@ -717,18 +672,37 @@ class GameManager {
    * Parse string to number
    * @param {string} input
    * @returns {number}
+   * @private
    */
   #parseNumber(input) {
     return parseInt(this.#client.utility.number.toEnglishNumbers(input));
   }
 
   /**
-   * Delay helper
-   * @param {number} ms
-   * @returns {Promise<void>}
+   * Announce game winner
+   * @param {number} channelId
+   * @param {string} language
+   * @param {number} winnerId
+   * @param {Array} scores
+   * @private
    */
-  #delay(ms) {
-    return this.#client.utility.delay(ms);
+  async #announceWinner(channelId, language, winnerId, scores) {
+    const winnersList = await this.#messages.formatWinnersList(scores);
+    await this.#messages.replyGameWinner(channelId, language, winnerId, winnersList);
+  }
+
+  /**
+   * Reward players (save points to database)
+   * @param {number} channelId
+   * @param {Array} scores
+   * @private
+   */
+  async #rewardPlayers(_channelId, scores) {
+    const { addPoint } = await import("../../dice/score.js");
+
+    for (const { playerId, points } of scores) {
+      await addPoint(playerId, points);
+    }
   }
 }
 

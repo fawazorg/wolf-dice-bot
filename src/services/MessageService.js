@@ -509,7 +509,7 @@ class MessageService {
       return `${index + 1} \u0640 ${nickname} (${score.playerId}) \u0640 ${score.points}`;
     });
 
-    return '\n' + lines.join('\n');
+    return `\n${lines.join('\n')}`;
   }
 }
 

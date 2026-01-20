@@ -1,17 +1,6 @@
 import Channel from './Channel.js';
 import Dice from './Dice.js';
-
-/**
- * Game state constants
- */
-export const GameState = {
-  JOINING: 'joining',
-  GUESSING: 'guessing',
-  PICKING: 'picking',
-  BETTING: 'betting',
-  ROLLING: 'rolling',
-  FINISHED: 'finished'
-};
+import { GameState } from './GameState.js';
 
 /**
  * Core game logic for the dice game
@@ -590,3 +579,6 @@ class Game {
 }
 
 export default Game;
+
+// Re-export GameState for backward compatibility
+export { GameState };
