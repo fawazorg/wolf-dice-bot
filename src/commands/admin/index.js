@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Admin command handlers module.
+ * Exports administrative commands for bot management and debugging.
+ * @module commands/admin
+ */
+
 import count from "./count.js";
 import help from "./help.js";
 import join from "./join.js";

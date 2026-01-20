@@ -1,18 +1,26 @@
+/**
+ * @fileoverview Group activity tracking helpers.
+ * Provides functions for tracking group activity and managing inactive groups.
+ * @module dice/active
+ */
+
 import Group from '../database/models/group.js';
 
 /**
- * set last active time for a group
- * @param {number} gid
- * @return {Promise<void>}
+ * Set the last active timestamp for a group to the current time.
+ * Creates the group record if it doesn't exist.
+ * @param {number} gid - Group/channel ID
+ * @returns {Promise<void>}
  */
 const setLastActive = async (gid) => {
   await Group.findOneAndUpdate({ gid }, { lastActiveAt: new Date() }, { upsert: true });
 };
 
-/** 
- * get inactive groups
- * @param {number} daysPass 
- * @returns {Promise<Array>}
+/**
+ * Get groups that have been inactive for more than a specified number of days.
+ * Uses MongoDB aggregation to calculate the day difference between last active time and now.
+ * @param {number} daysPass - Minimum number of days of inactivity to filter by
+ * @returns {Promise<Array<{gid: number, days: number}>>} Array of inactive groups with their inactivity duration
  */
 const getInactiveGroups = async (daysPass) => {
   const groups = await Group.aggregate([
@@ -35,18 +43,20 @@ const getInactiveGroups = async (daysPass) => {
 };
 
 /**
- * delete group by gid
- * @param {number} gid
- * @returns {Promise<void>} 
+ * Delete a group record from the database.
+ * Typically called when the bot leaves a group.
+ * @param {number} gid - Group/channel ID to delete
+ * @returns {Promise<void>}
  */
 const deleteGroup = async (gid) => {
   await Group.findOneAndDelete({ gid });
 };
 
 /**
- * refresh unset group activity
- * @param {import ("wolf.js").WOLF} api
- * @returns {Promise<Array>}
+ * Refresh activity timestamps for all groups the bot is currently in.
+ * Used by admin refresh command to prevent premature cleanup of all groups.
+ * @param {import ("wolf.js").WOLF} api - WOLF client instance
+ * @returns {Promise<Array<string>>} Array of group names that were refreshed
  */
 const refreshUnsetGroup = async (api) => {
   const groups = await api.channel().list();

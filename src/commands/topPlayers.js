@@ -1,9 +1,20 @@
-import { getTopPlayers } from "../dice/score.js";
 /**
- * rank command
- * @param {import('wolf.js').WOLF} client
- * @param {import('wolf.js').CommandContext} command
- * @returns {Promise<Response<MessageResponse>>}
+ * @fileoverview Top players command handler.
+ * Handles the `!dice top` command to display the global leaderboard.
+ * Shows the top-ranked players with their scores across all games.
+ * @module commands/topPlayers
+ */
+
+import { getTopPlayers } from "../dice/score.js";
+
+/**
+ * Handle the top players leaderboard command.
+ * Retrieves and displays a ranked list of the top players globally,
+ * including their nicknames, IDs, and total scores.
+ * If no players have scores, displays a no-score message.
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
+ * @param {import('wolf.js').CommandContext} command - Command context with request details
+ * @returns {Promise<Response<MessageResponse>>} Response with leaderboard or no-score message
  */
 export default async (client, command) => {
   const data = await getTopPlayers();

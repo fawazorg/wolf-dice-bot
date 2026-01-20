@@ -1,9 +1,21 @@
-import { admins } from "../../dice/data.js";
 /**
- * update command
- * @param {import('wolf.js').WOLF} client
- * @param {import('wolf.js').CommandContext} command
- * @returns {Promise<Response<MessageResponse>>}
+ * @fileoverview Admin update command handler.
+ * Handles the `!dice admin update <status>` command to update the bot's status message.
+ * Allows administrators to change the bot's displayed status across the platform.
+ * @module commands/admin/update
+ */
+
+import { admins } from "../../dice/data.js";
+
+/**
+ * Handle the admin update command.
+ * Updates the bot's current status message to the provided text.
+ * This status is displayed on the bot's profile and can be used to communicate
+ * maintenance notifications, version information, or other important messages.
+ * Access is restricted to the configured developer ID and authorized admin user IDs.
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
+ * @param {import('wolf.js').CommandContext} command - Command context with new status as argument
+ * @returns {Promise<Response<MessageResponse>>} Response confirming status update or unauthorized message
  */
 export default async (client, command) => {
   const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");

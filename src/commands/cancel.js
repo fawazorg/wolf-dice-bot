@@ -1,9 +1,19 @@
-import { Privilege } from "wolf.js";
 /**
- * cancel command
- * @param {import('wolf.js').WOLF} api
- * @param {import('wolf.js').CommandContext} command
- * @param {import('../src/managers/GameManager.js').default} game
+ * @fileoverview Cancel command handler.
+ * Handles the `!dice cancel` command to terminate an active game.
+ * Only group owners or WOLF volunteers can cancel games.
+ * @module commands/cancel
+ */
+
+import { Privilege } from "wolf.js";
+
+/**
+ * Handle the cancel dice game command.
+ * Cancels the active game in the current channel if the requesting user has permission.
+ * Authorization is granted to group owners and users with VOLUNTEER privilege.
+ * @param {import('wolf.js').WOLF} api - WOLF client instance
+ * @param {import('wolf.js').CommandContext} command - Command context with request details
+ * @param {import('../src/managers/GameManager.js').default} game - GameManager instance for game operations
  * @returns {Promise<void>}
  */
 export default async (api, command, game) => {

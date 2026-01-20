@@ -1,11 +1,24 @@
+/**
+ * @fileoverview Admin join command handler.
+ * Handles the `!dice admin join <groupId>` command to make the bot join a specific group.
+ * Validates the group isn't already managed by another bot instance and logs the action.
+ * @module commands/admin/join
+ */
+
 import { Validator } from "wolf.js";
 import { AdminGroup, admins } from "../../dice/data.js";
 import Group from "../../database/models/group.js";
+
 /**
- * join command
- * @param {import('wolf.js').WOLF} client
- * @param {import('wolf.js').CommandContext} command
- * @returns {Promise<Response<MessageResponse>>}
+ * Handle the admin join command.
+ * Makes the bot join a specified group by ID after validation checks:
+ * - Verifies the requesting user has admin or developer privileges
+ * - Validates the provided group ID is a valid number
+ * - Checks the group isn't already managed by another bot instance in the database
+ * - Logs successful joins to the admin notification group
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
+ * @param {import('wolf.js').CommandContext} command - Command context with group ID as argument
+ * @returns {Promise<Response<MessageResponse>>} Response with join result or error message
  */
 export default async (client, command) => {
   const isDeveloper = command.sourceSubscriberId === client.config.get("developerId");

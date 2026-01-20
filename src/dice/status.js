@@ -1,7 +1,32 @@
+/**
+ * @fileoverview Player status statistics helpers.
+ * Provides functions for calculating and displaying player dice roll statistics.
+ * @module dice/status
+ */
+
 import Player from "../database/models/player.js";
 
+/**
+ * Calculate the total of all values in a status array.
+ * @param {Array<{key: number, value: number}>} arr - Array of status key-value pairs
+ * @returns {number} Sum of all values
+ */
 const getTotal = (arr = []) => arr.reduce((prev, num) => prev + num.value, 0);
+
+/**
+ * Get the percentage for a specific status key.
+ * @param {Array<{key: number, value: number, percentage?: string}>} arr - Array with calculated percentages
+ * @param {number} key - The status key to look up
+ * @returns {string} Percentage string (e.g., "25%") or "0%" if not found
+ */
 const getByKey = (arr = [], key) => arr.find((item) => item.key === key)?.percentage || "0%";
+
+/**
+ * Calculate percentage distribution for all status items.
+ * Adds a percentage field to each item based on its value relative to the total.
+ * @param {Array<{key: number, value: number}>} arr - Array of status key-value pairs
+ * @returns {Array<{key: number, value: number, percentage: string}>} Array with percentage field added
+ */
 const getPercentage = (arr = []) => {
   const total = getTotal(arr);
   const percentage = arr.reduce((prev, item) => {
@@ -12,10 +37,13 @@ const getPercentage = (arr = []) => {
 
   return percentage;
 };
+
 /**
- *
- * @param {import("wolf.js").Command} command
- * @param {import("wolf.js").WOLF} api
+ * Display player's dice roll statistics.
+ * Shows the percentage distribution of each dice number (1-6) rolled by the player.
+ * @param {import("wolf.js").WOLF} api - WOLF client instance
+ * @param {import("wolf.js").Command} command - Command context
+ * @returns {Promise<void>}
  */
 const status = async (api, command) => {
   const player = await Player.findOne({ id: command.sourceSubscriberId });

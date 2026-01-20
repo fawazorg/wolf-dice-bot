@@ -1,3 +1,9 @@
+/**
+ * @fileoverview DiceClient manages a single bot account instance.
+ * Handles WOLF platform connection, command registration, and event handling.
+ * @module bot/DiceClient
+ */
+
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "../commands/index.js";
@@ -7,15 +13,35 @@ import { GameManager } from "../index.js";
 import { leaveInactiveGroups } from "../jobs/active.js";
 import { createUpdateTimer } from "../jobs/group.js";
 
+/**
+ * DiceClient wraps a WOLF client instance with dice game functionality.
+ * Each instance represents one bot account on the WOLF platform.
+ */
 class DiceClient {
+  /**
+   * WOLF client instance for platform communication.
+   * @type {import('wolf.js').WOLF}
+   */
+  client;
+
+  /**
+   * GameManager instance for handling dice game logic.
+   * @type {GameManager}
+   */
+  game;
+
+  /**
+   * Create a new DiceClient instance.
+   * @param {string} email - Account email for login
+   * @param {string} password - Account password for login
+   */
   constructor(email, password) {
     this.client = new WOLF();
     this.game = new GameManager(this.client, {
       maxPlayers: 16,
       timeToJoin: 30000,
       timeToChoice: 15000,
-      admins,
-      debug: true
+      admins
     });
     this.client.login(email, password, "", OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());
@@ -24,6 +50,10 @@ class DiceClient {
     this.client.on("leftGroup", (group) => this._onLeftGroup(group));
   }
 
+  /**
+   * Register all bot commands with the WOLF command handler.
+   * Sets up hierarchical command structure with main and admin subcommands.
+   */
   commandRegister = () => {
     this.client.commandHandler.register([
       /* Main command */
@@ -87,6 +117,12 @@ class DiceClient {
     ]);
   };
 
+  /**
+   * Handle WOLF client ready event.
+   * Schedules hourly job to leave inactive groups and registers game update timer.
+   * @private
+   * @returns {Promise<void>}
+   */
   async _onReady() {
     scheduleJob("0 * * * *", async () => leaveInactiveGroups(this.client, 5));
 
@@ -94,18 +130,43 @@ class DiceClient {
     await this.client.utility.timer.register({ UpdateTimer });
   }
 
+  /**
+   * Get list of channels this bot account is a member of.
+   * @returns {Promise<import('wolf.js').Response<Array<import('wolf.js').ChannelExtended>>>} List of channels
+   */
   async channels() {
     return this.client.channel.list();
   }
 
+  /**
+   * Handle bot joining a group event.
+   * Records the group's last active timestamp in the database.
+   * @private
+   * @param {import('wolf.js').ChannelExtended} channel - The channel that was joined
+   * @returns {Promise<void>}
+   */
   async _onJoinedGroup(channel) {
     await setLastActive(channel.id);
   }
 
+  /**
+   * Handle bot leaving a group event.
+   * Removes the group from the active tracking database.
+   * @private
+   * @param {import('wolf.js').ChannelExtended} channel - The channel that was left
+   * @returns {Promise<void>}
+   */
   async _onLeftGroup(channel) {
     await deleteGroup(channel.id);
   }
 
+  /**
+   * Handle successful login event.
+   * Logs the bot account ID and keyword to console.
+   * @private
+   * @param {import('wolf.js').Subscriber} subscriber - The logged-in subscriber
+   * @returns {void}
+   */
   _onLoginSuccess(subscriber) {
     console.log(`[*] ${this.client.config.keyword} (${subscriber.id}) start.`);
   }

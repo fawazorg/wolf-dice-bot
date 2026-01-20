@@ -1,3 +1,9 @@
+/**
+ * @fileoverview User-facing command handlers module.
+ * Exports all dice game commands for player interactions and admin operations.
+ * @module commands
+ */
+
 import * as admin from "./admin/index.js";
 import balance from "./balance.js";
 import cancel from "./cancel.js";

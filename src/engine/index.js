@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Game engine module.
+ * Exports platform-agnostic game engine components including validation, timing, and randomness.
+ * @module engine
+ */
+
 export { default as GameEngine } from './GameEngine.js';
 export { default as Random } from './Random.js';
 export { default as Timer } from './Timer.js';
