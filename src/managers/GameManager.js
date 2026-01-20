@@ -433,6 +433,9 @@ class GameManager {
     }
 
     await this.#messages.replyMakeAGuess(channelId, language);
+
+    // Start listening for guesses
+    this.#listenForGuess(channelId);
   }
 
   /**
@@ -653,6 +656,52 @@ class GameManager {
 
     // Pick must be within range of eligible players
     return pick >= 1 && pick <= eligiblePlayers.length;
+  }
+
+  /**
+   * Listen for guess messages from all eligible players
+   * @param {number} channelId
+   * @private
+   */
+  async #listenForGuess(channelId) {
+    const eligiblePlayers = this.#engine.getEligiblePlayers(channelId);
+    const eligibleIds = new Set(eligiblePlayers.map(p => p.id));
+    const receivedGuesses = new Set();
+
+    // Listen until timer expires or all players have guessed
+    while (this.#engine.getState(channelId) === 'guessing') {
+      const message = await this.#client.messaging.subscription.nextMessage(
+        (msg) =>
+          msg.isGroup &&
+          msg.targetChannelId === channelId &&
+          eligibleIds.has(msg.sourceSubscriberId) &&
+          !receivedGuesses.has(msg.sourceSubscriberId) &&
+          this.#isValidNumber(msg.body),
+        5000 // Check every 5 seconds
+      );
+
+      if (!message) {
+        // Check if state changed (timer expired)
+        if (this.#engine.getState(channelId) !== 'guessing') {
+          return;
+        }
+        continue;
+      }
+
+      const playerId = message.sourceSubscriberId;
+      const guess = this.#parseNumber(message.body);
+
+      const result = this.#engine.handleGuess(channelId, playerId, guess);
+
+      if (result.success) {
+        receivedGuesses.add(playerId);
+
+        // Check if all eligible players have guessed
+        if (receivedGuesses.size === eligibleIds.size) {
+          return;
+        }
+      }
+    }
   }
 
   /**
