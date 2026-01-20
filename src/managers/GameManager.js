@@ -490,6 +490,9 @@ class GameManager {
     const language = this.#languages.get(channelId) || 'en';
 
     await this.#messages.replyAskPlayerToRoll(channelId, language, candidateId);
+
+    // Start listening for rolls
+    this.#listenForRolls(channelId, candidateId);
   }
 
   /**
@@ -544,6 +547,14 @@ class GameManager {
     const language = this.#languages.get(channelId) || 'en';
 
     await this.#messages.replyPVPDraw(channelId, language);
+
+    // Re-start rolling phase - both players must roll again
+    const round = this.#engine.getRoundInfo(channelId);
+    if (round) {
+      // Ask candidate to roll first
+      await this.#messages.replyAskPlayerToRoll(channelId, language, round.candidateId);
+      // The listener is still active and will handle the new rolls
+    }
   }
 
   /**
@@ -698,6 +709,59 @@ class GameManager {
 
         // Check if all eligible players have guessed
         if (receivedGuesses.size === eligibleIds.size) {
+          return;
+        }
+      }
+    }
+  }
+
+  /**
+   * Listen for roll messages from candidate and opponent
+   * @param {number} channelId
+   * @param {number} startingPlayerId - ID of player who should roll first
+   * @private
+   */
+  async #listenForRolls(channelId, _startingPlayerId) {
+    const language = this.#languages.get(channelId) || 'en';
+    const round = this.#engine.getRoundInfo(channelId);
+
+    if (!round) {
+      console.error(`[GameManager] No round info found for channel ${channelId}`);
+      return;
+    }
+
+    const expectedRollers = new Set([round.candidateId, round.opponentId]);
+    const receivedRolls = new Set();
+
+    // Listen for rolls from both players
+    // Note: #onRollReceived event handler will ask opponent to roll after candidate rolls
+    while (this.#engine.getState(channelId) === 'rolling') {
+      const message = await this.#client.messaging.subscription.nextMessage(
+        (msg) =>
+          msg.isGroup &&
+          msg.targetChannelId === channelId &&
+          expectedRollers.has(msg.sourceSubscriberId) &&
+          !receivedRolls.has(msg.sourceSubscriberId),
+        this.#timeToChoice
+      );
+
+      if (!message) {
+        // Timeout - notify and move on
+        const remainingPlayer = [...expectedRollers].find(id => !receivedRolls.has(id));
+        if (remainingPlayer) {
+          await this.#messages.replyPlayerTimeIsUpRoll(channelId, language, remainingPlayer);
+        }
+        return;
+      }
+
+      const playerId = message.sourceSubscriberId;
+      const result = this.#engine.handleRoll(channelId, playerId, null);
+
+      if (result.success) {
+        receivedRolls.add(playerId);
+
+        // Check if both have rolled (engine handles PVP resolution via event)
+        if (receivedRolls.size === expectedRollers.size) {
           return;
         }
       }
