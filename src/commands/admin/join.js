@@ -1,5 +1,5 @@
 import { Validator } from "wolf.js";
-import { AdminGroup, admins } from "../../../dice/data.js";
+import { AdminGroup, admins } from "../../dice/data.js";
 import Group from "../../models/group.js";
 /**
  * join command

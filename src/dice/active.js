@@ -1,4 +1,4 @@
-import Group from '../src/models/group.js';
+import Group from '../models/group.js';
 
 /**
  * set last active time for a group

@@ -1,9 +1,9 @@
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "./src/commands/index.js";
-import { deleteGroup, setLastActive } from "./dice/active.js";
+import { deleteGroup, setLastActive } from "./src/dice/active.js";
 import { GameManager } from "./src/index.js";
-import { admins } from "./dice/data.js";
+import { admins } from "./src/dice/data.js";
 import { leaveInactiveGroups } from "./src/jobs/active.js";
 import { createUpdateTimer } from "./src/jobs/group.js";
 

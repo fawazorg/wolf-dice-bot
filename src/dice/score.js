@@ -1,4 +1,4 @@
-import Player from "../src/models/player.js";
+import Player from "../models/player.js";
 
 /**
  * add points to player

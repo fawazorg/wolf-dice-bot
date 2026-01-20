@@ -1,4 +1,4 @@
-import { status } from "../../dice/status.js";
+import { status } from "../dice/status.js";
 /**
  * rank command
  * @param {import('wolf.js').WOLF} client

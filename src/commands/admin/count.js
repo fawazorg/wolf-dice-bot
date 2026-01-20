@@ -1,4 +1,4 @@
-import { admins } from "../../../dice/data.js";
+import { admins } from "../../dice/data.js";
 /**
  * count command
  * @param {import('wolf.js').WOLF} client

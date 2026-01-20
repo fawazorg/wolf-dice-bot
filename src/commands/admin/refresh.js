@@ -1,5 +1,5 @@
-import { refreshUnsetGroup } from "../../../dice/active.js";
-import { admins } from "../../../dice/data.js";
+import { refreshUnsetGroup } from "../../dice/active.js";
+import { admins } from "../../dice/data.js";
 /**
  * refresh command
  * @param {import('wolf.js').WOLF} client
