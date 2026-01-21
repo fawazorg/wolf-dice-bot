@@ -28,6 +28,7 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 - **Player Statistics**: Persistent rank tracking and leaderboards via MongoDB
 - **Multi-Language**: Full English and Arabic language support
 - **Multi-Account**: Run multiple bot accounts simultaneously
+- **Multi-Instance**: Redis-backed game state for horizontal scaling
 - **Auto-Management**: Automatic cleanup of inactive game channels
 - **Dice Statistics**: Track dice roll history and patterns per player
 
@@ -105,7 +106,7 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 | --------------------- | ------------------------------------------ | ---------------- |
 | `!dice new <balance>` | Create a new game with initial balance     | `!dice new 2000` |
 | `!dice join`          | Join an existing game in the joining phase | `!dice join`     |
-| `!dice cancel`        | Cancel the current game (creator only)     | `!dice cancel`   |
+| `!dice cancel`        | Cancel the current game (creator/owner)    | `!dice cancel`   |
 | `!dice balance`       | Check your current game balance            | `!dice balance`  |
 | `!dice show`          | Display all players in the current game    | `!dice show`     |
 | `!dice rank`          | View your rank and total points            | `!dice rank`     |
@@ -174,11 +175,15 @@ wolf-dice-bot/
 │   │   ├── Channel.js     # Channel management
 │   │   ├── Dice.js        # Dice rolling mechanics
 │   │   └── GameState.js   # Game phase constants
+│   ├── engine/            # Redis-backed game engine
+│   │   ├── RedisGameEngine.js # Game orchestration with Redis persistence
+│   │   └── Validator.js   # Input validation
 │   ├── managers/          # Integration layer
-│   │   └── GameManager.js # Bridges core logic with WOLF platform
+│   │   └── GameManager.js # Bridges engine with WOLF platform
 │   ├── services/          # External services
 │   │   └── MessageService.js # Multi-language message handling
 │   ├── database/          # Database layer
+│   │   ├── RedisGameStore.js # Redis game state storage
 │   │   ├── helpers/       # Database helper functions
 │   │   │   ├── group.js   # Group activity tracking
 │   │   │   └── player.js  # Player scoring and ranking
@@ -213,7 +218,8 @@ wolf-dice-bot/
 #### Layered Architecture
 
 - **Core Layer**: Pure game logic, framework-agnostic
-- **Manager Layer**: Integration between core and WOLF platform
+- **Engine Layer**: Redis-backed game orchestration for multi-instance support
+- **Manager Layer**: Integration between engine and WOLF platform
 - **Service Layer**: External integrations (database, messaging)
 - **Command Layer**: User-facing command handlers
 

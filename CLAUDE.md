@@ -28,15 +28,20 @@ The codebase follows a layered architecture with separation between game logic, 
 
 ### Core Layer (`src/core/`)
 Pure game logic without external dependencies:
-- **Game.js**: Central game state manager, handles players, channels, scoring, and game phases
+- **Game.js**: Game state definitions and logic helpers
 - **Player.js**: Player balance and status tracking
 - **Channel.js**: Game channel management (language, player list)
 - **Dice.js**: Dice rolling mechanics with configurable ranges
 - **GameState.js**: Game phase constants (JOINING, GUESSING, PICKING, BETTING, ROLLING, FINISHED)
 
+### Engine Layer (`src/engine/`)
+Redis-backed game orchestration for multi-instance support:
+- **RedisGameEngine.js**: Main game engine with Redis persistence, handles all game phases and events
+- **Validator.js**: Input validation for guesses, bets, and picks
+
 ### Manager Layer (`src/managers/`)
-Integration between core logic and WOLF platform:
-- **GameManager.js**: Bridges Game.js with MessageService and WOLF client, handles timers and command routing
+Integration between engine and WOLF platform:
+- **GameManager.js**: Bridges RedisGameEngine with MessageService and WOLF client, handles timers and command routing
 
 ### Service Layer (`src/services/`)
 - **MessageService.js**: Centralized message handling with phrase lookup and multi-language support
@@ -51,11 +56,11 @@ User-facing command handlers that delegate to GameManager:
 
 ## Game Flow
 
-1. **Joining Phase**: `!dice create [balance]` starts a game, players join with `!dice join`
+1. **Joining Phase**: `!dice new [balance]` starts a game, players join with `!dice join`
 2. **Guessing Phase**: Players guess dice rolls (1-50)
 3. **Picking Phase**: Players pick opponents for PvP rounds
 4. **Betting Phase**: Players place bets (multiples of 500, max 5000)
-5. **Rolling Phase**: Players roll dice, winners are determined
+5. **Rolling Phase**: Players use roll command (localized), winners are determined
 6. **Scoring**: Winners receive points, game ends when one player remains
 
 ## Key Design Patterns
