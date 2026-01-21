@@ -40,9 +40,6 @@ class GameEngine {
   /** @type {number} Max players per game */
   #maxPlayers;
 
-  /** @type {boolean} Enable debug logging */
-  #debug;
-
   /**
    * @param {Object} options - Configuration options
    * @param {number} [options.maxPlayers=16] - Maximum players per game
@@ -50,7 +47,6 @@ class GameEngine {
    * @param {number} [options.timeToChoice=15000] - Choice phase timeout (ms)
    * @param {number} [options.maxGuessRoll=50] - Maximum guess roll
    * @param {number} [options.minBet=500] - Minimum bet amount
-   * @param {boolean} [options.debug=false] - Enable debug logging
    */
   constructor(options = {}) {
     this.#games = new Map();
@@ -62,7 +58,6 @@ class GameEngine {
     this.#pendingDelays = new Map();
     this.#listeners = new Map();
     this.#maxPlayers = options.maxPlayers || 16;
-    this.#debug = options.debug || false;
 
     this.#config = {
       maxPlayers: this.#maxPlayers,
@@ -71,18 +66,6 @@ class GameEngine {
       maxGuessRoll: options.maxGuessRoll || 50,
       minBet: options.minBet || 500
     };
-  }
-
-  /**
-   * Debug logger
-   * @param {string} event - Event name
-   * @param {Object} data - Data to log
-   * @private
-   */
-  #log(event, data = {}) {
-    if (this.#debug) {
-      console.log(`[GameEngine] ${event}`, JSON.stringify(data, null, 2));
-    }
   }
 
   // ===== Configuration Getters =====
@@ -136,8 +119,6 @@ class GameEngine {
 
     this.#emit('game:created', { channelId, language, balance: defaultBalance });
 
-    this.#log('GAME_CREATED', { channelId, language, balance: defaultBalance });
-
     return { success: true };
   }
 
@@ -163,8 +144,6 @@ class GameEngine {
     }
 
     this.#emit('player:joined', { channelId, playerId });
-
-    this.#log('PLAYER_JOINED', { channelId, playerId, playerCount: channel.getPlayerCount() });
 
     // Check if game is full
     if (channel.isFull()) {
@@ -251,7 +230,6 @@ class GameEngine {
     if (!channel) return;
 
     this.#states.set(channelId, GameState.GUESSING);
-    this.#log('PHASE_GUESSING_START', { channelId, state: 'GUESSING' });
     channel.clearAllGuesses();
 
     const round = new Round((this.#rounds.get(channelId) || 0) + 1);
@@ -308,8 +286,6 @@ class GameEngine {
     round.recordGuess(playerId, guess);
     player.setGuess(guess);
 
-    this.#log('GUESS_RECEIVED', { channelId, playerId, guess });
-
     this.#emit('guess:received', { channelId, playerId, guess });
 
     return { success: true };
@@ -328,8 +304,6 @@ class GameEngine {
     const round = this.#currentRounds.get(channelId);
     const playersWithGuesses = channel.getPlayersWithGuesses();
 
-    this.#log('PHASE_GUESSING_END', { channelId, guessesCount: playersWithGuesses.length });
-
     if (playersWithGuesses.length === 0) {
       this.#emit('game:finished', { channelId, reason: 'no_guesses' });
       this.removeGame(channelId);
@@ -343,8 +317,6 @@ class GameEngine {
     round.setTargetNumber(roll);
     round.setCandidate(winner, isExact);
 
-    this.#log('GUESS_WINNER_DETERMINED', { channelId, roll, winnerId: winner.id, isExact, winningGuess: winner.currentGuess });
-
     // Award exact match bonus
     if (isExact) {
       winner.addBonus(Dice.EXACT_BONUS);
@@ -353,7 +325,6 @@ class GameEngine {
     }
 
     this.#states.set(channelId, GameState.PICKING);
-    this.#log('PHASE_PICKING_START', { channelId, winnerId: winner.id });
 
     // Get eligible players and filter out the candidate (they can't pick themselves)
     const allEligible = channel.getRichestPlayers(this.#config.minBet);
@@ -362,7 +333,6 @@ class GameEngine {
     // If only one eligible player remains, auto-pick them
     if (eligiblePlayers.length === 1) {
       const autoPickedOpponent = eligiblePlayers[0];
-      this.#log('AUTO_PICK', { channelId, winnerId: winner.id, autoPickedId: autoPickedOpponent.id });
       round.setOpponent(autoPickedOpponent);
       this.#cancelTimer(channelId);
 
@@ -376,7 +346,6 @@ class GameEngine {
       });
 
       this.#states.set(channelId, GameState.BETTING);
-      this.#log('PHASE_BETTING_START', { channelId, pickerId: winner.id, opponentId: autoPickedOpponent.id });
       this.#emit('phase:betting', {
         channelId,
         pickerId: winner.id,
@@ -394,7 +363,6 @@ class GameEngine {
 
     // No eligible opponents (shouldn't happen with proper game logic)
     if (eligiblePlayers.length === 0) {
-      this.#log('NO_ELIGIBLE_OPPONENTS', { channelId, winnerId: winner.id });
       this.#startGuessingPhase(channelId);
       return { success: true };
     }
@@ -446,7 +414,6 @@ class GameEngine {
     // Validate pick index (1-based from user input)
     const normalizedIndex = pickIndex - 1;
     if (normalizedIndex < 0 || normalizedIndex >= eligiblePlayers.length) {
-      this.#log('PICK_INVALID', { channelId, pickerId, pickIndex, error: 'pick_out_of_range' });
       return { success: false, error: 'pick_out_of_range' };
     }
 
@@ -456,17 +423,7 @@ class GameEngine {
     // Cancel picking timer to prevent it from firing during later phases
     this.#cancelTimer(channelId);
 
-    this.#log('OPPONENT_SELECTED', {
-      channelId,
-      pickerId,
-      pickIndex,
-      normalizedIndex,
-      opponentId: opponent.id,
-      totalEligible: eligiblePlayers.length
-    });
-
     this.#states.set(channelId, GameState.BETTING);
-    this.#log('PHASE_BETTING_START', { channelId, pickerId, opponentId: opponent.id });
 
     this.#emit('phase:betting', {
       channelId,
@@ -559,7 +516,6 @@ class GameEngine {
     const isOpponent = round.opponent?.id === playerId;
 
     if (!isCandidate && !isOpponent) {
-      this.#log('ROLL_INVALID_PLAYER', { channelId, playerId, candidateId: round.candidate?.id, opponentId: round.opponent?.id });
       return { success: false, error: 'player_not_in_round' };
     }
 
@@ -570,8 +526,6 @@ class GameEngine {
     } else {
       round.setOpponentRoll(roll);
     }
-
-    this.#log('ROLL_RECEIVED', { channelId, playerId, roll, role: isCandidate ? 'candidate' : 'opponent' });
 
     this.#emit('roll:received', { channelId, playerId, roll });
 
@@ -623,16 +577,6 @@ class GameEngine {
 
     this.#addPoints(channelId, winnerId, 1);
 
-    this.#log('ROLL_TIMEOUT', {
-      channelId,
-      timeoutPlayerId: playerId,
-      winnerId,
-      loserId,
-      bet,
-      isEliminated,
-      loserBalance: loser.balance
-    });
-
     this.#emit('roll:timeout', { channelId, playerId, winnerId, loserId, bet, isEliminated });
 
     // Change state immediately to prevent further rolls during the delay
@@ -663,15 +607,6 @@ class GameEngine {
     const result = round.getPVPResult();
     const bet = round.bet;
 
-    this.#log('PVP_RESOLVING', {
-      channelId,
-      candidateRoll: round.candidateRoll,
-      opponentRoll: round.opponentRoll,
-      bet,
-      isTie: result.isTie,
-      winner: result.winner
-    });
-
     if (result.isTie) {
       this.#emit('pvp:draw', { channelId, bet });
       round.clearRolls();
@@ -689,15 +624,6 @@ class GameEngine {
     }
 
     this.#addPoints(channelId, winnerId, 1);
-
-    this.#log('PVP_RESULT', {
-      channelId,
-      winnerId,
-      loserId,
-      bet,
-      isEliminated,
-      loserBalance: loser.balance
-    });
 
     this.#emit('pvp:result', {
       channelId,
