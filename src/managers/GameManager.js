@@ -1,5 +1,5 @@
 import { Validator } from "wolf.js";
-import { GameEngine } from "../engine/index.js";
+import { RedisGameEngine } from "../engine/index.js";
 import MessageService from "../services/MessageService.js";
 
 /**
@@ -12,7 +12,7 @@ class GameManager {
   /** @type {import('wolf.js').WOLF} */
   #client;
 
-  /** @type {GameEngine} */
+  /** @type {RedisGameEngine} */
   #engine;
 
   /** @type {MessageService} */
@@ -42,7 +42,7 @@ class GameManager {
    */
   constructor(client, options = {}) {
     this.#client = client;
-    this.#engine = new GameEngine({
+    this.#engine = new RedisGameEngine({
       maxPlayers: options.maxPlayers || 16,
       timeToJoin: options.timeToJoin || 30000,
       timeToChoice: options.timeToChoice || 15000,
@@ -101,7 +101,7 @@ class GameManager {
     const channelId = command.targetChannelId;
 
     // Check if game already exists
-    if (this.#engine.hasGame(channelId)) {
+    if (await this.#engine.hasGame(channelId)) {
       await this.#messages.replyAlreadyCreated(command);
       return false;
     }
@@ -122,20 +122,20 @@ class GameManager {
     // Cache language
     this.#languages.set(channelId, command.language);
 
-    // Create the game
-    const result = this.#engine.createGame(channelId, command.language, balance);
+    // Create the game (use command.sourceSubscriberId as creatorId)
+    const result = await this.#engine.createGame(channelId, command.language, balance, command.sourceSubscriberId);
     if (!result.success) {
       return false;
     }
 
     // Add creator as first player
-    this.#engine.addPlayer(channelId, command.sourceSubscriberId);
+    await this.#engine.addPlayer(channelId, command.sourceSubscriberId);
 
     // Set join timer
     await this.#client.utility.timer.add(
       `game-${channelId}`,
       "UpdateTimer",
-      { channleId: channelId },
+      { channelId },
       this.#timeToJoin
     );
 
@@ -152,13 +152,13 @@ class GameManager {
     const playerId = command.sourceSubscriberId;
 
     // Check if game exists
-    if (!this.#engine.hasGame(channelId)) {
+    if (!(await this.#engine.hasGame(channelId))) {
       await this.#messages.replyNotExist(command);
       return false;
     }
 
     // Try to add player
-    const result = this.#engine.addPlayer(channelId, playerId);
+    const result = await this.#engine.addPlayer(channelId, playerId);
 
     if (!result.success) {
       if (result.error === "already_joined") {
@@ -177,12 +177,12 @@ class GameManager {
   async show(command) {
     const channelId = command.targetChannelId;
 
-    if (!this.#engine.hasGame(channelId)) {
+    if (!(await this.#engine.hasGame(channelId))) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    const players = this.#engine.getEligiblePlayers(channelId);
+    const players = await this.#engine.getEligiblePlayers(channelId);
     const playerList = await this.#messages.formatPlayerList(players);
     await this.#messages.replyPlayers(command, playerList);
   }
@@ -194,12 +194,15 @@ class GameManager {
   async remove(command) {
     const channelId = command.targetChannelId;
 
-    if (!this.#engine.hasGame(channelId)) {
+    if (!(await this.#engine.hasGame(channelId))) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    this.#engine.removeGame(channelId);
+    // Cancel the wolf.js client timer to prevent stale timeout messages
+    await this.#client.utility.timer.cancel(`game-${channelId}`);
+
+    await this.#engine.removeGame(channelId);
     await this.#messages.replyGameRemoved(command);
   }
 
@@ -211,12 +214,12 @@ class GameManager {
     const channelId = command.targetChannelId;
     const playerId = command.sourceSubscriberId;
 
-    if (!this.#engine.hasGame(channelId)) {
+    if (!(await this.#engine.hasGame(channelId))) {
       await this.#messages.replyNotExist(command);
       return;
     }
 
-    const balance = this.#engine.getPlayerBalance(channelId, playerId);
+    const balance = await this.#engine.getPlayerBalance(channelId, playerId);
     if (balance === null) {
       await this.#messages.replyPlayerNotFound(command);
       return;
@@ -231,7 +234,7 @@ class GameManager {
    * @param {number} channelId
    */
   async onJoinTimeout(channelId) {
-    this.#engine.onJoinTimeout(channelId);
+    await this.#engine.onJoinTimeout(channelId);
   }
 
   /**
@@ -244,7 +247,7 @@ class GameManager {
     const playerId = message.sourceSubscriberId;
     const guess = this.#parseNumber(message.body);
 
-    const result = this.#engine.handleGuess(channelId, playerId, guess);
+    const result = await this.#engine.handleGuess(channelId, playerId, guess);
     return result.success;
   }
 
@@ -258,7 +261,7 @@ class GameManager {
     const playerId = message.sourceSubscriberId;
     const pickIndex = this.#parseNumber(message.body);
 
-    const result = this.#engine.handlePick(channelId, playerId, pickIndex);
+    const result = await this.#engine.handlePick(channelId, playerId, pickIndex);
     return result.success;
   }
 
@@ -272,7 +275,7 @@ class GameManager {
     const playerId = message.sourceSubscriberId;
     const amount = this.#parseNumber(message.body);
 
-    const result = this.#engine.handleBet(channelId, playerId, amount);
+    const result = await this.#engine.handleBet(channelId, playerId, amount);
     return result.success;
   }
 
@@ -285,53 +288,62 @@ class GameManager {
     const channelId = message.targetChannelId;
     const playerId = message.sourceSubscriberId;
 
-    const result = this.#engine.handleRoll(channelId, playerId, null);
+    const result = await this.#engine.handleRoll(channelId, playerId, null);
     return result.success;
   }
 
   /**
    * Check if a channel has an active game
    * @param {number} channelId
-   * @returns {boolean}
+   * @returns {Promise<boolean>}
    */
-  hasGame(channelId) {
+  async hasGame(channelId) {
     return this.#engine.hasGame(channelId);
   }
 
   /**
    * Get game state
    * @param {number} channelId
-   * @returns {string|null}
+   * @returns {Promise<string|null>}
    */
-  getState(channelId) {
+  async getState(channelId) {
     return this.#engine.getState(channelId);
   }
 
   /**
    * Get game language
    * @param {number} channelId
-   * @returns {string|null}
+   * @returns {Promise<string|null>}
    */
-  getLanguage(channelId) {
+  async getLanguage(channelId) {
     return this.#engine.getLanguage(channelId);
   }
 
   /**
    * Get eligible players
    * @param {number} channelId
-   * @returns {Array<{id: number, balance: number}>}
+   * @returns {Promise<Array<{id: number, balance: number}>>}
    */
-  getEligiblePlayers(channelId) {
+  async getEligiblePlayers(channelId) {
     return this.#engine.getEligiblePlayers(channelId);
   }
 
   /**
    * Get sorted scores
    * @param {number} channelId
-   * @returns {Array<{playerId: number, points: number}>}
+   * @returns {Promise<Array<{playerId: number, points: number}>>}
    */
-  getSortedScores(channelId) {
+  async getSortedScores(channelId) {
     return this.#engine.getSortedScores(channelId);
+  }
+
+  /**
+   * Get game creator ID
+   * @param {number} channelId
+   * @returns {Promise<number|null>}
+   */
+  async getGameCreator(channelId) {
+    return this.#engine.getGameCreator(channelId);
   }
 
   // ===== Event Handlers =====
@@ -426,7 +438,7 @@ class GameManager {
 
     // Store initial player count for final scoring
     if (round === 1) {
-      const players = this.#engine.getEligiblePlayers(channelId);
+      const players = await this.#engine.getEligiblePlayers(channelId);
       this.#initialPlayerCounts.set(channelId, players.length);
     }
 
@@ -471,7 +483,7 @@ class GameManager {
 
     if (pickerBalance === this.#engine.minBet) {
       // Skip betting, use minimum
-      this.#engine.handleBet(channelId, data.pickerId, this.#engine.minBet);
+      await this.#engine.handleBet(channelId, data.pickerId, this.#engine.minBet);
     } else {
       // Skip sending bet message if auto-pick (already included in auto-pick message)
       if (!isAutoPick) {
@@ -625,7 +637,7 @@ class GameManager {
 
     if (message) {
       const pickIndex = this.#parseNumber(message.body);
-      this.#engine.handlePick(channelId, pickerId, pickIndex);
+      await this.#engine.handlePick(channelId, pickerId, pickIndex);
     }
     // If timeout, engine will auto-advance
   }
@@ -640,7 +652,7 @@ class GameManager {
     const language = this.#languages.get(channelId) || 'en';
     let hasReceivedAnyMessage = false;
 
-    while (this.#engine.getState(channelId) === 'betting') {
+    while ((await this.#engine.getState(channelId)) === 'betting') {
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
@@ -651,7 +663,7 @@ class GameManager {
       );
 
       // Check if state changed (game ended or timer triggered default bet)
-      if (this.#engine.getState(channelId) !== 'betting') {
+      if ((await this.#engine.getState(channelId)) !== 'betting') {
         return;
       }
 
@@ -659,7 +671,7 @@ class GameManager {
         // Timeout with no message
         if (!hasReceivedAnyMessage) {
           // Player never tried - use default bet
-          this.#engine.handleBet(channelId, playerId, this.#engine.minBet);
+          await this.#engine.handleBet(channelId, playerId, this.#engine.minBet);
           return;
         }
         // Player tried but entered wrong - keep waiting indefinitely
@@ -668,7 +680,7 @@ class GameManager {
 
       hasReceivedAnyMessage = true;
       const amount = this.#parseNumber(message.body);
-      const result = this.#engine.handleBet(channelId, playerId, amount);
+      const result = await this.#engine.handleBet(channelId, playerId, amount);
 
       if (result.success) {
         return;
@@ -682,13 +694,13 @@ class GameManager {
       }
 
       // Reset the betting timer to give player full time to enter correct amount
-      this.#engine.resetBettingTimer(channelId, playerId);
+      await this.#engine.resetBettingTimer(channelId, playerId);
       // Continue looping - player can try again with fresh timeout
     }
   }
 
   /**
-   * Check if message is a valid pick
+   * Check if message is a potentially valid pick (basic validation only)
    * @param {import('wolf.js').Message} message
    * @param {number} channelId
    * @param {number} pickerId
@@ -704,17 +716,8 @@ class GameManager {
       return false;
     }
 
-    if (!this.#isValidNumber(message.body)) {
-      return false;
-    }
-
-    const pick = this.#parseNumber(message.body);
-    // Get eligible players excluding the picker (same list shown to user)
-    const allEligible = this.#engine.getEligiblePlayers(channelId);
-    const eligiblePlayers = allEligible.filter((p) => p.id !== pickerId);
-
-    // Pick must be within range of eligible opponents (1-indexed)
-    return pick >= 1 && pick <= eligiblePlayers.length;
+    // Only validate that it's a number - range check is done after getting eligible players
+    return this.#isValidNumber(message.body);
   }
 
   /**
@@ -723,12 +726,12 @@ class GameManager {
    * @private
    */
   async #listenForGuess(channelId) {
-    const eligiblePlayers = this.#engine.getEligiblePlayers(channelId);
+    const eligiblePlayers = await this.#engine.getEligiblePlayers(channelId);
     const eligibleIds = new Set(eligiblePlayers.map(p => p.id));
     const receivedGuesses = new Set();
 
     // Listen until timer expires or all players have guessed
-    while (this.#engine.getState(channelId) === 'guessing') {
+    while ((await this.#engine.getState(channelId)) === 'guessing') {
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
@@ -741,7 +744,7 @@ class GameManager {
 
       if (!message) {
         // Check if state changed (timer expired)
-        if (this.#engine.getState(channelId) !== 'guessing') {
+        if ((await this.#engine.getState(channelId)) !== 'guessing') {
           return;
         }
         continue;
@@ -750,7 +753,7 @@ class GameManager {
       const playerId = message.sourceSubscriberId;
       const guess = this.#parseNumber(message.body);
 
-      const result = this.#engine.handleGuess(channelId, playerId, guess);
+      const result = await this.#engine.handleGuess(channelId, playerId, guess);
 
       if (result.success) {
         receivedGuesses.add(playerId);
@@ -770,9 +773,18 @@ class GameManager {
    * @returns {boolean}
    * @private
    */
-  #isValidRollCommand(body, language) {
-    const rollPhrase = this.#messages.getPhrase(language, "dice_game_roll_command");
-    return body.trim().toLowerCase() === rollPhrase.toLowerCase();
+  #isValidRollCommand(body, _language) {
+    const normalizedBody = body.trim().toLowerCase();
+    const rollPhrases = this.#client.phrase.getAllByName("dice_game_roll_command");
+
+    // Check against all language variants
+    for (const phrase of rollPhrases) {
+      if (normalizedBody === phrase.value.toLowerCase()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -787,8 +799,8 @@ class GameManager {
     // Listen for rolls from both players
     // Reset tracking on each iteration to handle draws
     let currentPlayerToRoll = startingPlayerId;
-    while (this.#engine.getState(channelId) === 'rolling') {
-      const round = this.#engine.getRoundInfo(channelId);
+    while ((await this.#engine.getState(channelId)) === 'rolling') {
+      const round = await this.#engine.getRoundInfo(channelId);
 
       if (!round) {
         return;
@@ -805,18 +817,23 @@ class GameManager {
       );
 
       if (!message) {
+        // Check if game still exists before sending timeout message
+        const currentState = await this.#engine.getState(channelId);
+        if (currentState !== 'rolling') {
+          return; // Game was cancelled or ended - don't send stale message
+        }
         // Timeout - player loses automatically
         await this.#messages.replyPlayerTimeIsUpRoll(channelId, language, currentPlayerToRoll);
-        this.#engine.handleRollTimeout(channelId, currentPlayerToRoll);
+        await this.#engine.handleRollTimeout(channelId, currentPlayerToRoll);
         return;
       }
 
       const playerId = message.sourceSubscriberId;
 
-      const result = this.#engine.handleRoll(channelId, playerId, null);
+      const result = await this.#engine.handleRoll(channelId, playerId, null);
 
       // Check if game ended while waiting
-      if (this.#engine.getState(channelId) !== 'rolling') {
+      if ((await this.#engine.getState(channelId)) !== 'rolling') {
         return;
       }
 
@@ -826,7 +843,7 @@ class GameManager {
           // Check if we should prompt opponent (only if still in rolling state)
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          const currentState = this.#engine.getState(channelId);
+          const currentState = await this.#engine.getState(channelId);
 
           if (currentState === 'rolling') {
             await this.#messages.replyAskPlayerToRoll(channelId, language, round.opponentId);
@@ -840,7 +857,7 @@ class GameManager {
           // Opponent rolled - check if both have rolled (engine handles PVP)
           await new Promise(resolve => setTimeout(resolve, 100));
 
-          const currentState = this.#engine.getState(channelId);
+          const currentState = await this.#engine.getState(channelId);
 
           if (currentState !== 'rolling') {
             // PVP was resolved, game moved to next phase or ended
