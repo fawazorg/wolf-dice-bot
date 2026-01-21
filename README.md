@@ -97,52 +97,6 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
    npm start
    ```
 
-## Backup & Restore
-
-### MongoDB Backup
-
-Create compressed backups of the MongoDB database:
-
-```bash
-# Using make (recommended)
-make backup
-
-# Direct script usage
-./docker/scripts/docker-utils.sh backup
-```
-
-Backups are saved to `./backups/mongodb/` with timestamps (e.g., `mongodb-backup-20260121-084609.gz`).
-
-### MongoDB Restore
-
-Restore from a backup file:
-
-```bash
-# Using make
-make restore BACKUP_FILE=./backups/mongodb/mongodb-backup-20260121-084609.gz
-
-# Direct script usage
-./docker/scripts/docker-utils.sh restore ./backups/mongodb/mongodb-backup-20260121-084609.gz
-```
-
-**Warning**: Restore operations will replace all existing data in the database.
-
-### Additional Utilities
-
-```bash
-# Check service health
-make health
-
-# View resource usage
-make resources
-
-# Clean container logs
-make cleanup
-
-# Show connection strings
-make connections
-```
-
 ## Commands
 
 ### Player Commands
