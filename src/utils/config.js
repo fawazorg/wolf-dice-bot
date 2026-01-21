@@ -1,32 +1,32 @@
 /**
- * @fileoverview Environment configuration utilities.
- * Provides centralized access to environment variables with proper parsing.
+ * @fileoverview Configuration utilities.
+ * Provides centralized access to configuration values from the WOLF client config.
  * @module utils/config
  */
 
 /**
- * Parse comma-separated list of admin IDs from environment variable.
+ * Get admin IDs from client configuration.
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @returns {number[]} Array of admin user IDs
  */
-export const getAdminIds = () => {
-  const adminIds = process.env.ADMIN_IDS || "";
-  return adminIds.split(",").map((id) => parseInt(id.trim())).filter((id) => !isNaN(id));
+export const getAdminIds = (client) => {
+  return client.config.admin?.adminIds || [];
 };
 
 /**
- * Get admin group ID from environment variable.
+ * Get admin group ID from client configuration.
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @returns {number|null} Admin group ID or null if not set
  */
-export const getAdminGroupId = () => {
-  const groupId = process.env.ADMIN_GROUP_ID;
-  return groupId ? parseInt(groupId) : null;
+export const getAdminGroupId = (client) => {
+  return client.config.admin?.adminGroupId || null;
 };
 
 /**
- * Parse comma-separated list of group IDs to ignore from environment variable.
+ * Get group IDs to ignore from client configuration.
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @returns {number[]} Array of group IDs to ignore
  */
-export const getIgnoreGroupIds = () => {
-  const ignoreIds = process.env.IGNORE_GROUP_IDS || "";
-  return ignoreIds.split(",").map((id) => parseInt(id.trim())).filter((id) => !isNaN(id));
+export const getIgnoreGroupIds = (client) => {
+  return client.config.admin?.ignoreGroupIds || [];
 };

@@ -79,17 +79,6 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
    MONGO_PWD=your_secure_app_password
    MONGO_DB_NAME=wolf_dice
 
-   # ============================================
-   # Admin Configuration
-   # ============================================
-   # Comma-separated list of admin user IDs with elevated permissions
-   ADMIN_IDS=12345678,87654321
-
-   # Admin group ID for bot notifications and logs
-   ADMIN_GROUP_ID=11111111
-
-   # Comma-separated list of group IDs to never auto-leave due to inactivity
-   IGNORE_GROUP_IDS=11111111,22222222
    ```
 
 4. **Start infrastructure**
@@ -255,6 +244,16 @@ app:
   networkSettings:
     retryMode: 1
     retryAttempts: 1
+
+admin:
+  # Array of admin user IDs with elevated permissions
+  adminIds: [12345678, 87654321]
+
+  # Admin group ID for bot notifications and logs
+  adminGroupId: 11111111
+
+  # Array of group IDs to never auto-leave due to inactivity
+  ignoreGroupIds: [11111111, 22222222]
 
 redis:
   host: localhost

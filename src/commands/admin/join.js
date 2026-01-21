@@ -55,7 +55,7 @@ export default async (client, command) => {
       groupName: channel.name,
       groupID: channel.id
     });
-    const adminGroupId = getAdminGroupId();
+    const adminGroupId = getAdminGroupId(client);
     if (adminGroupId) {
       return client.messaging.sendChannelMessage(adminGroupId, content);
     }
