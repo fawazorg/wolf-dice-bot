@@ -46,7 +46,7 @@ Integration between core logic and WOLF platform:
 
 ### Command Layer (`commands/`)
 User-facing command handlers that delegate to GameManager:
-- `create.js`, `join.js`, `cancel.js`, `balance.js`, `rank.js`, `show.js`, `status.js`, `topPlayers.js`
+- `create.js`, `join.js`, `cancel.js`, `balance.js`, `rank.js`, `show.js`, `status.js`, `leaderboard.js`
 - `admin/`: Admin-specific commands (count, help, join, refresh, update)
 
 ## Game Flow

@@ -84,7 +84,7 @@ class DiceClient {
         }),
         /* Top players command */
         new Command("dice_top_command", {
-          both: (command) => Dice.topPlayers(this.client, command)
+          both: (command) => Dice.leaderboard(this.client, command)
         }),
         /* Admin command */
         new Command(
