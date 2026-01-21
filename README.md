@@ -68,9 +68,9 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
    # ============================================
    # MongoDB Root Configuration
    # ============================================
-   ROOT_USERNAME=admin
-   ROOT_PASSWORD=your_secure_root_password
-   ROOT_DATABASE=admin
+   MONGO_ROOT_USERNAME=admin
+   MONGO_ROOT_PASSWORD=your_secure_root_password
+   MONGO_INITDB_DATABASE=admin
 
    # ============================================
    # MongoDB Application Database
@@ -96,6 +96,52 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
    # Production mode
    npm start
    ```
+
+## Backup & Restore
+
+### MongoDB Backup
+
+Create compressed backups of the MongoDB database:
+
+```bash
+# Using make (recommended)
+make backup
+
+# Direct script usage
+./docker/scripts/docker-utils.sh backup
+```
+
+Backups are saved to `./backups/mongodb/` with timestamps (e.g., `mongodb-backup-20260121-084609.gz`).
+
+### MongoDB Restore
+
+Restore from a backup file:
+
+```bash
+# Using make
+make restore BACKUP_FILE=./backups/mongodb/mongodb-backup-20260121-084609.gz
+
+# Direct script usage
+./docker/scripts/docker-utils.sh restore ./backups/mongodb/mongodb-backup-20260121-084609.gz
+```
+
+**Warning**: Restore operations will replace all existing data in the database.
+
+### Additional Utilities
+
+```bash
+# Check service health
+make health
+
+# View resource usage
+make resources
+
+# Clean container logs
+make cleanup
+
+# Show connection strings
+make connections
+```
 
 ## Commands
 
@@ -285,6 +331,14 @@ npm run lint
 
 # Auto-fix linting issues
 npm run lint:fix
+
+# Docker utilities (requires infrastructure running)
+make health          # Check service health
+make backup          # Backup MongoDB database
+make restore         # Restore MongoDB (requires BACKUP_FILE=path)
+make resources       # Show container resource usage
+make cleanup         # Clean up container logs
+make connections     # Show database connection strings
 ```
 
 ### Code Conventions
