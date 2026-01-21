@@ -25,5 +25,5 @@ export default async (client, command) => {
       client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
     );
   }
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_admin_help_message"));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_admin_help_message").join("\n"));
 };

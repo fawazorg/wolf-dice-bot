@@ -406,7 +406,7 @@ class GameManager {
     const { channelId, playerId } = data;
     const language = this.#languages.get(channelId) || 'en';
 
-    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_join`);
+    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_player_joined`);
     const user = await this.#messages.getUser(playerId);
     const response = this.#messages.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -540,7 +540,7 @@ class GameManager {
     const { channelId, roll, candidateId, opponentId, candidateBalance } = data;
     const language = this.#languages.get(channelId) || 'en';
 
-    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_auto_pick`);
+    const phrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_auto_pick_opponent`);
     const candidate = await this.#messages.getUser(candidateId);
     const opponent = await this.#messages.getUser(opponentId);
     const response = this.#messages.replacePlaceholders(phrase, {
@@ -771,7 +771,7 @@ class GameManager {
    * @private
    */
   #isValidRollCommand(body, language) {
-    const rollPhrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_roll`);
+    const rollPhrase = this.#messages.getPhrase(language, `${this.#client.config.keyword}_game_roll_command`);
     return body.trim().toLowerCase() === rollPhrase.toLowerCase();
   }
 
@@ -900,7 +900,7 @@ class GameManager {
    * @private
    */
   async #rewardPlayers(_channelId, scores) {
-    const { addPoint } = await import("../dice/score.js");
+    const { addPoint } = await import("../database/helpers/player.js");
 
     for (const { playerId, points } of scores) {
       await addPoint(playerId, points);

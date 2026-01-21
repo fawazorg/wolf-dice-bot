@@ -4,7 +4,7 @@
  * @module database/helpers/group
  */
 
-import Group from '../models/group.js';
+import Group from "../models/group.js";
 
 /**
  * Set the last active timestamp for a group to the current time.
@@ -26,12 +26,12 @@ export const getInactiveGroups = async (daysPass) => {
   const groups = await Group.aggregate([
     {
       $project: {
-        gid: '$gid',
+        gid: "$gid",
         days: {
           $dateDiff: {
-            startDate: '$lastActiveAt',
-            endDate: '$$NOW',
-            unit: 'day'
+            startDate: "$lastActiveAt",
+            endDate: "$$NOW",
+            unit: "day"
           }
         }
       }
@@ -59,14 +59,12 @@ export const deleteGroup = async (gid) => {
  * @returns {Promise<Array<string>>} Array of group names that were refreshed
  */
 export const refreshUnsetGroup = async (client) => {
-  const groups = await client.channel().list();
-  const groupsNames = groups.reduce(async (pv, group) => {
+  const groups = await client.channel.list();
+  return groups.reduce(async (pv, group) => {
     const names = await pv;
 
     await setLastActive(group.id);
 
     return [...names, `[${group.name}]`];
-  }, []);
-
-  return groupsNames;
+  }, Promise.resolve([]));
 };
