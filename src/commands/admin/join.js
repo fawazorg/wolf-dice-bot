@@ -1,24 +1,24 @@
 /**
  * @fileoverview Admin join command handler.
- * Handles the `!dice admin join <groupId>` command to make the bot join a specific group.
- * Validates the group isn't already managed by another bot instance and logs the action.
+ * Handles the `!dice admin join <channelId>` command to make the bot join a specific channel.
+ * Validates the channel isn't already managed by another bot instance and logs the action.
  * @module commands/admin/join
  */
 
 import { Validator } from "wolf.js";
-import Group from "../../database/models/group.js";
+import Channel from "../../database/models/channel.js";
 import { isAuthorizedAdmin } from "../../utils/authorization.js";
-import { getAdminGroupId } from "../../utils/config.js";
+import { getAdminChannelId } from "../../utils/config.js";
 
 /**
  * Handle the admin join command.
- * Makes the bot join a specified group by ID after validation checks:
+ * Makes the bot join a specified channel by ID after validation checks:
  * - Verifies the requesting user has admin or developer privileges
- * - Validates the provided group ID is a valid number
- * - Checks the group isn't already managed by another bot instance in the database
- * - Logs successful joins to the admin notification group
+ * - Validates the provided channel ID is a valid number
+ * - Checks the channel isn't already managed by another bot instance in the database
+ * - Logs successful joins to the admin notification channel
  * @param {import('wolf.js').WOLF} client - WOLF client instance
- * @param {import('wolf.js').CommandContext} command - Command context with group ID as argument
+ * @param {import('wolf.js').CommandContext} command - Command context with channel ID as argument
  * @returns {Promise<Response<MessageResponse>>} Response with join result or error message
  */
 export default async (client, command) => {
@@ -30,10 +30,10 @@ export default async (client, command) => {
   }
 
   const phrase = client.phrase.getByCommandAndName(command, "dice_message_admin_join");
-  // group exist in db by anther bot
-  const channleData = await Group.findOne({ gid: parseInt(command.argument) });
+  // channel exist in db by anther bot
+  const channelData = await Channel.findOne({ channelId: parseInt(command.argument) });
 
-  if (channleData) {
+  if (channelData) {
     const err = phrase[8];
 
     return command.reply(err.msg);
@@ -52,12 +52,12 @@ export default async (client, command) => {
     const content = client.utility.string.replace(logPhrase, {
       adminNickname: userAdmin.nickname,
       adminID: userAdmin.id,
-      groupName: channel.name,
-      groupID: channel.id
+      channelName: channel.name,
+      channelID: channel.id
     });
-    const adminGroupId = getAdminGroupId(client);
-    if (adminGroupId) {
-      return client.messaging.sendChannelMessage(adminGroupId, content);
+    const adminChannelId = getAdminChannelId(client);
+    if (adminChannelId) {
+      return client.messaging.sendChannelMessage(adminChannelId, content);
     }
   }
 };

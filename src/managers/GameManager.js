@@ -135,7 +135,7 @@ class GameManager {
     await this.#client.utility.timer.add(
       `game-${channelId}`,
       "UpdateTimer",
-      { channleId: channelId },
+      { channelId: channelId },
       this.#timeToJoin
     );
 
@@ -565,6 +565,10 @@ class GameManager {
 
     await this.#messages.replyPlayerRolled(channelId, language, playerId, roll);
 
+    // Save dice roll statistics to database
+    const Player = (await import("../database/models/player.js")).default;
+    await Player.increaseStatus(playerId, roll);
+
     // Note: Turn switching is handled by #listenForRolls
     // The engine's PVP resolution will be triggered when both have rolled
   }
@@ -765,14 +769,24 @@ class GameManager {
 
   /**
    * Check if message is a valid roll command
+   * Accepts all language variants (English "roll", Arabic "لف", etc.)
    * @param {string} body - Message body
    * @param {string} language - Language code
    * @returns {boolean}
    * @private
    */
   #isValidRollCommand(body, language) {
-    const rollPhrase = this.#messages.getPhrase(language, "dice_game_roll_command");
-    return body.trim().toLowerCase() === rollPhrase.toLowerCase();
+    const normalizedBody = body.trim().toLowerCase();
+    const rollPhrases = this.#client.phrase.getAllByName("dice_game_roll_command");
+
+    // Check against all language variants
+    for (const phrase of rollPhrases) {
+      if (normalizedBody === phrase.value.toLowerCase()) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
