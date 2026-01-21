@@ -16,8 +16,9 @@ mongoose.set({ strictQuery: false });
  * - MONGO_DB_NAME: Database name
  * - MONGO_USER: Database user
  * - MONGO_PWD: Database password
+ * - MONGO_HOST_PORT: MongoDB port (defaults to 27017)
  */
-mongoose.connect(`mongodb://127.0.0.1:27018/${process.env.MONGO_DB_NAME}`, {
+mongoose.connect(`mongodb://127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}/${process.env.MONGO_DB_NAME}`, {
   user: process.env.MONGO_USER,
   pass: process.env.MONGO_PWD,
 });
@@ -39,6 +40,6 @@ db.on("error", (error) => {
 db.once("open", () => {
   logger.info("Database connected successfully", {
     database: process.env.MONGO_DB_NAME,
-    host: "127.0.0.1:27018"
+    host: `127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}`
   });
 });
