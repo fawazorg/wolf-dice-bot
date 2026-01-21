@@ -5,7 +5,7 @@
  * @module commands/admin/update
  */
 
-import { isAuthorizedAdmin } from "../../utils/authorization.js";
+import { isAuthorizedAdmin } from '../../utils/authorization.js';
 
 /**
  * Handle the admin update command.
@@ -19,15 +19,13 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
  */
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
-    return command.reply(
-      client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
-    );
+    return command.reply(client.phrase.getByCommandAndName(command, 'dice_admin_unauthorized'));
   }
   const status = command.argument;
   // TODO: Add error handling for failed status updates (network errors, API failures)
   await client.currentSubscriber.update({ status });
 
-  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_status_updated");
+  const phrase = client.phrase.getByCommandAndName(command, 'dice_admin_status_updated');
   const content = client.utility.string.replace(phrase, { status });
 
   return command.reply(content);

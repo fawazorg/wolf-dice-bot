@@ -39,7 +39,7 @@ class Dice {
    * @returns {import('./Player.js').default|null} Closest player or null
    */
   static findClosestGuess(players, targetNumber) {
-    const playersWithGuesses = players.filter(p => p.currentGuess !== null);
+    const playersWithGuesses = players.filter((p) => p.currentGuess !== null);
 
     if (playersWithGuesses.length === 0) {
       return null;

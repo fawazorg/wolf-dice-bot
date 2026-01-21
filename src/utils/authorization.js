@@ -4,7 +4,7 @@
  * @module utils/authorization
  */
 
-import { getAdminIds } from "./config.js";
+import { getAdminIds } from './config.js';
 
 /**
  * Check if a user is authorized to execute admin commands.

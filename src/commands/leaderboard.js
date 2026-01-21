@@ -5,7 +5,7 @@
  * @module commands/leaderboard
  */
 
-import { getTopPlayers } from "../database/helpers/player.js";
+import { getTopPlayers } from '../database/helpers/player.js';
 
 /**
  * Handle the top players leaderboard command.
@@ -19,7 +19,7 @@ import { getTopPlayers } from "../database/helpers/player.js";
 export default async (client, command) => {
   const data = await getTopPlayers();
   if (data.length > 0) {
-    let r = "";
+    let r = '';
     for (let index = 0; index < data.length; index++) {
       const user = data[index];
       const sub = await client.subscriber.getById(user.id);
@@ -31,12 +31,12 @@ export default async (client, command) => {
     }
     return command.reply(
       client.utility.string.replace(
-        client.phrase.getByCommandAndName(command, "dice_leaderboard_top_players"),
+        client.phrase.getByCommandAndName(command, 'dice_leaderboard_top_players'),
         {
           list: r
         }
       )
     );
   }
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_leaderboard_empty"));
+  return command.reply(client.phrase.getByCommandAndName(command, 'dice_leaderboard_empty'));
 };

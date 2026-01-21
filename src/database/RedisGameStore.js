@@ -68,20 +68,14 @@ class RedisGameStore {
     const uuid = uuidv4();
 
     // Atomic create using SET NX
-    const created = await this.#redis.set(
-      `${gameKey}:lock`,
-      'CREATING',
-      'NX',
-      'PX',
-      500
-    );
+    const created = await this.#redis.set(`${gameKey}:lock`, 'CREATING', 'NX', 'PX', 500);
 
     if (!created) {
       const exists = await this.#redis.exists(gameKey);
       if (exists) {
         return { success: false, error: 'game_already_exists' };
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       return this.createGame(channelId, language, defaultBalance, creatorId, maxPlayers);
     }
 
@@ -126,7 +120,6 @@ class RedisGameStore {
       await pipeline.exec();
       logger.info('Game created', { channelId, uuid, language, defaultBalance });
       return { success: true, uuid };
-
     } finally {
       await this.#redis.del(`${gameKey}:lock`);
     }
@@ -294,10 +287,7 @@ class RedisGameStore {
    * @returns {Promise<boolean>}
    */
   async removePlayer(channelId, playerId) {
-    const result = await this.#redis.hdel(
-      this.#playersKey(channelId),
-      playerId.toString()
-    );
+    const result = await this.#redis.hdel(this.#playersKey(channelId), playerId.toString());
     return result === 1;
   }
 
@@ -308,10 +298,7 @@ class RedisGameStore {
    * @returns {Promise<Object|null>}
    */
   async getPlayer(channelId, playerId) {
-    const data = await this.#redis.hget(
-      this.#playersKey(channelId),
-      playerId.toString()
-    );
+    const data = await this.#redis.hget(this.#playersKey(channelId), playerId.toString());
     return data ? JSON.parse(data) : null;
   }
 
@@ -343,7 +330,7 @@ class RedisGameStore {
   async getAllPlayers(channelId) {
     const data = await this.#redis.hgetall(this.#playersKey(channelId));
     if (!data) return [];
-    return Object.values(data).map(json => JSON.parse(json));
+    return Object.values(data).map((json) => JSON.parse(json));
   }
 
   /**
@@ -363,9 +350,7 @@ class RedisGameStore {
    */
   async getRichestPlayers(channelId, minBalance = 500) {
     const players = await this.getAllPlayers(channelId);
-    return players
-      .filter(p => p.balance >= minBalance)
-      .sort((a, b) => b.balance - a.balance);
+    return players.filter((p) => p.balance >= minBalance).sort((a, b) => b.balance - a.balance);
   }
 
   /**
@@ -379,11 +364,7 @@ class RedisGameStore {
 
     for (const player of players) {
       player.currentGuess = null;
-      pipeline.hset(
-        this.#playersKey(channelId),
-        player.id.toString(),
-        JSON.stringify(player)
-      );
+      pipeline.hset(this.#playersKey(channelId), player.id.toString(), JSON.stringify(player));
     }
     await pipeline.exec();
   }
@@ -395,7 +376,7 @@ class RedisGameStore {
    */
   async getPlayersWithGuesses(channelId) {
     const players = await this.getAllPlayers(channelId);
-    return players.filter(p => p.currentGuess !== null);
+    return players.filter((p) => p.currentGuess !== null);
   }
 
   // ===== Score Management =====
@@ -408,11 +389,7 @@ class RedisGameStore {
    * @returns {Promise<void>}
    */
   async addPoints(channelId, playerId, points) {
-    await this.#redis.hincrby(
-      this.#scoresKey(channelId),
-      playerId.toString(),
-      points
-    );
+    await this.#redis.hincrby(this.#scoresKey(channelId), playerId.toString(), points);
   }
 
   /**
@@ -513,7 +490,7 @@ class RedisGameStore {
    */
   async recordGuess(channelId, playerId, guess) {
     const roundKey = this.#roundKey(channelId);
-    const guessesStr = await this.#redis.hget(roundKey, 'guesses') || '{}';
+    const guessesStr = (await this.#redis.hget(roundKey, 'guesses')) || '{}';
     const guesses = JSON.parse(guessesStr);
     guesses[playerId] = guess;
     await this.#redis.hset(roundKey, 'guesses', JSON.stringify(guesses));

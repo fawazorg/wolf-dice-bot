@@ -4,7 +4,7 @@
  * @module database/helpers/group
  */
 
-import Group from "../models/group.js";
+import Group from '../models/group.js';
 
 /**
  * Set the last active timestamp for a group to the current time.
@@ -26,12 +26,12 @@ export const getInactiveGroups = async (daysPass) => {
   const groups = await Group.aggregate([
     {
       $project: {
-        gid: "$gid",
+        gid: '$gid',
         days: {
           $dateDiff: {
-            startDate: "$lastActiveAt",
-            endDate: "$$NOW",
-            unit: "day"
+            startDate: '$lastActiveAt',
+            endDate: '$$NOW',
+            unit: 'day'
           }
         }
       }

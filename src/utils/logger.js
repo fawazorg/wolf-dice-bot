@@ -4,19 +4,19 @@
  * @module utils/logger
  */
 
-import winston from "winston";
+import winston from 'winston';
 
 /**
  * Winston logger instance configured for console output.
  * Logs to console with colorized output and timestamp.
  */
 const logger = winston.createLogger({
-  level: "info",
+  level: 'info',
   format: winston.format.combine(
-    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize(),
     winston.format.printf(({ timestamp, level, message, ...meta }) => {
-      let metaString = "";
+      let metaString = '';
       if (Object.keys(meta).length > 0) {
         metaString = ` ${JSON.stringify(meta)}`;
       }

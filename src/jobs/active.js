@@ -4,8 +4,8 @@
  * @module jobs/active
  */
 
-import { deleteGroup, getInactiveGroups } from "../database/helpers/group.js";
-import { getAdminGroupId, getIgnoreGroupIds } from "../utils/config.js";
+import { deleteGroup, getInactiveGroups } from '../database/helpers/group.js';
+import { getAdminGroupId, getIgnoreGroupIds } from '../utils/config.js';
 
 /**
  * Leave groups that have been inactive for a specified number of days.
@@ -32,7 +32,7 @@ const leaveInactiveGroups = async (client, days) => {
 
   const ignoreGroups = getIgnoreGroupIds(client);
   inGroups.forEach((group) => {
-    if (!ignoreGroups.includes(group.id) && inArray(inactiveGroups, "gid", group.id)) {
+    if (!ignoreGroups.includes(group.id) && inArray(inactiveGroups, 'gid', group.id)) {
       toExitGroups.push(group);
     }
   });
@@ -60,8 +60,8 @@ const leaveInactiveGroups = async (client, days) => {
  * @returns {Promise<void>}
  */
 const sendLeaveMessage = async (client, group) => {
-  const language = group.language === "ar" ? "ar" : "en";
-  const phrase = client.phrase().getByLanguageAndName(language, "dice_auto_leave_message");
+  const language = group.language === 'ar' ? 'ar' : 'en';
+  const phrase = client.phrase().getByLanguageAndName(language, 'dice_auto_leave_message');
 
   await client.messaging().sendGroupMessage(group.id, phrase);
 };
@@ -73,7 +73,7 @@ const sendLeaveMessage = async (client, group) => {
  * @returns {Promise<void>}
  */
 const sendLogMessage = async (client, names) => {
-  const phrase = client.phrase().getByLanguageAndName("ar", "dice_maintenance_report");
+  const phrase = client.phrase().getByLanguageAndName('ar', 'dice_maintenance_report');
   const groupsCount = await client.channel().list();
   const content = client
     .utility()
@@ -81,7 +81,7 @@ const sendLogMessage = async (client, names) => {
     .replace(phrase, {
       count: groupsCount.length,
       inactiveCount: names.length,
-      groupsName: names.join("\n")
+      groupsName: names.join('\n')
     });
 
   const adminGroupId = getAdminGroupId(client);

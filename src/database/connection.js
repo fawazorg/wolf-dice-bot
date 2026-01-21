@@ -4,8 +4,8 @@
  * @module database/connection
  */
 
-import mongoose from "mongoose";
-import logger from "../utils/logger.js";
+import mongoose from 'mongoose';
+import logger from '../utils/logger.js';
 
 // Disable strict query mode for more flexible queries
 mongoose.set({ strictQuery: false });
@@ -18,10 +18,13 @@ mongoose.set({ strictQuery: false });
  * - MONGO_PWD: Database password
  * - MONGO_HOST_PORT: MongoDB port (defaults to 27017)
  */
-mongoose.connect(`mongodb://127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}/${process.env.MONGO_DB_NAME}`, {
-  user: process.env.MONGO_USER,
-  pass: process.env.MONGO_PWD,
-});
+mongoose.connect(
+  `mongodb://127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}/${process.env.MONGO_DB_NAME}`,
+  {
+    user: process.env.MONGO_USER,
+    pass: process.env.MONGO_PWD
+  }
+);
 
 // Use native ES6 promises
 mongoose.Promise = global.Promise;
@@ -33,12 +36,12 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 
 // Set up connection event handlers
-db.on("error", (error) => {
-  logger.error("Database connection error", { error: error.message });
+db.on('error', (error) => {
+  logger.error('Database connection error', { error: error.message });
 });
 
-db.once("open", () => {
-  logger.info("Database connected successfully", {
+db.once('open', () => {
+  logger.info('Database connected successfully', {
     database: process.env.MONGO_DB_NAME,
     host: `127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}`
   });

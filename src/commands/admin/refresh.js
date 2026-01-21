@@ -5,8 +5,8 @@
  * @module commands/admin/refresh
  */
 
-import { refreshUnsetGroup } from "../../database/helpers/group.js";
-import { isAuthorizedAdmin } from "../../utils/authorization.js";
+import { refreshUnsetGroup } from '../../database/helpers/group.js';
+import { isAuthorizedAdmin } from '../../utils/authorization.js';
 
 /**
  * Handle the admin refresh command.
@@ -22,13 +22,11 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
  */
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
-    return command.reply(
-      client.phrase.getByCommandAndName(command, "dice_admin_unauthorized")
-    );
+    return command.reply(client.phrase.getByCommandAndName(command, 'dice_admin_unauthorized'));
   }
   const names = await refreshUnsetGroup(client);
-  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_groups_refreshed");
-  const content = client.utility.string.replace(phrase, { list: names.join("\n") });
+  const phrase = client.phrase.getByCommandAndName(command, 'dice_admin_groups_refreshed');
+  const content = client.utility.string.replace(phrase, { list: names.join('\n') });
 
   return command.reply(content);
 };

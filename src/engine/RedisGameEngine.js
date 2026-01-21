@@ -46,10 +46,18 @@ class RedisGameEngine {
 
   // ===== Configuration Getters =====
 
-  get maxPlayers() { return this.#config.maxPlayers; }
-  get timeToJoin() { return this.#config.timeToJoin; }
-  get timeToChoice() { return this.#config.timeToChoice; }
-  get minBet() { return this.#config.minBet; }
+  get maxPlayers() {
+    return this.#config.maxPlayers;
+  }
+  get timeToJoin() {
+    return this.#config.timeToJoin;
+  }
+  get timeToChoice() {
+    return this.#config.timeToChoice;
+  }
+  get minBet() {
+    return this.#config.minBet;
+  }
 
   // ===== Game Lifecycle =====
 
@@ -162,13 +170,18 @@ class RedisGameEngine {
     await this.#store.startNewRound(channelId, roundNumber);
 
     const eligiblePlayers = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
-    const playerData = eligiblePlayers.map(p => ({ id: p.id, balance: p.balance }));
+    const playerData = eligiblePlayers.map((p) => ({ id: p.id, balance: p.balance }));
 
     this.#emit('phase:guessing', { channelId, round: roundNumber, players: playerData });
 
-    this.#store.startTimer(channelId, uuid, async () => {
-      await this.#endGuessingPhase(channelId);
-    }, this.#config.timeToChoice);
+    this.#store.startTimer(
+      channelId,
+      uuid,
+      async () => {
+        await this.#endGuessingPhase(channelId);
+      },
+      this.#config.timeToChoice
+    );
   }
 
   /**
@@ -242,7 +255,7 @@ class RedisGameEngine {
     await this.#store.setState(channelId, GameState.PICKING);
 
     const allEligible = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
-    const eligiblePlayers = allEligible.filter(p => p.id !== winner.id);
+    const eligiblePlayers = allEligible.filter((p) => p.id !== winner.id);
 
     if (eligiblePlayers.length === 1) {
       const autoPickedOpponent = eligiblePlayers[0];
@@ -265,9 +278,14 @@ class RedisGameEngine {
         isAutoPick: true
       });
 
-      this.#store.startTimer(channelId, uuid, async () => {
-        await this.#handleBet(channelId, winner.id, this.#config.minBet);
-      }, this.#config.timeToChoice);
+      this.#store.startTimer(
+        channelId,
+        uuid,
+        async () => {
+          await this.#handleBet(channelId, winner.id, this.#config.minBet);
+        },
+        this.#config.timeToChoice
+      );
 
       return;
     }
@@ -277,7 +295,7 @@ class RedisGameEngine {
       return;
     }
 
-    const playerData = eligiblePlayers.map(p => ({ id: p.id, balance: p.balance }));
+    const playerData = eligiblePlayers.map((p) => ({ id: p.id, balance: p.balance }));
 
     this.#emit('phase:picking', {
       channelId,
@@ -288,9 +306,14 @@ class RedisGameEngine {
       players: playerData
     });
 
-    this.#store.startTimer(channelId, uuid, async () => {
-      await this.#startGuessingPhase(channelId);
-    }, this.#config.timeToChoice);
+    this.#store.startTimer(
+      channelId,
+      uuid,
+      async () => {
+        await this.#startGuessingPhase(channelId);
+      },
+      this.#config.timeToChoice
+    );
   }
 
   /**
@@ -312,7 +335,7 @@ class RedisGameEngine {
     }
 
     const allEligible = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
-    const eligiblePlayers = allEligible.filter(p => p.id !== pickerId);
+    const eligiblePlayers = allEligible.filter((p) => p.id !== pickerId);
 
     const normalizedIndex = pickIndex - 1;
     if (normalizedIndex < 0 || normalizedIndex >= eligiblePlayers.length) {
@@ -335,9 +358,14 @@ class RedisGameEngine {
     });
 
     const uuid = await this.#store.getGameUuid(channelId);
-    this.#store.startTimer(channelId, uuid, async () => {
-      await this.#handleBet(channelId, pickerId, this.#config.minBet);
-    }, this.#config.timeToChoice);
+    this.#store.startTimer(
+      channelId,
+      uuid,
+      async () => {
+        await this.#handleBet(channelId, pickerId, this.#config.minBet);
+      },
+      this.#config.timeToChoice
+    );
 
     return { success: true };
   }
@@ -460,7 +488,14 @@ class RedisGameEngine {
     }
 
     await this.#store.addPoints(channelId, winnerId, 1);
-    this.#emit('roll:timeout', { channelId, playerId, winnerId, loserId, bet: round.bet, isEliminated });
+    this.#emit('roll:timeout', {
+      channelId,
+      playerId,
+      winnerId,
+      loserId,
+      bet: round.bet,
+      isEliminated
+    });
 
     await this.#store.setState(channelId, null);
 
@@ -469,9 +504,14 @@ class RedisGameEngine {
       await this.#endGame(channelId, endCheck.winner);
     } else {
       const uuid = await this.#store.getGameUuid(channelId);
-      this.#store.scheduleDelay(channelId, uuid, async () => {
-        await this.#startGuessingPhase(channelId);
-      }, 1000);
+      this.#store.scheduleDelay(
+        channelId,
+        uuid,
+        async () => {
+          await this.#startGuessingPhase(channelId);
+        },
+        1000
+      );
     }
 
     return { success: true };
@@ -526,9 +566,14 @@ class RedisGameEngine {
       await this.#endGame(channelId, endCheck.winner);
     } else {
       const uuid = await this.#store.getGameUuid(channelId);
-      this.#store.scheduleDelay(channelId, uuid, async () => {
-        await this.#startGuessingPhase(channelId);
-      }, 1000);
+      this.#store.scheduleDelay(
+        channelId,
+        uuid,
+        async () => {
+          await this.#startGuessingPhase(channelId);
+        },
+        1000
+      );
     }
   }
 
@@ -588,7 +633,7 @@ class RedisGameEngine {
 
   async getEligiblePlayers(channelId) {
     const players = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
-    return players.map(p => ({ id: p.id, balance: p.balance }));
+    return players.map((p) => ({ id: p.id, balance: p.balance }));
   }
 
   async getPlayerBalance(channelId, playerId) {
@@ -623,9 +668,14 @@ class RedisGameEngine {
     if (state !== GameState.BETTING) return;
 
     const uuid = await this.#store.getGameUuid(channelId);
-    this.#store.startTimer(channelId, uuid, async () => {
-      await this.#handleBet(channelId, playerId, this.#config.minBet);
-    }, this.#config.timeToChoice);
+    this.#store.startTimer(
+      channelId,
+      uuid,
+      async () => {
+        await this.#handleBet(channelId, playerId, this.#config.minBet);
+      },
+      this.#config.timeToChoice
+    );
   }
 
   // ===== Event System =====

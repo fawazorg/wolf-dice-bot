@@ -109,7 +109,7 @@ class Channel {
    * @returns {Player[]}
    */
   getActivePlayers() {
-    return [...this.#players.values()].filter(p => p.isActive());
+    return [...this.#players.values()].filter((p) => p.isActive());
   }
 
   /**
@@ -135,7 +135,7 @@ class Channel {
    */
   getRichestPlayers(minBalance = 500) {
     return [...this.#players.values()]
-      .filter(p => p.hasMinimumBalance(minBalance))
+      .filter((p) => p.hasMinimumBalance(minBalance))
       .sort((a, b) => b.balance - a.balance);
   }
 
@@ -144,7 +144,7 @@ class Channel {
    * @returns {Player[]}
    */
   getPlayersWithGuesses() {
-    return [...this.#players.values()].filter(p => p.currentGuess !== null);
+    return [...this.#players.values()].filter((p) => p.currentGuess !== null);
   }
 
   /**

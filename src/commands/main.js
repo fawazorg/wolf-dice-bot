@@ -12,5 +12,5 @@
  * @returns {Promise<Response<MessageResponse>>} Response with default message
  */
 export default async (client, command) => {
-  return command.reply(client.phrase.getByCommandAndName(command, "dice_default_message"));
+  return command.reply(client.phrase.getByCommandAndName(command, 'dice_default_message'));
 };

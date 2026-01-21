@@ -6,7 +6,16 @@
  */
 
 // Core game logic
-export { Channel, Dice, Game, GameState, Player, Round, isValidState, getNextState } from './core/index.js';
+export {
+  Channel,
+  Dice,
+  Game,
+  GameState,
+  Player,
+  Round,
+  isValidState,
+  getNextState
+} from './core/index.js';
 
 // Engine layer
 export { RedisGameEngine, Random, Validator } from './engine/index.js';

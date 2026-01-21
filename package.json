@@ -22,11 +22,14 @@
   "devDependencies": {
     "@eslint/compat": "^2.0.1",
     "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.23.2",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-promise": "^7.2.1",
     "globals": "^17.0.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "prettier": "^3.8.1"
   },
   "dependencies": {
     "dotenv": "^17.2.3",

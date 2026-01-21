@@ -20,7 +20,7 @@ export default async (client, command, game) => {
 
   // Check if game exists first
   if (!(await game.hasGame(channelId))) {
-    const phrase = client.phrase.getByCommandAndName(command, "dice_game_not_exist");
+    const phrase = client.phrase.getByCommandAndName(command, 'dice_game_not_exist');
     return command.reply(phrase);
   }
 
@@ -31,7 +31,7 @@ export default async (client, command, game) => {
   const isGameCreator = gameCreator === userId;
 
   if (!isChannelOwner && !isGameCreator) {
-    const phrase = client.phrase.getByCommandAndName(command, "dice_owner_only_command");
+    const phrase = client.phrase.getByCommandAndName(command, 'dice_owner_only_command');
     return command.reply(phrase);
   }
 

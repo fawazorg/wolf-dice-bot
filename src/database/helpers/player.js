@@ -4,7 +4,7 @@
  * @module database/helpers/player
  */
 
-import Player from "../models/player.js";
+import Player from '../models/player.js';
 
 /**
  * Add points to a player's score.

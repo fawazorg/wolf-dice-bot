@@ -1,6 +1,6 @@
-import { Validator } from "wolf.js";
-import { RedisGameEngine } from "../engine/index.js";
-import MessageService from "../services/MessageService.js";
+import { Validator } from 'wolf.js';
+import { RedisGameEngine } from '../engine/index.js';
+import MessageService from '../services/MessageService.js';
 
 /**
  * GameManager integrates GameEngine with MessageService and WOLF.js client
@@ -123,7 +123,12 @@ class GameManager {
     this.#languages.set(channelId, command.language);
 
     // Create the game (use command.sourceSubscriberId as creatorId)
-    const result = await this.#engine.createGame(channelId, command.language, balance, command.sourceSubscriberId);
+    const result = await this.#engine.createGame(
+      channelId,
+      command.language,
+      balance,
+      command.sourceSubscriberId
+    );
     if (!result.success) {
       return false;
     }
@@ -134,7 +139,7 @@ class GameManager {
     // Set join timer
     await this.#client.utility.timer.add(
       `game-${channelId}`,
-      "UpdateTimer",
+      'UpdateTimer',
       { channelId },
       this.#timeToJoin
     );
@@ -161,7 +166,7 @@ class GameManager {
     const result = await this.#engine.addPlayer(channelId, playerId);
 
     if (!result.success) {
-      if (result.error === "already_joined") {
+      if (result.error === 'already_joined') {
         await this.#messages.replyAlreadyJoin(command);
       }
       return false;
@@ -418,7 +423,7 @@ class GameManager {
     const { channelId, playerId } = data;
     const language = this.#languages.get(channelId) || 'en';
 
-    const phrase = this.#messages.getPhrase(language, "dice_game_player_joined");
+    const phrase = this.#messages.getPhrase(language, 'dice_game_player_joined');
     const user = await this.#messages.getUser(playerId);
     const response = this.#messages.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -552,7 +557,7 @@ class GameManager {
     const { channelId, roll, candidateId, opponentId, candidateBalance } = data;
     const language = this.#languages.get(channelId) || 'en';
 
-    const phrase = this.#messages.getPhrase(language, "dice_game_auto_pick_opponent");
+    const phrase = this.#messages.getPhrase(language, 'dice_game_auto_pick_opponent');
     const candidate = await this.#messages.getUser(candidateId);
     const opponent = await this.#messages.getUser(opponentId);
     const response = this.#messages.replacePlaceholders(phrase, {
@@ -727,7 +732,7 @@ class GameManager {
    */
   async #listenForGuess(channelId) {
     const eligiblePlayers = await this.#engine.getEligiblePlayers(channelId);
-    const eligibleIds = new Set(eligiblePlayers.map(p => p.id));
+    const eligibleIds = new Set(eligiblePlayers.map((p) => p.id));
     const receivedGuesses = new Set();
 
     // Listen until timer expires or all players have guessed
@@ -775,7 +780,7 @@ class GameManager {
    */
   #isValidRollCommand(body, _language) {
     const normalizedBody = body.trim().toLowerCase();
-    const rollPhrases = this.#client.phrase.getAllByName("dice_game_roll_command");
+    const rollPhrases = this.#client.phrase.getAllByName('dice_game_roll_command');
 
     // Check against all language variants
     for (const phrase of rollPhrases) {
@@ -841,7 +846,7 @@ class GameManager {
         // After candidate rolls, switch to opponent and prompt them
         if (playerId === round.candidateId) {
           // Check if we should prompt opponent (only if still in rolling state)
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           const currentState = await this.#engine.getState(channelId);
 
@@ -855,7 +860,7 @@ class GameManager {
           }
         } else {
           // Opponent rolled - check if both have rolled (engine handles PVP)
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
           const currentState = await this.#engine.getState(channelId);
 
@@ -917,7 +922,7 @@ class GameManager {
    * @private
    */
   async #rewardPlayers(_channelId, scores) {
-    const { addPoint } = await import("../database/helpers/player.js");
+    const { addPoint } = await import('../database/helpers/player.js');
 
     for (const { playerId, points } of scores) {
       await addPoint(playerId, points);

@@ -4,9 +4,9 @@
  * @module main
  */
 
-import "dotenv/config";
-import DiceClient from "./bot/DiceClient.js";
-import("./database/connection.js");
+import 'dotenv/config';
+import DiceClient from './bot/DiceClient.js';
+import('./database/connection.js');
 
 /**
  * Map of active bot clients, keyed by email address.
@@ -19,7 +19,7 @@ const clients = new Map();
  * Format: "email1:password1|email2:password2"
  * @type {string[]}
  */
-const accounts = process.env.ACCOUNTS.split("|");
+const accounts = process.env.ACCOUNTS.split('|');
 
 /**
  * Initialize all bot accounts sequentially.
@@ -31,7 +31,7 @@ const main = async () => {
   await accounts.reduce(async (previousValue, account) => {
     await previousValue;
 
-    const [email, password] = account.split(":");
+    const [email, password] = account.split(':');
     const client = new DiceClient(email, password);
 
     client.commandRegister();

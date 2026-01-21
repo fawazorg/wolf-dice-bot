@@ -5,10 +5,10 @@
  * @module commands/admin/join
  */
 
-import { Validator } from "wolf.js";
-import Group from "../../database/models/group.js";
-import { isAuthorizedAdmin } from "../../utils/authorization.js";
-import { getAdminGroupId } from "../../utils/config.js";
+import { Validator } from 'wolf.js';
+import Group from '../../database/models/group.js';
+import { isAuthorizedAdmin } from '../../utils/authorization.js';
+import { getAdminGroupId } from '../../utils/config.js';
 
 /**
  * Handle the admin join command.
@@ -29,7 +29,7 @@ export default async (client, command) => {
     return Promise.resolve();
   }
 
-  const phrase = client.phrase.getByCommandAndName(command, "dice_message_admin_join");
+  const phrase = client.phrase.getByCommandAndName(command, 'dice_message_admin_join');
   // group exist in db by anther bot
   const channleData = await Group.findOne({ gid: parseInt(command.argument) });
 
@@ -46,7 +46,7 @@ export default async (client, command) => {
   await command.reply(text.msg);
   // log message
   if (res.code === 200) {
-    const logPhrase = client.phrase.getByCommandAndName(command, "dice_admin_join_log");
+    const logPhrase = client.phrase.getByCommandAndName(command, 'dice_admin_join_log');
     const userAdmin = await client.subscriber.getById(command.sourceSubscriberId);
     const channel = await client.channel.getById(parseInt(command.argument));
     const content = client.utility.string.replace(logPhrase, {

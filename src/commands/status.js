@@ -5,7 +5,7 @@
  * @module commands/status
  */
 
-import Player from "../database/models/player.js";
+import Player from '../database/models/player.js';
 
 /**
  * Calculate the total of all values in a status array.
@@ -20,7 +20,7 @@ const getTotal = (arr = []) => arr.reduce((prev, num) => prev + num.value, 0);
  * @param {number} key - The status key to look up
  * @returns {string} Percentage string (e.g., "25%") or "0%" if not found
  */
-const getByKey = (arr = [], key) => arr.find((item) => item.key === key)?.percentage || "0%";
+const getByKey = (arr = [], key) => arr.find((item) => item.key === key)?.percentage || '0%';
 
 /**
  * Calculate percentage distribution for all status items.
@@ -50,13 +50,13 @@ const getPercentage = (arr = []) => {
 export default async (client, command) => {
   const player = await Player.findOne({ id: command.sourceSubscriberId });
   if (!player || player.status.length <= 0) {
-    const phrase = client.phrase.getByCommandAndName(command, "dice_player_no_statistics");
+    const phrase = client.phrase.getByCommandAndName(command, 'dice_player_no_statistics');
 
     return command.reply(phrase);
   }
 
   const percentage = getPercentage(player.status);
-  const phrase = client.phrase.getByCommandAndName(command, "dice_player_statistics");
+  const phrase = client.phrase.getByCommandAndName(command, 'dice_player_statistics');
   const text = client.utility.string.replace(phrase, {
     d1: getByKey(percentage, 1),
     d2: getByKey(percentage, 2),

@@ -238,7 +238,7 @@ class Game {
 
     // Check if guess is already taken by another eligible player
     const richPlayers = channel.getRichestPlayers(this.#minBet);
-    const guessTaken = richPlayers.some(p => p.id !== playerId && p.currentGuess === guess);
+    const guessTaken = richPlayers.some((p) => p.id !== playerId && p.currentGuess === guess);
 
     if (guessTaken) {
       // Assign a fallback guess value (original code used timeToChoice which is 15000)
@@ -311,7 +311,7 @@ class Game {
     const channel = this.#channels.get(channelId);
     if (!channel) return [];
 
-    return channel.getRichestPlayers(this.#minBet).filter(p => p.id !== pickerId);
+    return channel.getRichestPlayers(this.#minBet).filter((p) => p.id !== pickerId);
   }
 
   /**
