@@ -15,14 +15,14 @@ admin:
   # Example: [12345678, 87654321]
   adminIds: [76117834]
 
-  # Special admin channel ID for notifications and logs
-  # Bot will send administrative notifications to this channel
-  adminChannelId: 81967172
+  # Special admin group ID for notifications and logs
+  # Bot will send administrative notifications to this group
+  adminGroupId: 81967172
 
-  # Comma-separated list of channel IDs to ignore in bot operations
-  # These channels won't be auto-left due to inactivity
+  # Comma-separated list of group IDs to ignore in bot operations
+  # These groups won't be auto-left due to inactivity
   # Example: [11111111, 22222222]
-  ignoreChannelIds: []
+  ignoreGroupIds: []
 
 redis:
   host: localhost

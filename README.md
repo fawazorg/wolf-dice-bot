@@ -115,12 +115,12 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 
 ### Admin Commands
 
-| Command                         | Description                               |
-| ------------------------------- | ----------------------------------------- |
-| `!dice admin join <channelId>`  | Make the bot join a specific channel      |
-| `!dice admin refresh`           | Update last active date for all channels  |
-| `!dice admin count`             | Get total channel count                   |
-| `!dice admin help`              | Show admin help menu                      |
+| Command                      | Description                            |
+| ---------------------------- | -------------------------------------- |
+| `!dice admin join <groupID>` | Make the bot join a specific group     |
+| `!dice admin refresh`        | Update last active date for all groups |
+| `!dice admin count`          | Get total group count                  |
+| `!dice admin help`           | Show admin help menu                   |
 
 ## Game Flow
 
@@ -173,70 +173,27 @@ wolf-dice-bot/
 │   │   ├── Player.js      # Player balance and status
 │   │   ├── Channel.js     # Channel management
 │   │   ├── Dice.js        # Dice rolling mechanics
-│   │   ├── GameState.js   # Game phase constants
-│   │   ├── Round.js       # Round management
-│   │   └── index.js       # Core exports
-│   ├── engine/            # Game engine orchestration
-│   │   ├── GameEngine.js  # Main game engine controller
-│   │   ├── Timer.js       # Phase timer management
-│   │   ├── Validator.js   # Input validation
-│   │   └── index.js       # Engine exports
+│   │   └── GameState.js   # Game phase constants
 │   ├── managers/          # Integration layer
-│   │   ├── GameManager.js # Bridges core logic with WOLF platform
-│   │   └── index.js       # Manager exports
+│   │   └── GameManager.js # Bridges core logic with WOLF platform
 │   ├── services/          # External services
-│   │   ├── MessageService.js # Multi-language message handling
-│   │   └── index.js       # Service exports
+│   │   └── MessageService.js # Multi-language message handling
 │   ├── database/          # Database layer
-│   │   ├── connection.js  # MongoDB connection
 │   │   ├── helpers/       # Database helper functions
-│   │   │   ├── channel.js # Channel activity tracking
+│   │   │   ├── group.js   # Group activity tracking
 │   │   │   └── player.js  # Player scoring and ranking
 │   │   └── models/        # Mongoose schemas
-│   │       ├── channel.js # Channel model
-│   │       └── player.js  # Player model
 │   ├── utils/             # Utility functions
 │   │   ├── Random.js      # Random number generation
-│   │   ├── statistics.js  # Statistics calculation utilities
 │   │   ├── config.js      # Environment variable parsing
-│   │   ├── logger.js      # Logging utilities
-│   │   ├── authorization.js # Admin authorization
-│   │   └── index.js       # Utility exports
-│   ├── commands/          # Command handlers organized by category
-│   │   ├── game/          # Game management commands
-│   │   │   ├── create.js  # Create new game
-│   │   │   ├── join.js    # Join existing game
-│   │   │   ├── cancel.js  # Cancel current game
-│   │   │   ├── show.js    # Show game players
-│   │   │   └── index.js   # Game commands export
-│   │   ├── player/        # Player-specific commands
-│   │   │   ├── balance.js # Check player balance
-│   │   │   ├── rank.js    # View player rank
-│   │   │   ├── status.js  # View dice statistics
-│   │   │   ├── top.js     # Display leaderboard
-│   │   │   └── index.js   # Player commands export
-│   │   ├── info/          # Information commands
-│   │   │   ├── help.js    # Show help menu
-│   │   │   └── index.js   # Info commands export
+│   │   └── authorization.js # Admin authorization
+│   ├── commands/          # Command handlers
 │   │   ├── admin/         # Admin-specific commands
-│   │   │   ├── count.js   # Get total channel count
-│   │   │   ├── help.js    # Show admin help
-│   │   │   ├── join.js    # Bot join channel
-│   │   │   ├── refresh.js # Update channel activity
-│   │   │   ├── update.js  # Update command
-│   │   │   ├── main.js    # Admin command handler
-│   │   │   └── index.js   # Admin commands export
-│   │   ├── main/          # Main command handlers
-│   │   │   ├── main.js    # Default !dice command
-│   │   │   └── index.js   # Main command export
-│   │   └── index.js       # Root commands export
+│   │   └── *.js           # Player commands
 │   ├── jobs/              # Scheduled tasks
-│   │   ├── channel.js     # Channel timer job
-│   │   └── active.js      # Active game management
 │   ├── bot/               # Bot client
 │   │   └── DiceClient.js  # WOLF client wrapper
-│   ├── main.js            # Application entry point
-│   └── index.js           # Alternative entry point
+│   └── main.js            # Application entry point
 ├── phrases/               # Localization files
 │   ├── en.json           # English messages
 │   └── ar.json           # Arabic messages
@@ -244,13 +201,11 @@ wolf-dice-bot/
 │   └── default.yaml      # Bot configuration
 ├── docker/
 │   └── mongodb/          # MongoDB initialization
-│       └── init-db.sh    # User creation script
+│       ├── init-db.sh    # User creation script
+│       └── README.md     # MongoDB setup docs
 ├── assets/
 │   └── logo.png          # Bot logo
-├── .env.example          # Environment variables template
-├── docker-compose.yml    # Infrastructure setup
-├── package.json          # Dependencies and scripts
-└── README.md             # This file
+└── docker-compose.yml    # Infrastructure setup
 ```
 
 ### Design Patterns
@@ -294,11 +249,11 @@ admin:
   # Array of admin user IDs with elevated permissions
   adminIds: [12345678, 87654321]
 
-  # Admin channel ID for bot notifications and logs
-  adminChannelId: 11111111
+  # Admin group ID for bot notifications and logs
+  adminGroupId: 11111111
 
-  # Array of channel IDs to never auto-leave due to inactivity
-  ignoreChannelIds: [11111111, 22222222]
+  # Array of group IDs to never auto-leave due to inactivity
+  ignoreGroupIds: [11111111, 22222222]
 
 redis:
   host: localhost
@@ -365,7 +320,7 @@ make connections     # Show database connection strings
 
 ### Channel Model
 
-- `channelId`: Wolf.live channel ID
+- `channelId`: Wolf.live group ID
 - `language`: Preferred language (en/ar)
 - `lastActiveAt`: Last game activity timestamp
 
@@ -386,7 +341,7 @@ make connections     # Show database connection strings
 
 ### Commands Not Working
 
-1. Verify bot has joined the channel
+1. Verify bot has joined the group
 2. Check if bot keyword is correct (`dice` by default)
 3. Ensure proper command syntax (refer to help menu)
 

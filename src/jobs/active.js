@@ -1,92 +1,92 @@
 /**
- * @fileoverview Inactive channel cleanup job.
- * Automatically removes the bot from channels with no activity after a specified period.
+ * @fileoverview Inactive group cleanup job.
+ * Automatically removes the bot from groups with no activity after a specified period.
  * @module jobs/active
  */
 
-import { deleteChannel, getInactiveChannels } from "../database/helpers/channel.js";
-import { getAdminChannelId, getIgnoreChannelIds } from "../utils/config.js";
+import { deleteGroup, getInactiveGroups } from "../database/helpers/group.js";
+import { getAdminGroupId, getIgnoreGroupIds } from "../utils/config.js";
 
 /**
- * Leave channels that have been inactive for a specified number of days.
- * Sends goodbye messages, removes the bot from inactive channels, and logs the cleanup to the admin channel.
- * Excluded channels (in ignoreChannels config) are never left.
+ * Leave groups that have been inactive for a specified number of days.
+ * Sends goodbye messages, removes the bot from inactive groups, and logs the cleanup to the admin group.
+ * Excluded groups (in ignoreGroups config) are never left.
  * @param {import ("wolf.js").WOLF} client - WOLF client instance
- * @param {number} days - Number of days of inactivity before leaving a channel
+ * @param {number} days - Number of days of inactivity before leaving a group
  * @returns {Promise<void>}
  */
-const leaveInactiveChannels = async (client, days) => {
-  const inactiveChannels = await getInactiveChannels(days);
+const leaveInactiveGroups = async (client, days) => {
+  const inactiveGroups = await getInactiveGroups(days);
 
-  if (inactiveChannels.length <= 0) {
+  if (inactiveGroups.length <= 0) {
     return;
   }
 
-  const inChannels = await client.channel().list();
+  const inGroups = await client.channel().list();
 
-  if (inChannels.length <= 0) {
+  if (inGroups.length <= 0) {
     return;
   }
 
-  const toExitChannels = [];
+  const toExitGroups = [];
 
-  const ignoreChannels = getIgnoreChannelIds(client);
-  inChannels.forEach((channel) => {
-    if (!ignoreChannels.includes(channel.id) && inArray(inactiveChannels, "channelId", channel.id)) {
-      toExitChannels.push(channel);
+  const ignoreGroups = getIgnoreGroupIds(client);
+  inGroups.forEach((group) => {
+    if (!ignoreGroups.includes(group.id) && inArray(inactiveGroups, "gid", group.id)) {
+      toExitGroups.push(group);
     }
   });
 
-  if (toExitChannels.length > 0) {
-    const channelsNames = await toExitChannels.reduce(async (pv, channel) => {
+  if (toExitGroups.length > 0) {
+    const groupsNames = await toExitGroups.reduce(async (pv, group) => {
       const names = await pv;
 
-      await sendLeaveMessage(client, channel);
-      await client.channel().leaveById(channel.id);
-      await deleteChannel(channel.id);
+      await sendLeaveMessage(client, group);
+      await client.group().leaveById(group.id);
+      await deleteGroup(group.id);
       await client.utility().delay(2000);
 
-      return [...names, `[${channel.name}]`];
+      return [...names, `[${group.name}]`];
     }, []);
 
-    await sendLogMessage(client, channelsNames);
+    await sendLogMessage(client, groupsNames);
   }
 };
 /**
- * Send a goodbye message to a channel before leaving.
- * Uses the channel's language (Arabic or English) for the message.
+ * Send a goodbye message to a group before leaving.
+ * Uses the group's language (Arabic or English) for the message.
  * @param {import ("wolf.js").WOLF} client - WOLF client instance
- * @param {import ("wolf.js").Channel} channel - Channel to send the message to
+ * @param {import ("wolf.js").Channel} group - Group to send the message to
  * @returns {Promise<void>}
  */
-const sendLeaveMessage = async (client, channel) => {
-  const language = channel.language === "ar" ? "ar" : "en";
+const sendLeaveMessage = async (client, group) => {
+  const language = group.language === "ar" ? "ar" : "en";
   const phrase = client.phrase().getByLanguageAndName(language, "dice_auto_leave_message");
 
-  await client.messaging().sendChannelMessage(channel.id, phrase);
+  await client.messaging().sendGroupMessage(group.id, phrase);
 };
 /**
- * Send a log message to the admin channel summarizing the cleanup operation.
- * Includes the count of channels left and the total remaining channels.
+ * Send a log message to the admin group summarizing the cleanup operation.
+ * Includes the count of groups left and the total remaining groups.
  * @param {import ("wolf.js").WOLF} client - WOLF client instance
- * @param {Array<string>} names - Array of channel names that were left
+ * @param {Array<string>} names - Array of group names that were left
  * @returns {Promise<void>}
  */
 const sendLogMessage = async (client, names) => {
   const phrase = client.phrase().getByLanguageAndName("ar", "dice_maintenance_report");
-  const channelsCount = await client.channel().list();
+  const groupsCount = await client.channel().list();
   const content = client
     .utility()
     .string()
     .replace(phrase, {
-      count: channelsCount.length,
+      count: groupsCount.length,
       inactiveCount: names.length,
-      channelsName: names.join("\n")
+      groupsName: names.join("\n")
     });
 
-  const adminChannelId = getAdminChannelId(client);
-  if (adminChannelId) {
-    await client.messaging().sendChannelMessage(adminChannelId, content);
+  const adminGroupId = getAdminGroupId(client);
+  if (adminGroupId) {
+    await client.messaging().sendGroupMessage(adminGroupId, content);
   }
 };
 /**
@@ -100,4 +100,4 @@ const inArray = (array, key, value) => {
   return array.filter((item) => item[key] === value).length > 0;
 };
 
-export { leaveInactiveChannels };
+export { leaveInactiveGroups };

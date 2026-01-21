@@ -43,31 +43,11 @@ Integration between core logic and WOLF platform:
 
 ### Utils Layer (`src/utils/`)
 - **Random.js**: Random number generation for dice rolls
-- **statistics.js**: Statistics calculation utilities (getTotal, getByKey, getPercentage)
 
-### Command Layer (`src/commands/`)
-User-facing command handlers organized by functionality:
-
-#### Game Management (`src/commands/game/`)
-- **create.js**: `!dice create [balance]` - Start a new game
-- **join.js**: `!dice join` - Join an existing game
-- **cancel.js**: `!dice cancel` - Cancel current game
-- **show.js**: `!dice show` - Show game players
-
-#### Player Commands (`src/commands/player/`)
-- **balance.js**: `!dice balance` - Check player balance
-- **rank.js**: `!dice rank` - View player rank
-- **top.js**: `!dice top` - Display global leaderboard
-- **status.js**: `!dice status` - View dice statistics
-
-#### Information Commands (`src/commands/info/`)
-- **help.js**: `!dice help` - Show help menu
-
-#### Main Commands (`src/commands/main/`)
-- **main.js**: Default handler for `!dice` command
-
-#### Admin Commands (`src/commands/admin/`)
-- Admin-specific commands (count, help, join, refresh, update)
+### Command Layer (`commands/`)
+User-facing command handlers that delegate to GameManager:
+- `create.js`, `join.js`, `cancel.js`, `balance.js`, `rank.js`, `show.js`, `status.js`, `leaderboard.js`
+- `admin/`: Admin-specific commands (count, help, join, refresh, update)
 
 ## Game Flow
 
@@ -94,7 +74,7 @@ The bot runs multiple accounts simultaneously:
 ### Timer Integration
 Uses WOLF client's timer system (`client.utility.timer`):
 - Timers registered with unique IDs (`game-${channelId}`)
-- `UpdateTimer` created in `jobs/channel.js` and registered in `diceClient.js`
+- `UpdateTimer` created in `jobs/group.js` and registered in `diceClient.js`
 - Phase timeouts handled via `node-schedule` for recurring tasks
 
 ## Environment Configuration
@@ -122,7 +102,7 @@ MONGO_DB_NAME=                             # Database name
 
 - `config/default.yaml`: Bot configuration (keyword, language, developer ID, retry settings)
 - `phrases/*.json`: Localized message templates with placeholder support
-- `jobs/*.js`: Scheduled tasks (channel cleanup, update timers)
+- `jobs/*.js`: Scheduled tasks (group cleanup, update timers)
 - `dice/*.js`: Legacy game helpers (active tracking, score helpers)
 
 ## WOLF.js Integration Notes
@@ -130,5 +110,5 @@ MONGO_DB_NAME=                             # Database name
 - Bot keyword: "dice" (configured in `config/default.yaml`)
 - Commands registered hierarchically: `dice_default_command` → subcommands
 - Command context provides: `sourceSubscriberId`, `targetChannelId`, `language`, `argument`
-- Use `client.channel.sendMessage()` for channel messages
+- Use `client.channel.sendMessage()` for group messages
 - Use `client.messaging.subscription.nextMessage()` for polling private messages

@@ -1,7 +1,7 @@
 /**
  * @fileoverview Cancel command handler.
  * Handles the `!dice cancel` command to terminate an active game.
- * Only channel owners or WOLF volunteers can cancel games.
+ * Only group owners or WOLF volunteers can cancel games.
  * @module commands/cancel
  */
 
@@ -10,7 +10,7 @@ import { Privilege } from "wolf.js";
 /**
  * Handle the cancel dice game command.
  * Cancels the active game in the current channel if the requesting user has permission.
- * Authorization is granted to channel owners and users with VOLUNTEER privilege.
+ * Authorization is granted to group owners and users with VOLUNTEER privilege.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @param {import('../src/managers/GameManager.js').default} game - GameManager instance for game operations
@@ -21,9 +21,9 @@ export default async (client, command, game) => {
     command.sourceSubscriberId,
     Privilege.VOLUNTEER,
   );
-  const Channel = await client.channel.getById(command.targetChannelId);
-  const IsChannelOwner = Channel.owner.id === command.sourceSubscriberId;
-  const okay = IsVolunteer || IsChannelOwner;
+  const Group = await client.channel.getById(command.targetChannelId);
+  const IsGroupOwner = Group.owner.id === command.sourceSubscriberId;
+  const okay = IsVolunteer || IsGroupOwner;
   if (!okay) {
     const phrase = client.phrase.getByCommandAndName(command, "dice_owner_only_command");
 

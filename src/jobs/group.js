@@ -1,7 +1,7 @@
 /**
  * @fileoverview Game timer job factory.
  * Creates timer handlers for managing game phase timeouts.
- * @module jobs/channel
+ * @module jobs/group
  */
 
 /**
@@ -14,9 +14,9 @@ export function createUpdateTimer(gameManager) {
   /**
    * Timer callback for join period expiration
    * @param {Object} params
-   * @param {number} params.channelId - Channel ID
+   * @param {number} params.channleId - Channel ID (note: typo preserved for compatibility)
    */
-  return async function UpdateTimer({ channelId }) {
-    await gameManager.onJoinTimeout(channelId);
+  return async function UpdateTimer({ channleId }) {
+    await gameManager.onJoinTimeout(channleId);
   };
 }

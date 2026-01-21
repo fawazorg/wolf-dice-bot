@@ -5,7 +5,7 @@
  * @module commands/rank
  */
 
-import { getPlayerRankData } from "../../database/helpers/player.js";
+import { getPlayerRankData } from "../database/helpers/player.js";
 
 /**
  * Handle the rank query command.

@@ -14,19 +14,19 @@ export const getAdminIds = (client) => {
 };
 
 /**
- * Get admin channel ID from client configuration.
+ * Get admin group ID from client configuration.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
- * @returns {number|null} Admin channel ID or null if not set
+ * @returns {number|null} Admin group ID or null if not set
  */
-export const getAdminChannelId = (client) => {
-  return client.config.admin?.adminChannelId || null;
+export const getAdminGroupId = (client) => {
+  return client.config.admin?.adminGroupId || null;
 };
 
 /**
- * Get channel IDs to ignore from client configuration.
+ * Get group IDs to ignore from client configuration.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
- * @returns {number[]} Array of channel IDs to ignore
+ * @returns {number[]} Array of group IDs to ignore
  */
-export const getIgnoreChannelIds = (client) => {
-  return client.config.admin?.ignoreChannelIds || [];
+export const getIgnoreGroupIds = (client) => {
+  return client.config.admin?.ignoreGroupIds || [];
 };
