@@ -14,9 +14,9 @@ export function createUpdateTimer(gameManager) {
   /**
    * Timer callback for join period expiration
    * @param {Object} params
-   * @param {number} params.channleId - Channel ID (note: typo preserved for compatibility)
+   * @param {number} params.channelId - Channel ID
    */
-  return async function UpdateTimer({ channleId }) {
-    await gameManager.onJoinTimeout(channleId);
+  return async function UpdateTimer({ channelId }) {
+    await gameManager.onJoinTimeout(channelId);
   };
 }
