@@ -221,11 +221,11 @@ class Round {
     }
 
     if (this.#candidateRoll > this.#opponentRoll) {
-      return { winner: 'candidate', loser: 'opponent', isTie: false };
+      return { winner: "candidate", loser: "opponent", isTie: false };
     }
 
     if (this.#opponentRoll > this.#candidateRoll) {
-      return { winner: 'opponent', loser: 'candidate', isTie: false };
+      return { winner: "opponent", loser: "candidate", isTie: false };
     }
 
     return { winner: null, loser: null, isTie: true };

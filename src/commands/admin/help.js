@@ -5,7 +5,7 @@
  * @module commands/admin/help
  */
 
-import { isAuthorizedAdmin } from '../../utils/authorization.js';
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin help command.
@@ -21,9 +21,9 @@ import { isAuthorizedAdmin } from '../../utils/authorization.js';
  */
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
-    return command.reply(client.phrase.getByCommandAndName(command, 'dice_admin_unauthorized'));
+    return command.reply(client.phrase.getByCommandAndName(command, "dice_admin_unauthorized"));
   }
   return command.reply(
-    client.phrase.getByCommandAndName(command, 'dice_admin_help_message').join('\n')
+    client.phrase.getByCommandAndName(command, "dice_admin_help_message").join("\n")
   );
 };

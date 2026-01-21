@@ -4,10 +4,10 @@
  * @module engine/RedisGameEngine
  */
 
-import { GameState } from '../core/GameState.js';
-import { Dice } from '../core/index.js';
-import RedisGameStore from '../database/RedisGameStore.js';
-import Validator from './Validator.js';
+import { GameState } from "../core/GameState.js";
+import { Dice } from "../core/index.js";
+import RedisGameStore from "../database/RedisGameStore.js";
+import Validator from "./Validator.js";
 
 /**
  * Redis-backed game engine
@@ -84,7 +84,7 @@ class RedisGameEngine {
     );
 
     if (result.success) {
-      this.#emit('game:created', { channelId, language, balance: defaultBalance });
+      this.#emit("game:created", { channelId, language, balance: defaultBalance });
     }
 
     return result;
@@ -100,7 +100,7 @@ class RedisGameEngine {
     const result = await this.#store.addPlayer(channelId, playerId);
 
     if (result.success) {
-      this.#emit('player:joined', { channelId, playerId });
+      this.#emit("player:joined", { channelId, playerId });
 
       const game = await this.#store.getGame(channelId);
       const playerCount = await this.#store.getPlayerCount(channelId);
@@ -122,7 +122,7 @@ class RedisGameEngine {
     const result = await this.#store.removeGame(channelId);
 
     if (result.success) {
-      this.#emit('game:removed', { channelId });
+      this.#emit("game:removed", { channelId });
     }
 
     return result;
@@ -142,7 +142,7 @@ class RedisGameEngine {
     const playerCount = await this.#store.getPlayerCount(channelId);
 
     if (playerCount <= 1) {
-      this.#emit('game:finished', { channelId, reason: 'insufficient_players' });
+      this.#emit("game:finished", { channelId, reason: "insufficient_players" });
       await this.removeGame(channelId);
     } else {
       await this.#startGuessingPhase(channelId);
@@ -172,7 +172,7 @@ class RedisGameEngine {
     const eligiblePlayers = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
     const playerData = eligiblePlayers.map((p) => ({ id: p.id, balance: p.balance }));
 
-    this.#emit('phase:guessing', { channelId, round: roundNumber, players: playerData });
+    this.#emit("phase:guessing", { channelId, round: roundNumber, players: playerData });
 
     this.#store.startTimer(
       channelId,
@@ -194,16 +194,16 @@ class RedisGameEngine {
   async handleGuess(channelId, playerId, guess) {
     const state = await this.#store.getState(channelId);
     if (state !== GameState.GUESSING) {
-      return { success: false, error: 'not_guessing_phase' };
+      return { success: false, error: "not_guessing_phase" };
     }
 
     const player = await this.#store.getPlayer(channelId, playerId);
     if (!player) {
-      return { success: false, error: 'player_not_found' };
+      return { success: false, error: "player_not_found" };
     }
 
     if (player.balance < this.#config.minBet) {
-      return { success: false, error: 'insufficient_balance' };
+      return { success: false, error: "insufficient_balance" };
     }
 
     const validation = Validator.validateGuess(guess);
@@ -212,7 +212,7 @@ class RedisGameEngine {
     }
 
     await this.#store.recordGuess(channelId, playerId, guess);
-    this.#emit('guess:received', { channelId, playerId, guess });
+    this.#emit("guess:received", { channelId, playerId, guess });
 
     return { success: true };
   }
@@ -230,7 +230,7 @@ class RedisGameEngine {
     const playersWithGuesses = await this.#store.getPlayersWithGuesses(channelId);
 
     if (playersWithGuesses.length === 0) {
-      this.#emit('game:finished', { channelId, reason: 'no_guesses' });
+      this.#emit("game:finished", { channelId, reason: "no_guesses" });
       await this.removeGame(channelId);
       return;
     }
@@ -249,7 +249,7 @@ class RedisGameEngine {
       const newBalance = winner.balance + Dice.EXACT_BONUS;
       await this.#store.updatePlayer(channelId, winner.id, { balance: newBalance });
       await this.#store.addPoints(channelId, winner.id, Dice.EXACT_POINTS);
-      this.#emit('guess:exact', { channelId, playerId: winner.id, bonus: Dice.EXACT_BONUS });
+      this.#emit("guess:exact", { channelId, playerId: winner.id, bonus: Dice.EXACT_BONUS });
     }
 
     await this.#store.setState(channelId, GameState.PICKING);
@@ -261,7 +261,7 @@ class RedisGameEngine {
       const autoPickedOpponent = eligiblePlayers[0];
       await this.#store.updateRound(channelId, { opponentId: autoPickedOpponent.id });
 
-      this.#emit('pick:auto', {
+      this.#emit("pick:auto", {
         channelId,
         roll,
         candidateId: winner.id,
@@ -270,7 +270,7 @@ class RedisGameEngine {
       });
 
       await this.#store.setState(channelId, GameState.BETTING);
-      this.#emit('phase:betting', {
+      this.#emit("phase:betting", {
         channelId,
         pickerId: winner.id,
         opponentId: autoPickedOpponent.id,
@@ -297,7 +297,7 @@ class RedisGameEngine {
 
     const playerData = eligiblePlayers.map((p) => ({ id: p.id, balance: p.balance }));
 
-    this.#emit('phase:picking', {
+    this.#emit("phase:picking", {
       channelId,
       round: (await this.#store.getRound(channelId)).number,
       roll,
@@ -326,12 +326,12 @@ class RedisGameEngine {
   async handlePick(channelId, pickerId, pickIndex) {
     const state = await this.#store.getState(channelId);
     if (state !== GameState.PICKING) {
-      return { success: false, error: 'not_picking_phase' };
+      return { success: false, error: "not_picking_phase" };
     }
 
     const round = await this.#store.getRound(channelId);
     if (round.candidateId !== pickerId) {
-      return { success: false, error: 'not_candidate' };
+      return { success: false, error: "not_candidate" };
     }
 
     const allEligible = await this.#store.getRichestPlayers(channelId, this.#config.minBet);
@@ -339,7 +339,7 @@ class RedisGameEngine {
 
     const normalizedIndex = pickIndex - 1;
     if (normalizedIndex < 0 || normalizedIndex >= eligiblePlayers.length) {
-      return { success: false, error: 'pick_out_of_range' };
+      return { success: false, error: "pick_out_of_range" };
     }
 
     const opponent = eligiblePlayers[normalizedIndex];
@@ -350,7 +350,7 @@ class RedisGameEngine {
 
     const candidate = await this.#store.getPlayer(channelId, pickerId);
 
-    this.#emit('phase:betting', {
+    this.#emit("phase:betting", {
       channelId,
       pickerId,
       opponentId: opponent.id,
@@ -380,7 +380,7 @@ class RedisGameEngine {
   async #handleBet(channelId, playerId, amount) {
     const player = await this.#store.getPlayer(channelId, playerId);
     if (!player) {
-      return { success: false, error: 'player_not_found' };
+      return { success: false, error: "player_not_found" };
     }
 
     const validation = Validator.validateBet(amount, player.balance);
@@ -394,7 +394,7 @@ class RedisGameEngine {
 
     const round = await this.#store.getRound(channelId);
 
-    this.#emit('phase:rolling', {
+    this.#emit("phase:rolling", {
       channelId,
       bet: amount,
       candidateId: round.candidateId,
@@ -425,7 +425,7 @@ class RedisGameEngine {
   async handleRoll(channelId, playerId, fixedValue = null) {
     const state = await this.#store.getState(channelId);
     if (state !== GameState.ROLLING) {
-      return { success: false, error: 'not_rolling_phase' };
+      return { success: false, error: "not_rolling_phase" };
     }
 
     const round = await this.#store.getRound(channelId);
@@ -433,7 +433,7 @@ class RedisGameEngine {
     const isOpponent = round.opponentId === playerId;
 
     if (!isCandidate && !isOpponent) {
-      return { success: false, error: 'player_not_in_round' };
+      return { success: false, error: "player_not_in_round" };
     }
 
     const roll = fixedValue !== null ? fixedValue : Dice.rollPVP();
@@ -444,7 +444,7 @@ class RedisGameEngine {
       await this.#store.updateRound(channelId, { opponentRoll: roll });
     }
 
-    this.#emit('roll:received', { channelId, playerId, roll });
+    this.#emit("roll:received", { channelId, playerId, roll });
 
     const updatedRound = await this.#store.getRound(channelId);
     if (updatedRound.candidateRoll !== null && updatedRound.opponentRoll !== null) {
@@ -463,7 +463,7 @@ class RedisGameEngine {
   async handleRollTimeout(channelId, playerId) {
     const state = await this.#store.getState(channelId);
     if (state !== GameState.ROLLING) {
-      return { success: false, error: 'not_rolling_phase' };
+      return { success: false, error: "not_rolling_phase" };
     }
 
     const round = await this.#store.getRound(channelId);
@@ -471,7 +471,7 @@ class RedisGameEngine {
     const isOpponent = round.opponentId === playerId;
 
     if (!isCandidate && !isOpponent) {
-      return { success: false, error: 'player_not_in_round' };
+      return { success: false, error: "player_not_in_round" };
     }
 
     const winnerId = isCandidate ? round.opponentId : round.candidateId;
@@ -488,7 +488,7 @@ class RedisGameEngine {
     }
 
     await this.#store.addPoints(channelId, winnerId, 1);
-    this.#emit('roll:timeout', {
+    this.#emit("roll:timeout", {
       channelId,
       playerId,
       winnerId,
@@ -529,21 +529,21 @@ class RedisGameEngine {
 
     let result;
     if (round.candidateRoll > round.opponentRoll) {
-      result = { winner: 'candidate', loser: 'opponent', isTie: false };
+      result = { winner: "candidate", loser: "opponent", isTie: false };
     } else if (round.opponentRoll > round.candidateRoll) {
-      result = { winner: 'opponent', loser: 'candidate', isTie: false };
+      result = { winner: "opponent", loser: "candidate", isTie: false };
     } else {
       result = { winner: null, loser: null, isTie: true };
     }
 
     if (result.isTie) {
-      this.#emit('pvp:draw', { channelId, bet });
+      this.#emit("pvp:draw", { channelId, bet });
       await this.#store.clearRolls(channelId);
       return;
     }
 
-    const winnerId = result.winner === 'candidate' ? round.candidateId : round.opponentId;
-    const loserId = result.loser === 'candidate' ? round.candidateId : round.opponentId;
+    const winnerId = result.winner === "candidate" ? round.candidateId : round.opponentId;
+    const loserId = result.loser === "candidate" ? round.candidateId : round.opponentId;
 
     const loser = await this.#store.getPlayer(channelId, loserId);
     const newBalance = loser.balance - bet;
@@ -557,7 +557,7 @@ class RedisGameEngine {
 
     await this.#store.addPoints(channelId, winnerId, 1);
 
-    this.#emit('pvp:result', { channelId, winnerId, loserId, bet, isEliminated });
+    this.#emit("pvp:result", { channelId, winnerId, loserId, bet, isEliminated });
 
     await this.#store.setState(channelId, null);
 
@@ -608,7 +608,7 @@ class RedisGameEngine {
 
     const scores = await this.#store.getSortedScores(channelId);
 
-    this.#emit('game:ended', {
+    this.#emit("game:ended", {
       channelId,
       winnerId: winner?.id,
       scores

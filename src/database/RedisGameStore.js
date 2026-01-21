@@ -4,15 +4,15 @@
  * @module database/RedisGameStore
  */
 
-import { v4 as uuidv4 } from 'uuid';
-import { getRedis } from './RedisConnection.js';
-import logger from '../utils/logger.js';
+import { v4 as uuidv4 } from "uuid";
+import { getRedis } from "./RedisConnection.js";
+import logger from "../utils/logger.js";
 
 /** @constant {number} Game TTL in seconds (3 minutes) */
 const GAME_TTL = 180;
 
 /** @constant {string} Key prefix for all game-related keys */
-const KEY_PREFIX = 'dice';
+const KEY_PREFIX = "dice";
 
 /**
  * Redis-based game state storage
@@ -68,12 +68,12 @@ class RedisGameStore {
     const uuid = uuidv4();
 
     // Atomic create using SET NX
-    const created = await this.#redis.set(`${gameKey}:lock`, 'CREATING', 'NX', 'PX', 500);
+    const created = await this.#redis.set(`${gameKey}:lock`, "CREATING", "NX", "PX", 500);
 
     if (!created) {
       const exists = await this.#redis.exists(gameKey);
       if (exists) {
-        return { success: false, error: 'game_already_exists' };
+        return { success: false, error: "game_already_exists" };
       }
       await new Promise((resolve) => setTimeout(resolve, 100));
       return this.createGame(channelId, language, defaultBalance, creatorId, maxPlayers);
@@ -84,12 +84,12 @@ class RedisGameStore {
       const pipeline = this.#redis.pipeline();
 
       pipeline.hset(gameKey, {
-        state: 'joining',
+        state: "joining",
         language,
         defaultBalance: defaultBalance.toString(),
         maxPlayers: maxPlayers.toString(),
         creatorId: creatorId.toString(),
-        roundNumber: '0',
+        roundNumber: "0",
         uuid,
         createdAt: now.toString(),
         updatedAt: now.toString()
@@ -103,22 +103,22 @@ class RedisGameStore {
       pipeline.expire(this.#scoresKey(channelId), GAME_TTL);
 
       pipeline.hset(this.#roundKey(channelId), {
-        number: '0',
-        targetNumber: '',
-        candidateId: '',
-        opponentId: '',
-        bet: '0',
-        candidateRoll: '',
-        opponentRoll: '',
-        isExactMatch: 'false',
-        guesses: '{}'
+        number: "0",
+        targetNumber: "",
+        candidateId: "",
+        opponentId: "",
+        bet: "0",
+        candidateRoll: "",
+        opponentRoll: "",
+        isExactMatch: "false",
+        guesses: "{}"
       });
       pipeline.expire(this.#roundKey(channelId), GAME_TTL);
 
       pipeline.sadd(`${KEY_PREFIX}:channels:active`, channelId.toString());
 
       await pipeline.exec();
-      logger.info('Game created', { channelId, uuid, language, defaultBalance });
+      logger.info("Game created", { channelId, uuid, language, defaultBalance });
       return { success: true, uuid };
     } finally {
       await this.#redis.del(`${gameKey}:lock`);
@@ -141,7 +141,7 @@ class RedisGameStore {
    * @returns {Promise<string|null>}
    */
   async getGameUuid(channelId) {
-    return this.#redis.hget(this.#gameKey(channelId), 'uuid');
+    return this.#redis.hget(this.#gameKey(channelId), "uuid");
   }
 
   /**
@@ -150,7 +150,7 @@ class RedisGameStore {
    * @returns {Promise<string|null>}
    */
   async getState(channelId) {
-    return this.#redis.hget(this.#gameKey(channelId), 'state');
+    return this.#redis.hget(this.#gameKey(channelId), "state");
   }
 
   /**
@@ -200,7 +200,7 @@ class RedisGameStore {
    * @returns {Promise<string|null>}
    */
   async getLanguage(channelId) {
-    return this.#redis.hget(this.#gameKey(channelId), 'language');
+    return this.#redis.hget(this.#gameKey(channelId), "language");
   }
 
   /**
@@ -209,7 +209,7 @@ class RedisGameStore {
    * @returns {Promise<number|null>}
    */
   async getGameCreator(channelId) {
-    const creatorId = await this.#redis.hget(this.#gameKey(channelId), 'creatorId');
+    const creatorId = await this.#redis.hget(this.#gameKey(channelId), "creatorId");
     return creatorId ? parseInt(creatorId, 10) : null;
   }
 
@@ -221,7 +221,7 @@ class RedisGameStore {
   async removeGame(channelId) {
     const exists = await this.hasGame(channelId);
     if (!exists) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     this.cancelTimer(channelId);
@@ -236,7 +236,7 @@ class RedisGameStore {
     pipeline.srem(`${KEY_PREFIX}:channels:active`, channelId.toString());
 
     await pipeline.exec();
-    logger.info('Game removed', { channelId });
+    logger.info("Game removed", { channelId });
     return { success: true };
   }
 
@@ -251,22 +251,22 @@ class RedisGameStore {
   async addPlayer(channelId, playerId) {
     const game = await this.getGame(channelId);
     if (!game) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
-    if (game.state !== 'joining') {
-      return { success: false, error: 'game_not_joinable' };
+    if (game.state !== "joining") {
+      return { success: false, error: "game_not_joinable" };
     }
 
     const playersKey = this.#playersKey(channelId);
     const exists = await this.#redis.hexists(playersKey, playerId.toString());
     if (exists) {
-      return { success: false, error: 'already_joined' };
+      return { success: false, error: "already_joined" };
     }
 
     const playerCount = await this.#redis.hlen(playersKey);
     if (playerCount >= game.maxPlayers) {
-      return { success: false, error: 'game_full' };
+      return { success: false, error: "game_full" };
     }
 
     const playerData = JSON.stringify({
@@ -428,7 +428,7 @@ class RedisGameStore {
       bet: parseInt(data.bet, 10),
       candidateRoll: data.candidateRoll ? parseInt(data.candidateRoll, 10) : null,
       opponentRoll: data.opponentRoll ? parseInt(data.opponentRoll, 10) : null,
-      isExactMatch: data.isExactMatch === 'true',
+      isExactMatch: data.isExactMatch === "true",
       guesses: data.guesses ? JSON.parse(data.guesses) : {}
     };
   }
@@ -445,10 +445,10 @@ class RedisGameStore {
 
     for (const [key, value] of Object.entries(updates)) {
       if (value === null) {
-        fields[key] = '';
-      } else if (typeof value === 'object') {
+        fields[key] = "";
+      } else if (typeof value === "object") {
         fields[key] = JSON.stringify(value);
-      } else if (typeof value === 'boolean') {
+      } else if (typeof value === "boolean") {
         fields[key] = value.toString();
       } else {
         fields[key] = value.toString();
@@ -468,16 +468,16 @@ class RedisGameStore {
   async startNewRound(channelId, roundNumber) {
     await this.#redis.hset(this.#roundKey(channelId), {
       number: roundNumber.toString(),
-      targetNumber: '',
-      candidateId: '',
-      opponentId: '',
-      bet: '0',
-      candidateRoll: '',
-      opponentRoll: '',
-      isExactMatch: 'false',
-      guesses: '{}'
+      targetNumber: "",
+      candidateId: "",
+      opponentId: "",
+      bet: "0",
+      candidateRoll: "",
+      opponentRoll: "",
+      isExactMatch: "false",
+      guesses: "{}"
     });
-    await this.#redis.hincrby(this.#gameKey(channelId), 'roundNumber', 1);
+    await this.#redis.hincrby(this.#gameKey(channelId), "roundNumber", 1);
     await this.#refreshTTL(channelId);
   }
 
@@ -490,10 +490,10 @@ class RedisGameStore {
    */
   async recordGuess(channelId, playerId, guess) {
     const roundKey = this.#roundKey(channelId);
-    const guessesStr = (await this.#redis.hget(roundKey, 'guesses')) || '{}';
+    const guessesStr = (await this.#redis.hget(roundKey, "guesses")) || "{}";
     const guesses = JSON.parse(guessesStr);
     guesses[playerId] = guess;
-    await this.#redis.hset(roundKey, 'guesses', JSON.stringify(guesses));
+    await this.#redis.hset(roundKey, "guesses", JSON.stringify(guesses));
     await this.updatePlayer(channelId, playerId, { currentGuess: guess });
   }
 
@@ -504,8 +504,8 @@ class RedisGameStore {
    */
   async clearRolls(channelId) {
     await this.#redis.hset(this.#roundKey(channelId), {
-      candidateRoll: '',
-      opponentRoll: ''
+      candidateRoll: "",
+      opponentRoll: ""
     });
   }
 
@@ -524,7 +524,7 @@ class RedisGameStore {
     const handle = setTimeout(async () => {
       const currentUuid = await this.getGameUuid(channelId);
       if (currentUuid !== expectedUuid) {
-        logger.debug('Timer callback ignored (game changed)', { channelId });
+        logger.debug("Timer callback ignored (game changed)", { channelId });
         return;
       }
       callback();

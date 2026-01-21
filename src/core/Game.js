@@ -1,6 +1,6 @@
-import Channel from './Channel.js';
-import Dice from './Dice.js';
-import { GameState } from './GameState.js';
+import Channel from "./Channel.js";
+import Dice from "./Dice.js";
+import { GameState } from "./GameState.js";
 
 /**
  * Core game logic for the dice game
@@ -115,11 +115,11 @@ class Game {
    */
   createGame(channelId, language, defaultBalance = 500) {
     if (this.#channels.has(channelId)) {
-      return { success: false, error: 'game_already_exists' };
+      return { success: false, error: "game_already_exists" };
     }
 
     if (!this.#isValidBalance(defaultBalance)) {
-      return { success: false, error: 'invalid_balance' };
+      return { success: false, error: "invalid_balance" };
     }
 
     const channel = new Channel(channelId, language, defaultBalance, this.#maxPlayers);
@@ -139,19 +139,19 @@ class Game {
   addPlayer(channelId, playerId) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     if (this.#states.get(channelId) !== GameState.JOINING) {
-      return { success: false, error: 'game_not_joinable' };
+      return { success: false, error: "game_not_joinable" };
     }
 
     if (channel.hasPlayer(playerId)) {
-      return { success: false, error: 'already_joined' };
+      return { success: false, error: "already_joined" };
     }
 
     if (channel.isFull()) {
-      return { success: false, error: 'game_full' };
+      return { success: false, error: "game_full" };
     }
 
     const player = channel.addPlayer(playerId);
@@ -198,7 +198,7 @@ class Game {
   startGuessingPhase(channelId) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     this.#states.set(channelId, GameState.GUESSING);
@@ -216,24 +216,24 @@ class Game {
   setPlayerGuess(channelId, playerId, guess) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     if (this.#states.get(channelId) !== GameState.GUESSING) {
-      return { success: false, error: 'not_guessing_phase' };
+      return { success: false, error: "not_guessing_phase" };
     }
 
     const player = channel.getPlayer(playerId);
     if (!player) {
-      return { success: false, error: 'player_not_found' };
+      return { success: false, error: "player_not_found" };
     }
 
     if (!player.hasMinimumBalance(this.#minBet)) {
-      return { success: false, error: 'insufficient_balance' };
+      return { success: false, error: "insufficient_balance" };
     }
 
     if (guess < 1 || guess > this.#maxGuessRoll) {
-      return { success: false, error: 'invalid_guess' };
+      return { success: false, error: "invalid_guess" };
     }
 
     // Check if guess is already taken by another eligible player
@@ -279,12 +279,12 @@ class Game {
   endGuessingPhase(channelId) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     const playersWithGuesses = channel.getPlayersWithGuesses();
     if (playersWithGuesses.length === 0) {
-      return { success: false, error: 'no_guesses' };
+      return { success: false, error: "no_guesses" };
     }
 
     const roll = Dice.rollGuess();
@@ -324,20 +324,20 @@ class Game {
   validateBet(channelId, playerId, betAmount) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     const player = channel.getPlayer(playerId);
     if (!player) {
-      return { success: false, error: 'player_not_found' };
+      return { success: false, error: "player_not_found" };
     }
 
     if (betAmount % this.#minBet !== 0) {
-      return { success: false, error: 'invalid_bet_increment' };
+      return { success: false, error: "invalid_bet_increment" };
     }
 
     if (!player.canAffordBet(betAmount)) {
-      return { success: false, error: 'insufficient_balance' };
+      return { success: false, error: "insufficient_balance" };
     }
 
     this.#states.set(channelId, GameState.ROLLING);
@@ -351,7 +351,7 @@ class Game {
    */
   playerRoll(channelId) {
     if (!this.#channels.has(channelId)) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     const roll = Dice.rollPVP();
@@ -367,7 +367,7 @@ class Game {
   playerRollFixed(channelId, value) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, error: 'game_not_exists' };
+      return { success: false, error: "game_not_exists" };
     }
 
     return { success: true, roll: value };
@@ -386,13 +386,13 @@ class Game {
   resolvePVP(channelId, player1Id, roll1, player2Id, roll2, bet) {
     const channel = this.#channels.get(channelId);
     if (!channel) {
-      return { success: false, result: 'draw' };
+      return { success: false, result: "draw" };
     }
 
     const comparison = Dice.compareRolls(roll1, roll2);
 
     if (comparison === 0) {
-      return { success: true, result: 'draw' };
+      return { success: true, result: "draw" };
     }
 
     const winnerId = comparison === 1 ? player1Id : player2Id;
@@ -412,14 +412,14 @@ class Game {
 
       return {
         success: true,
-        result: comparison === 1 ? 'player1' : 'player2',
+        result: comparison === 1 ? "player1" : "player2",
         winner,
         loser,
         isEliminated
       };
     }
 
-    return { success: true, result: comparison === 1 ? 'player1' : 'player2', winner };
+    return { success: true, result: comparison === 1 ? "player1" : "player2", winner };
   }
 
   /**

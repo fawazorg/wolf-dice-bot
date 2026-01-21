@@ -5,7 +5,7 @@
  * @module commands/admin/count
  */
 
-import { isAuthorizedAdmin } from '../../utils/authorization.js';
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin count command.
@@ -18,12 +18,12 @@ import { isAuthorizedAdmin } from '../../utils/authorization.js';
  */
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
-    return command.reply(client.phrase.getByCommandAndName(command, 'dice_admin_unauthorized'));
+    return command.reply(client.phrase.getByCommandAndName(command, "dice_admin_unauthorized"));
   }
   const count = (await client.channel.list()).length;
   return command.reply(
     client.utility.string.replace(
-      client.phrase.getByCommandAndName(command, 'dice_admin_group_count'),
+      client.phrase.getByCommandAndName(command, "dice_admin_group_count"),
       { count }
     )
   );

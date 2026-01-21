@@ -4,7 +4,7 @@
  * @module database/models/group
  */
 
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 /**
  * Mongoose schema for group activity tracking.
@@ -28,4 +28,4 @@ const GroupSchema = new Schema({
  * Group model for database operations.
  * @type {import('mongoose').Model<GroupDocument>}
  */
-export default model('Group', GroupSchema);
+export default model("Group", GroupSchema);

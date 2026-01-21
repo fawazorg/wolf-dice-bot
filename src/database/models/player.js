@@ -4,7 +4,7 @@
  * @module database/models/player
  */
 
-import { Schema, model } from 'mongoose';
+import { Schema, model } from "mongoose";
 
 /**
  * Mongoose schema for player data.
@@ -41,8 +41,8 @@ const PlayerSchema = new Schema({
  */
 PlayerSchema.statics.increaseStatus = async function (playerID, key) {
   const result = await this.findOneAndUpdate(
-    { id: playerID, 'status.key': key },
-    { $inc: { 'status.$.value': 1 } },
+    { id: playerID, "status.key": key },
+    { $inc: { "status.$.value": 1 } },
     { new: true }
   );
 
@@ -61,4 +61,4 @@ PlayerSchema.statics.increaseStatus = async function (playerID, key) {
  * Player model for database operations.
  * @type {import('mongoose').Model<PlayerDocument>}
  */
-export default model('Player', PlayerSchema);
+export default model("Player", PlayerSchema);

@@ -4,4 +4,4 @@
  * @module services
  */
 
-export { default as MessageService } from './MessageService.js';
+export { default as MessageService } from "./MessageService.js";

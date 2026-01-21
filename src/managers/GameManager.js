@@ -1,6 +1,6 @@
-import { Validator } from 'wolf.js';
-import { RedisGameEngine } from '../engine/index.js';
-import MessageService from '../services/MessageService.js';
+import { Validator } from "wolf.js";
+import { RedisGameEngine } from "../engine/index.js";
+import MessageService from "../services/MessageService.js";
 
 /**
  * GameManager integrates GameEngine with MessageService and WOLF.js client
@@ -65,28 +65,28 @@ class GameManager {
    */
   #setupEventListeners() {
     // Game lifecycle events
-    this.#engine.on('game:created', (data) => this.#onGameCreated(data));
-    this.#engine.on('game:removed', (data) => this.#onGameRemoved(data));
-    this.#engine.on('game:ended', (data) => this.#onGameEnded(data));
-    this.#engine.on('game:finished', (data) => this.#onGameFinished(data));
+    this.#engine.on("game:created", (data) => this.#onGameCreated(data));
+    this.#engine.on("game:removed", (data) => this.#onGameRemoved(data));
+    this.#engine.on("game:ended", (data) => this.#onGameEnded(data));
+    this.#engine.on("game:finished", (data) => this.#onGameFinished(data));
 
     // Player events
-    this.#engine.on('player:joined', (data) => this.#onPlayerJoined(data));
+    this.#engine.on("player:joined", (data) => this.#onPlayerJoined(data));
 
     // Phase events
-    this.#engine.on('phase:guessing', (data) => this.#onPhaseGuessing(data));
-    this.#engine.on('phase:picking', (data) => this.#onPhasePicking(data));
-    this.#engine.on('phase:betting', (data) => this.#onPhaseBetting(data));
-    this.#engine.on('phase:rolling', (data) => this.#onPhaseRolling(data));
+    this.#engine.on("phase:guessing", (data) => this.#onPhaseGuessing(data));
+    this.#engine.on("phase:picking", (data) => this.#onPhasePicking(data));
+    this.#engine.on("phase:betting", (data) => this.#onPhaseBetting(data));
+    this.#engine.on("phase:rolling", (data) => this.#onPhaseRolling(data));
 
     // Game action events
-    this.#engine.on('guess:received', (data) => this.#onGuessReceived(data));
-    this.#engine.on('guess:exact', (data) => this.#onGuessExact(data));
-    this.#engine.on('pick:auto', (data) => this.#onPickAuto(data));
-    this.#engine.on('roll:received', (data) => this.#onRollReceived(data));
-    this.#engine.on('roll:timeout', (data) => this.#onRollTimeout(data));
-    this.#engine.on('pvp:draw', (data) => this.#onPVPDraw(data));
-    this.#engine.on('pvp:result', (data) => this.#onPVPResult(data));
+    this.#engine.on("guess:received", (data) => this.#onGuessReceived(data));
+    this.#engine.on("guess:exact", (data) => this.#onGuessExact(data));
+    this.#engine.on("pick:auto", (data) => this.#onPickAuto(data));
+    this.#engine.on("roll:received", (data) => this.#onRollReceived(data));
+    this.#engine.on("roll:timeout", (data) => this.#onRollTimeout(data));
+    this.#engine.on("pvp:draw", (data) => this.#onPVPDraw(data));
+    this.#engine.on("pvp:result", (data) => this.#onPVPResult(data));
   }
 
   // ===== Public API =====
@@ -139,7 +139,7 @@ class GameManager {
     // Set join timer
     await this.#client.utility.timer.add(
       `game-${channelId}`,
-      'UpdateTimer',
+      "UpdateTimer",
       { channelId },
       this.#timeToJoin
     );
@@ -166,7 +166,7 @@ class GameManager {
     const result = await this.#engine.addPlayer(channelId, playerId);
 
     if (!result.success) {
-      if (result.error === 'already_joined') {
+      if (result.error === "already_joined") {
         await this.#messages.replyAlreadyJoin(command);
       }
       return false;
@@ -381,7 +381,7 @@ class GameManager {
    */
   async #onGameEnded(data) {
     const { channelId, winnerId, scores } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     // Reward players (save points to database)
     await this.#rewardPlayers(channelId, scores);
@@ -402,9 +402,9 @@ class GameManager {
    */
   async #onGameFinished(data) {
     const { channelId, reason } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
-    if (reason === 'no_guesses' || reason === 'insufficient_players') {
+    if (reason === "no_guesses" || reason === "insufficient_players") {
       await this.#messages.replyGameFinish(channelId, language);
     }
 
@@ -421,9 +421,9 @@ class GameManager {
    */
   async #onPlayerJoined(data) {
     const { channelId, playerId } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
-    const phrase = this.#messages.getPhrase(language, 'dice_game_player_joined');
+    const phrase = this.#messages.getPhrase(language, "dice_game_player_joined");
     const user = await this.#messages.getUser(playerId);
     const response = this.#messages.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -439,7 +439,7 @@ class GameManager {
    */
   async #onPhaseGuessing(data) {
     const { channelId, round } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     // Store initial player count for final scoring
     if (round === 1) {
@@ -460,7 +460,7 @@ class GameManager {
    */
   async #onPhasePicking(data) {
     const { channelId, roll, winnerId, isExact, players } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     // Announce exact match reward
     if (isExact) {
@@ -484,7 +484,7 @@ class GameManager {
    */
   async #onPhaseBetting(data) {
     const { channelId, pickerBalance, isAutoPick } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     if (pickerBalance === this.#engine.minBet) {
       // Skip betting, use minimum
@@ -514,7 +514,7 @@ class GameManager {
     this.#activeRollListeners.add(channelId);
 
     try {
-      const language = this.#languages.get(channelId) || 'en';
+      const language = this.#languages.get(channelId) || "en";
 
       await this.#messages.replyAskPlayerToRoll(channelId, language, candidateId);
 
@@ -555,9 +555,9 @@ class GameManager {
    */
   async #onPickAuto(data) {
     const { channelId, roll, candidateId, opponentId, candidateBalance } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
-    const phrase = this.#messages.getPhrase(language, 'dice_game_auto_pick_opponent');
+    const phrase = this.#messages.getPhrase(language, "dice_game_auto_pick_opponent");
     const candidate = await this.#messages.getUser(candidateId);
     const opponent = await this.#messages.getUser(opponentId);
     const response = this.#messages.replacePlaceholders(phrase, {
@@ -578,7 +578,7 @@ class GameManager {
    */
   async #onRollReceived(data) {
     const { channelId, playerId, roll } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     await this.#messages.replyPlayerRolled(channelId, language, playerId, roll);
 
@@ -593,7 +593,7 @@ class GameManager {
    */
   async #onRollTimeout(data) {
     const { channelId, loserId, bet, isEliminated } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     await this.#messages.replyPVPWinner(channelId, language, loserId, bet, isEliminated);
   }
@@ -605,7 +605,7 @@ class GameManager {
    */
   async #onPVPDraw(data) {
     const { channelId } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     await this.#messages.replyPVPDraw(channelId, language);
 
@@ -620,7 +620,7 @@ class GameManager {
    */
   async #onPVPResult(data) {
     const { channelId, loserId, bet, isEliminated } = data;
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     await this.#messages.replyPVPWinner(channelId, language, loserId, bet, isEliminated);
   }
@@ -654,10 +654,10 @@ class GameManager {
    * @private
    */
   async #listenForBet(channelId, playerId) {
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
     let hasReceivedAnyMessage = false;
 
-    while ((await this.#engine.getState(channelId)) === 'betting') {
+    while ((await this.#engine.getState(channelId)) === "betting") {
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
@@ -668,7 +668,7 @@ class GameManager {
       );
 
       // Check if state changed (game ended or timer triggered default bet)
-      if ((await this.#engine.getState(channelId)) !== 'betting') {
+      if ((await this.#engine.getState(channelId)) !== "betting") {
         return;
       }
 
@@ -692,9 +692,9 @@ class GameManager {
       }
 
       // Show error based on validation result and let player try again
-      if (result.error === 'invalid_bet_increment') {
+      if (result.error === "invalid_bet_increment") {
         await this.#messages.replyAskPlayerBalanceError500(channelId, language);
-      } else if (result.error === 'insufficient_balance') {
+      } else if (result.error === "insufficient_balance") {
         await this.#messages.replyAskPlayerBalanceError(channelId, language);
       }
 
@@ -736,7 +736,7 @@ class GameManager {
     const receivedGuesses = new Set();
 
     // Listen until timer expires or all players have guessed
-    while ((await this.#engine.getState(channelId)) === 'guessing') {
+    while ((await this.#engine.getState(channelId)) === "guessing") {
       const message = await this.#client.messaging.subscription.nextMessage(
         (msg) =>
           msg.isGroup &&
@@ -749,7 +749,7 @@ class GameManager {
 
       if (!message) {
         // Check if state changed (timer expired)
-        if ((await this.#engine.getState(channelId)) !== 'guessing') {
+        if ((await this.#engine.getState(channelId)) !== "guessing") {
           return;
         }
         continue;
@@ -780,7 +780,7 @@ class GameManager {
    */
   #isValidRollCommand(body, _language) {
     const normalizedBody = body.trim().toLowerCase();
-    const rollPhrases = this.#client.phrase.getAllByName('dice_game_roll_command');
+    const rollPhrases = this.#client.phrase.getAllByName("dice_game_roll_command");
 
     // Check against all language variants
     for (const phrase of rollPhrases) {
@@ -799,12 +799,12 @@ class GameManager {
    * @private
    */
   async #listenForRolls(channelId, startingPlayerId) {
-    const language = this.#languages.get(channelId) || 'en';
+    const language = this.#languages.get(channelId) || "en";
 
     // Listen for rolls from both players
     // Reset tracking on each iteration to handle draws
     let currentPlayerToRoll = startingPlayerId;
-    while ((await this.#engine.getState(channelId)) === 'rolling') {
+    while ((await this.#engine.getState(channelId)) === "rolling") {
       const round = await this.#engine.getRoundInfo(channelId);
 
       if (!round) {
@@ -824,7 +824,7 @@ class GameManager {
       if (!message) {
         // Check if game still exists before sending timeout message
         const currentState = await this.#engine.getState(channelId);
-        if (currentState !== 'rolling') {
+        if (currentState !== "rolling") {
           return; // Game was cancelled or ended - don't send stale message
         }
         // Timeout - player loses automatically
@@ -838,7 +838,7 @@ class GameManager {
       const result = await this.#engine.handleRoll(channelId, playerId, null);
 
       // Check if game ended while waiting
-      if ((await this.#engine.getState(channelId)) !== 'rolling') {
+      if ((await this.#engine.getState(channelId)) !== "rolling") {
         return;
       }
 
@@ -850,7 +850,7 @@ class GameManager {
 
           const currentState = await this.#engine.getState(channelId);
 
-          if (currentState === 'rolling') {
+          if (currentState === "rolling") {
             await this.#messages.replyAskPlayerToRoll(channelId, language, round.opponentId);
             // Continue loop to wait for opponent's roll
             currentPlayerToRoll = round.opponentId;
@@ -864,7 +864,7 @@ class GameManager {
 
           const currentState = await this.#engine.getState(channelId);
 
-          if (currentState !== 'rolling') {
+          if (currentState !== "rolling") {
             // PVP was resolved, game moved to next phase or ended
             return;
           }
@@ -922,7 +922,7 @@ class GameManager {
    * @private
    */
   async #rewardPlayers(_channelId, scores) {
-    const { addPoint } = await import('../database/helpers/player.js');
+    const { addPoint } = await import("../database/helpers/player.js");
 
     for (const { playerId, points } of scores) {
       await addPoint(playerId, points);

@@ -1,4 +1,4 @@
-import Random from '../utils/Random.js';
+import Random from "../utils/Random.js";
 
 /**
  * Dice rolling and guess matching logic

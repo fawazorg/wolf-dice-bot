@@ -14,5 +14,5 @@
  * @returns {Promise<Response<MessageResponse>>} Response with help message
  */
 export default async (client, command) => {
-  return command.reply(client.phrase.getByCommandAndName(command, 'dice_help_message').join('\n'));
+  return command.reply(client.phrase.getByCommandAndName(command, "dice_help_message").join("\n"));
 };

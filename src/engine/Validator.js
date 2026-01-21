@@ -33,20 +33,20 @@ class Validator {
    * @returns {{valid: boolean, error?: string}}
    */
   static validateBalance(balance) {
-    if (typeof balance !== 'number' || isNaN(balance)) {
-      return { valid: false, error: 'invalid_balance_type' };
+    if (typeof balance !== "number" || isNaN(balance)) {
+      return { valid: false, error: "invalid_balance_type" };
     }
 
     if (balance <= 0) {
-      return { valid: false, error: 'balance_must_be_positive' };
+      return { valid: false, error: "balance_must_be_positive" };
     }
 
     if (balance > Validator.#MAX_BALANCE) {
-      return { valid: false, error: 'balance_exceeds_maximum' };
+      return { valid: false, error: "balance_exceeds_maximum" };
     }
 
     if (balance % Validator.#BALANCE_INCREMENT !== 0) {
-      return { valid: false, error: 'invalid_balance_increment' };
+      return { valid: false, error: "invalid_balance_increment" };
     }
 
     return { valid: true };
@@ -58,16 +58,16 @@ class Validator {
    * @returns {{valid: boolean, error?: string}}
    */
   static validateGuess(guess) {
-    if (typeof guess !== 'number' || isNaN(guess)) {
-      return { valid: false, error: 'invalid_guess_type' };
+    if (typeof guess !== "number" || isNaN(guess)) {
+      return { valid: false, error: "invalid_guess_type" };
     }
 
     if (!Number.isInteger(guess)) {
-      return { valid: false, error: 'guess_must_be_integer' };
+      return { valid: false, error: "guess_must_be_integer" };
     }
 
     if (guess < Validator.#MIN_GUESS || guess > Validator.#MAX_GUESS) {
-      return { valid: false, error: 'guess_out_of_range' };
+      return { valid: false, error: "guess_out_of_range" };
     }
 
     return { valid: true };
@@ -80,24 +80,24 @@ class Validator {
    * @returns {{valid: boolean, error?: string}}
    */
   static validateBet(bet, playerBalance) {
-    if (typeof bet !== 'number' || isNaN(bet)) {
-      return { valid: false, error: 'invalid_bet_type' };
+    if (typeof bet !== "number" || isNaN(bet)) {
+      return { valid: false, error: "invalid_bet_type" };
     }
 
     if (!Number.isInteger(bet)) {
-      return { valid: false, error: 'bet_must_be_integer' };
+      return { valid: false, error: "bet_must_be_integer" };
     }
 
     if (bet <= 0) {
-      return { valid: false, error: 'bet_must_be_positive' };
+      return { valid: false, error: "bet_must_be_positive" };
     }
 
     if (bet % Validator.#BALANCE_INCREMENT !== 0) {
-      return { valid: false, error: 'invalid_bet_increment' };
+      return { valid: false, error: "invalid_bet_increment" };
     }
 
     if (bet > playerBalance) {
-      return { valid: false, error: 'insufficient_balance' };
+      return { valid: false, error: "insufficient_balance" };
     }
 
     return { valid: true };
@@ -111,24 +111,24 @@ class Validator {
    * @returns {{valid: boolean, error?: string, normalizedIndex?: number}}
    */
   static validatePick(pickIndex, totalPlayers, pickerIndex) {
-    if (typeof pickIndex !== 'number' || isNaN(pickIndex)) {
-      return { valid: false, error: 'invalid_pick_type' };
+    if (typeof pickIndex !== "number" || isNaN(pickIndex)) {
+      return { valid: false, error: "invalid_pick_type" };
     }
 
     if (!Number.isInteger(pickIndex)) {
-      return { valid: false, error: 'pick_must_be_integer' };
+      return { valid: false, error: "pick_must_be_integer" };
     }
 
     // Convert from 1-based to 0-based
     const normalizedIndex = pickIndex - 1;
 
     if (normalizedIndex < 0 || normalizedIndex >= totalPlayers) {
-      return { valid: false, error: 'pick_out_of_range' };
+      return { valid: false, error: "pick_out_of_range" };
     }
 
     // Can't pick yourself
     if (normalizedIndex === pickerIndex) {
-      return { valid: false, error: 'cannot_pick_self' };
+      return { valid: false, error: "cannot_pick_self" };
     }
 
     return { valid: true, normalizedIndex };
@@ -140,16 +140,16 @@ class Validator {
    * @returns {{valid: boolean, error?: string}}
    */
   static validatePVPRoll(roll) {
-    if (typeof roll !== 'number' || isNaN(roll)) {
-      return { valid: false, error: 'invalid_roll_type' };
+    if (typeof roll !== "number" || isNaN(roll)) {
+      return { valid: false, error: "invalid_roll_type" };
     }
 
     if (!Number.isInteger(roll)) {
-      return { valid: false, error: 'roll_must_be_integer' };
+      return { valid: false, error: "roll_must_be_integer" };
     }
 
     if (roll < Validator.#MIN_PVP_ROLL || roll > Validator.#MAX_PVP_ROLL) {
-      return { valid: false, error: 'roll_out_of_range' };
+      return { valid: false, error: "roll_out_of_range" };
     }
 
     return { valid: true };
@@ -161,16 +161,16 @@ class Validator {
    * @returns {{valid: boolean, error?: string}}
    */
   static validatePlayerCount(count) {
-    if (typeof count !== 'number' || isNaN(count)) {
-      return { valid: false, error: 'invalid_count_type' };
+    if (typeof count !== "number" || isNaN(count)) {
+      return { valid: false, error: "invalid_count_type" };
     }
 
     if (count < 1) {
-      return { valid: false, error: 'insufficient_players' };
+      return { valid: false, error: "insufficient_players" };
     }
 
     if (count > Validator.#MAX_PLAYERS) {
-      return { valid: false, error: 'maximum_players_exceeded' };
+      return { valid: false, error: "maximum_players_exceeded" };
     }
 
     return { valid: true };

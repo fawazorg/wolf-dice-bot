@@ -4,14 +4,14 @@
  * @module bot/DiceClient
  */
 
-import { scheduleJob } from 'node-schedule';
-import { Command, OnlineState, WOLF } from 'wolf.js';
-import * as Dice from '../commands/index.js';
-import { deleteGroup, setLastActive } from '../database/helpers/group.js';
-import { GameManager } from '../index.js';
-import { leaveInactiveGroups } from '../jobs/active.js';
-import { createUpdateTimer } from '../jobs/group.js';
-import logger from '../utils/logger.js';
+import { scheduleJob } from "node-schedule";
+import { Command, OnlineState, WOLF } from "wolf.js";
+import * as Dice from "../commands/index.js";
+import { deleteGroup, setLastActive } from "../database/helpers/group.js";
+import { GameManager } from "../index.js";
+import { leaveInactiveGroups } from "../jobs/active.js";
+import { createUpdateTimer } from "../jobs/group.js";
+import logger from "../utils/logger.js";
 
 /**
  * DiceClient wraps a WOLF client instance with dice game functionality.
@@ -42,12 +42,12 @@ class DiceClient {
       timeToJoin: 30000,
       timeToChoice: 15000
     });
-    this.client.login(email, password, '', OnlineState.ONLINE);
-    this.client.on('ready', async () => this._onReady());
-    this.client.on('loginSuccess', async (subscriber) => this._onLoginSuccess(subscriber));
-    this.client.on('loginFailed', (error) => this._onLoginFailed(error));
-    this.client.on('joinedGroup', async (group) => this._onJoinedGroup(group));
-    this.client.on('leftGroup', (group) => this._onLeftGroup(group));
+    this.client.login(email, password, "", OnlineState.ONLINE);
+    this.client.on("ready", async () => this._onReady());
+    this.client.on("loginSuccess", async (subscriber) => this._onLoginSuccess(subscriber));
+    this.client.on("loginFailed", (error) => this._onLoginFailed(error));
+    this.client.on("joinedGroup", async (group) => this._onJoinedGroup(group));
+    this.client.on("leftGroup", (group) => this._onLeftGroup(group));
   }
 
   /**
@@ -57,58 +57,58 @@ class DiceClient {
   commandRegister = () => {
     this.client.commandHandler.register([
       /* Main command */
-      new Command('dice_default_command', { both: (command) => Dice.main(this.client, command) }, [
+      new Command("dice_default_command", { both: (command) => Dice.main(this.client, command) }, [
         /* Balance command */
-        new Command('dice_balance_command', {
+        new Command("dice_balance_command", {
           channel: (command) => Dice.balance(command, this.game)
         }),
         /* cancel command */
-        new Command('dice_cancel_command', {
+        new Command("dice_cancel_command", {
           channel: (command) => Dice.cancel(this.client, command, this.game)
         }),
         /* create command */
-        new Command('dice_create_command', {
+        new Command("dice_create_command", {
           channel: (command) => Dice.create(command, this.game)
         }),
         /* Help command */
-        new Command('dice_help_command', { both: (command) => Dice.help(this.client, command) }),
+        new Command("dice_help_command", { both: (command) => Dice.help(this.client, command) }),
         /* Join command */
-        new Command('dice_join_command', { channel: (command) => Dice.join(command, this.game) }),
+        new Command("dice_join_command", { channel: (command) => Dice.join(command, this.game) }),
         /* Rank command */
-        new Command('dice_rank_command', { channel: (command) => Dice.rank(this.client, command) }),
+        new Command("dice_rank_command", { channel: (command) => Dice.rank(this.client, command) }),
         /* Show command */
-        new Command('dice_show_command', { channel: (command) => Dice.show(command, this.game) }),
+        new Command("dice_show_command", { channel: (command) => Dice.show(command, this.game) }),
         /* Status command */
-        new Command('dice_status_command', {
+        new Command("dice_status_command", {
           both: (command) => Dice.status(this.client, command)
         }),
         /* Top players command */
-        new Command('dice_top_command', {
+        new Command("dice_top_command", {
           both: (command) => Dice.leaderboard(this.client, command)
         }),
         /* Admin command */
         new Command(
-          'dice_default_admin_command',
+          "dice_default_admin_command",
           { both: (command) => Dice.admin.main(this.client, command) },
           [
             /* Admin count command */
-            new Command('dice_admin_count_command', {
+            new Command("dice_admin_count_command", {
               channel: (command) => Dice.admin.count(this.client, command)
             }),
             /* Admin help command */
-            new Command('dice_help_command', {
+            new Command("dice_help_command", {
               channel: (command) => Dice.admin.help(this.client, command)
             }),
             /* Admin join command */
-            new Command('dice_admin_join_command', {
+            new Command("dice_admin_join_command", {
               channel: (command) => Dice.admin.join(this.client, command)
             }),
             /* Admin refresh command */
-            new Command('dice_admin_refresh_command', {
+            new Command("dice_admin_refresh_command", {
               channel: (command) => Dice.admin.refresh(this.client, command)
             }),
             /* Admin update command */
-            new Command('dice_admin_update_command', {
+            new Command("dice_admin_update_command", {
               channel: (command) => Dice.admin.update(this.client, command)
             })
           ]
@@ -124,7 +124,7 @@ class DiceClient {
    * @returns {Promise<void>}
    */
   async _onReady() {
-    scheduleJob('0 * * * *', async () => leaveInactiveGroups(this.client, 5));
+    scheduleJob("0 * * * *", async () => leaveInactiveGroups(this.client, 5));
 
     const UpdateTimer = createUpdateTimer(this.game);
     await this.client.utility.timer.register({ UpdateTimer });
@@ -167,7 +167,7 @@ class DiceClient {
    * @returns {void}
    */
   _onLoginSuccess(subscriber) {
-    logger.info('Bot logged in successfully', {
+    logger.info("Bot logged in successfully", {
       subscriberId: subscriber.id,
       nickname: subscriber.nickname
     });
@@ -180,7 +180,7 @@ class DiceClient {
    * @returns {void}
    */
   _onLoginFailed(error) {
-    logger.error('Bot login failed', {
+    logger.error("Bot login failed", {
       error: error.message
     });
   }

@@ -1,5 +1,5 @@
-import { v4 as uuidv4 } from 'uuid';
-import Player from './Player.js';
+import { v4 as uuidv4 } from "uuid";
+import Player from "./Player.js";
 
 /**
  * Game channel container managing players and game configuration

@@ -4,8 +4,8 @@
  * @module database/RedisConnection
  */
 
-import Redis from 'ioredis';
-import logger from '../utils/logger.js';
+import Redis from "ioredis";
+import logger from "../utils/logger.js";
 
 /** @type {Redis|null} Singleton Redis instance */
 let redis = null;
@@ -28,13 +28,13 @@ export function getRedis(options = {}) {
   }
 
   const config = {
-    host: options.host || process.env.REDIS_HOST || 'localhost',
+    host: options.host || process.env.REDIS_HOST || "localhost",
     port: options.port || parseInt(process.env.REDIS_HOST_PORT, 10) || 6379,
     password: options.password || process.env.REDIS_PASSWORD || undefined,
     db: options.db || 0,
     retryStrategy: (times) => {
       if (times > 10) {
-        logger.error('Redis: Max reconnection attempts reached');
+        logger.error("Redis: Max reconnection attempts reached");
         return null;
       }
       const delay = Math.min(times * 100, 3000);
@@ -48,29 +48,29 @@ export function getRedis(options = {}) {
 
   redis = new Redis(config);
 
-  redis.on('connect', () => {
-    logger.info('Redis: Connecting...');
+  redis.on("connect", () => {
+    logger.info("Redis: Connecting...");
   });
 
-  redis.on('ready', () => {
+  redis.on("ready", () => {
     isConnected = true;
-    logger.info('Redis: Connected successfully', {
+    logger.info("Redis: Connected successfully", {
       host: config.host,
       port: config.port
     });
   });
 
-  redis.on('error', (err) => {
-    logger.error('Redis: Connection error', { error: err.message });
+  redis.on("error", (err) => {
+    logger.error("Redis: Connection error", { error: err.message });
   });
 
-  redis.on('close', () => {
+  redis.on("close", () => {
     isConnected = false;
-    logger.warn('Redis: Connection closed');
+    logger.warn("Redis: Connection closed");
   });
 
-  redis.on('reconnecting', () => {
-    logger.info('Redis: Reconnecting...');
+  redis.on("reconnecting", () => {
+    logger.info("Redis: Reconnecting...");
   });
 
   return redis;
@@ -90,11 +90,11 @@ export function isRedisConnected() {
  */
 export async function closeRedis() {
   if (redis) {
-    logger.info('Redis: Closing connection...');
+    logger.info("Redis: Closing connection...");
     await redis.quit();
     redis = null;
     isConnected = false;
-    logger.info('Redis: Connection closed');
+    logger.info("Redis: Connection closed");
   }
 }
 

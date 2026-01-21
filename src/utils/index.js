@@ -4,4 +4,4 @@
  * @module utils
  */
 
-export { default as Random } from './Random.js';
+export { default as Random } from "./Random.js";

@@ -9,22 +9,22 @@
  */
 export const GameState = {
   /** Players can join the game (initial state) */
-  JOINING: 'joining',
+  JOINING: "joining",
 
   /** Players submit guesses (1-50) */
-  GUESSING: 'guessing',
+  GUESSING: "guessing",
 
   /** Round winner selects opponent */
-  PICKING: 'picking',
+  PICKING: "picking",
 
   /** Round winner selects bet amount */
-  BETTING: 'betting',
+  BETTING: "betting",
 
   /** Players roll dice (PVP) */
-  ROLLING: 'rolling',
+  ROLLING: "rolling",
 
   /** Game completed, winner determined */
-  FINISHED: 'finished'
+  FINISHED: "finished"
 };
 
 /**

@@ -4,6 +4,6 @@
  * @module engine
  */
 
-export { default as RedisGameEngine } from './RedisGameEngine.js';
-export { default as Random } from '../utils/Random.js';
-export { default as Validator } from './Validator.js';
+export { default as RedisGameEngine } from "./RedisGameEngine.js";
+export { default as Random } from "../utils/Random.js";
+export { default as Validator } from "./Validator.js";

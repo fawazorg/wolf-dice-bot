@@ -96,7 +96,7 @@ class MessageService {
    * @param {number} playerCount
    */
   async replyCreated(channelId, language, playerCount) {
-    const phrase = this.getPhrase(language, 'dice_game_created');
+    const phrase = this.getPhrase(language, "dice_game_created");
     const response = this.replacePlaceholders(phrase, { count: playerCount });
     await this.send(channelId, response);
   }
@@ -106,7 +106,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyWrongCreate(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_wrong_creation');
+    const phrase = this.getPhraseByCommand(command, "dice_game_wrong_creation");
     await this.send(command.targetChannelId, phrase);
   }
 
@@ -115,7 +115,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyInvalidBalance(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_invalid_balance');
+    const phrase = this.getPhraseByCommand(command, "dice_game_invalid_balance");
     await this.send(command.targetChannelId, phrase);
   }
 
@@ -124,7 +124,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyAlreadyCreated(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_already_created');
+    const phrase = this.getPhraseByCommand(command, "dice_game_already_created");
     await this.send(command.targetChannelId, phrase);
   }
 
@@ -133,7 +133,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyNotExist(command) {
-    const phrase = this.getPhrase(command.language, 'dice_game_not_exist');
+    const phrase = this.getPhrase(command.language, "dice_game_not_exist");
     await this.send(command.targetChannelId, phrase);
   }
 
@@ -144,7 +144,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyJoin(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_player_joined');
+    const phrase = this.getPhraseByCommand(command, "dice_game_player_joined");
     const user = await this.getUser(command.sourceSubscriberId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -158,7 +158,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyAlreadyJoin(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_already_joined');
+    const phrase = this.getPhraseByCommand(command, "dice_game_already_joined");
     const user = await this.getUser(command.sourceSubscriberId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -176,7 +176,7 @@ class MessageService {
    * @param {string} playerList - Formatted player list
    */
   async replyGameStart(channelId, language, playerList) {
-    const phrase = this.getPhrase(language, 'dice_game_started');
+    const phrase = this.getPhrase(language, "dice_game_started");
     const response = this.replacePlaceholders(phrase, { list: playerList });
     await this.send(channelId, response);
   }
@@ -187,7 +187,7 @@ class MessageService {
    * @param {string} playerList - Formatted player list
    */
   async replyPlayers(command, playerList) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_players_list');
+    const phrase = this.getPhraseByCommand(command, "dice_game_players_list");
     const response = this.replacePlaceholders(phrase, { list: playerList });
     await this.send(command.targetChannelId, response);
   }
@@ -199,7 +199,7 @@ class MessageService {
    * @param {number} balance
    */
   async replyPlayerBalance(command, playerId, balance) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_player_balance');
+    const phrase = this.getPhraseByCommand(command, "dice_game_player_balance");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       id: user.id,
@@ -214,7 +214,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyPlayerNotFound(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_player_not_found');
+    const phrase = this.getPhraseByCommand(command, "dice_game_player_not_found");
     const user = await this.getUser(command.sourceSubscriberId);
     const response = this.replacePlaceholders(phrase, {
       id: user.id,
@@ -228,7 +228,7 @@ class MessageService {
    * @param {import('wolf.js').CommandContext} command
    */
   async replyGameRemoved(command) {
-    const phrase = this.getPhraseByCommand(command, 'dice_game_cancelled');
+    const phrase = this.getPhraseByCommand(command, "dice_game_cancelled");
     await this.send(command.targetChannelId, phrase);
   }
 
@@ -240,7 +240,7 @@ class MessageService {
    * @param {string} language
    */
   async replyMakeAGuess(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_guessing_phase');
+    const phrase = this.getPhrase(language, "dice_game_guessing_phase");
     await this.send(channelId, phrase);
   }
 
@@ -253,7 +253,7 @@ class MessageService {
    * @param {string} playerList - Formatted player list
    */
   async replyPlayerTurn(channelId, language, playerId, diceRoll, playerList) {
-    const phrase = this.getPhrase(language, 'dice_game_player_turn');
+    const phrase = this.getPhrase(language, "dice_game_player_turn");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       dice: diceRoll,
@@ -271,7 +271,7 @@ class MessageService {
    * @param {number} playerId
    */
   async replyPlayerRewarded(channelId, language, playerId) {
-    const phrase = this.getPhrase(language, 'dice_game_correct_guess_reward');
+    const phrase = this.getPhrase(language, "dice_game_correct_guess_reward");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -289,7 +289,7 @@ class MessageService {
    * @param {number} balance
    */
   async replyAskPlayerBalance(channelId, language, balance) {
-    const phrase = this.getPhrase(language, 'dice_game_betting_phase');
+    const phrase = this.getPhrase(language, "dice_game_betting_phase");
     const response = this.replacePlaceholders(phrase, {
       balance: this.formatNumber(balance)
     });
@@ -302,7 +302,7 @@ class MessageService {
    * @param {string} language
    */
   async replyAskPlayerBalanceAlready500(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_betting_all_in');
+    const phrase = this.getPhrase(language, "dice_game_betting_all_in");
     await this.send(channelId, phrase);
   }
 
@@ -312,7 +312,7 @@ class MessageService {
    * @param {string} language
    */
   async replyAskPlayerBalanceError500(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_invalid_bet_amount');
+    const phrase = this.getPhrase(language, "dice_game_invalid_bet_amount");
     await this.send(channelId, phrase);
   }
 
@@ -322,7 +322,7 @@ class MessageService {
    * @param {string} language
    */
   async replyAskPlayerBalanceError(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_insufficient_balance');
+    const phrase = this.getPhrase(language, "dice_game_insufficient_balance");
     await this.send(channelId, phrase);
   }
 
@@ -335,7 +335,7 @@ class MessageService {
    * @param {number} playerId
    */
   async replyAskPlayerToRoll(channelId, language, playerId) {
-    const phrase = this.getPhrase(language, 'dice_game_rolling_phase');
+    const phrase = this.getPhrase(language, "dice_game_rolling_phase");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -352,7 +352,7 @@ class MessageService {
    * @param {number} dice
    */
   async replyPlayerRolled(channelId, language, playerId, dice) {
-    const phrase = this.getPhrase(language, 'dice_game_roll_result');
+    const phrase = this.getPhrase(language, "dice_game_roll_result");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -369,7 +369,7 @@ class MessageService {
    * @param {number} playerId
    */
   async replyPlayerTimeIsUpRoll(channelId, language, playerId) {
-    const phrase = this.getPhrase(language, 'dice_game_time_expired');
+    const phrase = this.getPhrase(language, "dice_game_time_expired");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -387,7 +387,7 @@ class MessageService {
    * @param {number} playerId
    */
   async replyPlayerNotPick(channelId, language, playerId) {
-    const phrase = this.getPhrase(language, 'dice_game_player_did_not_pick');
+    const phrase = this.getPhrase(language, "dice_game_player_did_not_pick");
     const user = await this.getUser(playerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -407,9 +407,9 @@ class MessageService {
    * @param {boolean} isOut - Whether loser is eliminated
    */
   async replyPVPWinner(channelId, language, loserId, bet, isOut) {
-    const phraseWinner = this.getPhrase(language, 'dice_game_round_won');
-    const phraseOut = this.getPhrase(language, 'dice_game_player_eliminated');
-    const phrasePlayer = this.getPhrase(language, 'dice_game_player_format');
+    const phraseWinner = this.getPhrase(language, "dice_game_round_won");
+    const phraseOut = this.getPhrase(language, "dice_game_player_eliminated");
+    const phrasePlayer = this.getPhrase(language, "dice_game_player_format");
 
     const user = await this.getUser(loserId);
     const phrase = isOut ? phraseWinner + phraseOut + phrasePlayer : phraseWinner + phrasePlayer;
@@ -428,7 +428,7 @@ class MessageService {
    * @param {string} language
    */
   async replyPVPDraw(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_round_draw');
+    const phrase = this.getPhrase(language, "dice_game_round_draw");
     await this.send(channelId, phrase);
   }
 
@@ -440,7 +440,7 @@ class MessageService {
    * @param {string} language
    */
   async replyGameFinish(channelId, language) {
-    const phrase = this.getPhrase(language, 'dice_game_finished');
+    const phrase = this.getPhrase(language, "dice_game_finished");
     await this.send(channelId, phrase);
   }
 
@@ -452,7 +452,7 @@ class MessageService {
    * @param {string} winnersList - Formatted winners list
    */
   async replyGameWinner(channelId, language, winnerId, winnersList) {
-    const phrase = this.getPhrase(language, 'dice_game_winner_announcement');
+    const phrase = this.getPhrase(language, "dice_game_winner_announcement");
     const user = await this.getUser(winnerId);
     const response = this.replacePlaceholders(phrase, {
       nickname: user.nickname,
@@ -471,7 +471,7 @@ class MessageService {
    */
   async formatPlayerList(players) {
     if (players.length === 0) {
-      return '';
+      return "";
     }
 
     const userIds = players.map((p) => p.id);
@@ -480,11 +480,11 @@ class MessageService {
 
     const lines = players.map((player, index) => {
       const user = userMap.get(player.id);
-      const nickname = user ? user.nickname : 'Unknown';
+      const nickname = user ? user.nickname : "Unknown";
       return `${index + 1} \u0640 ${nickname} (${player.id}) \u0640 ${this.formatNumber(player.balance)}`;
     });
 
-    return lines.join('\n');
+    return lines.join("\n");
   }
 
   /**
@@ -494,7 +494,7 @@ class MessageService {
    */
   async formatWinnersList(scores) {
     if (scores.length === 0) {
-      return '';
+      return "";
     }
 
     const userIds = scores.map((s) => s.playerId);
@@ -503,11 +503,11 @@ class MessageService {
 
     const lines = scores.map((score, index) => {
       const user = userMap.get(score.playerId);
-      const nickname = user ? user.nickname : 'Unknown';
+      const nickname = user ? user.nickname : "Unknown";
       return `${index + 1} \u0640 ${nickname} (${score.playerId}) \u0640 ${score.points}`;
     });
 
-    return `\n${lines.join('\n')}`;
+    return `\n${lines.join("\n")}`;
   }
 }
 

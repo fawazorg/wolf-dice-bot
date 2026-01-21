@@ -4,4 +4,4 @@
  * @module managers
  */
 
-export { default as GameManager } from './GameManager.js';
+export { default as GameManager } from "./GameManager.js";
