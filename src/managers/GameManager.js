@@ -24,9 +24,6 @@ class GameManager {
   /** @type {number} Time allowed for choices (ms) */
   #timeToChoice;
 
-  /** @type {Set<number>} Admin user IDs */
-  #admins;
-
   /** @type {Map<number, string>} Channel languages (cached for messaging) */
   #languages;
 
@@ -42,7 +39,6 @@ class GameManager {
    * @param {number} [options.maxPlayers=16] - Maximum players per game
    * @param {number} [options.timeToJoin=30000] - Time to join in ms
    * @param {number} [options.timeToChoice=15000] - Time for choices in ms
-   * @param {number[]} [options.admins=[]] - Admin user IDs
    */
   constructor(client, options = {}) {
     this.#client = client;
@@ -56,7 +52,6 @@ class GameManager {
     this.#messages = new MessageService(client);
     this.#timeToJoin = options.timeToJoin || 30000;
     this.#timeToChoice = options.timeToChoice || 15000;
-    this.#admins = new Set(options.admins || []);
     this.#languages = new Map();
     this.#initialPlayerCounts = new Map();
     this.#activeRollListeners = new Set();
@@ -290,11 +285,7 @@ class GameManager {
     const channelId = message.targetChannelId;
     const playerId = message.sourceSubscriberId;
 
-    // Check for admin cheat
-    const isAdminCheat = this.#admins.has(playerId) && message.body === "لف.";
-    const fixedValue = isAdminCheat ? 6 : null;
-
-    const result = this.#engine.handleRoll(channelId, playerId, fixedValue);
+    const result = this.#engine.handleRoll(channelId, playerId, null);
     return result.success;
   }
 

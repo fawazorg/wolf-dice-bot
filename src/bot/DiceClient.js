@@ -11,7 +11,6 @@ import { deleteGroup, setLastActive } from "../database/helpers/group.js";
 import { GameManager } from "../index.js";
 import { leaveInactiveGroups } from "../jobs/active.js";
 import { createUpdateTimer } from "../jobs/group.js";
-import { getAdminIds } from "../utils/config.js";
 
 /**
  * DiceClient wraps a WOLF client instance with dice game functionality.
@@ -40,8 +39,7 @@ class DiceClient {
     this.game = new GameManager(this.client, {
       maxPlayers: 16,
       timeToJoin: 30000,
-      timeToChoice: 15000,
-      admins: getAdminIds()
+      timeToChoice: 15000
     });
     this.client.login(email, password, "", OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());
