@@ -156,7 +156,7 @@
     "value": "🎲 أرسل كلمة \"لف\" لرمي النرد!\n{nickname} ({id})"
   },
   {
-    "name":="dice_game_time_expired",
+    "name": "dice_game_time_expired",
     "value": "(n) ⏱️ لقد انتهى وقتك\n{nickname} ({id})"
   },
   {

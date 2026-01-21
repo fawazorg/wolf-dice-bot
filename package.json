@@ -33,6 +33,7 @@
     "mongoose": "^9.1.4",
     "node-schedule": "^2.1.1",
     "uuid": "^13.0.0",
+    "winston": "^3.19.0",
     "wolf.js": "^2.7.9"
   }
 }

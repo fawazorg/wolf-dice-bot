@@ -5,6 +5,7 @@
  */
 
 import mongoose from "mongoose";
+import logger from "../utils/logger.js";
 
 // Disable strict query mode for more flexible queries
 mongoose.set({ strictQuery: false });
@@ -31,4 +32,13 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 
 // Set up connection event handlers
-db.on("error", console.error.bind(console, "connection error:"));
+db.on("error", (error) => {
+  logger.error("Database connection error", { error: error.message });
+});
+
+db.once("open", () => {
+  logger.info("Database connected successfully", {
+    database: process.env.MONGO_DB_NAME,
+    host: "127.0.0.1:27018"
+  });
+});

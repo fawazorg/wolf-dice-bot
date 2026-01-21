@@ -11,6 +11,7 @@ import { deleteGroup, setLastActive } from "../database/helpers/group.js";
 import { GameManager } from "../index.js";
 import { leaveInactiveGroups } from "../jobs/active.js";
 import { createUpdateTimer } from "../jobs/group.js";
+import logger from "../utils/logger.js";
 
 /**
  * DiceClient wraps a WOLF client instance with dice game functionality.
@@ -44,6 +45,7 @@ class DiceClient {
     this.client.login(email, password, "", OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());
     this.client.on("loginSuccess", async (subscriber) => this._onLoginSuccess(subscriber));
+    this.client.on("loginFailed", (error) => this._onLoginFailed(error));
     this.client.on("joinedGroup", async (group) => this._onJoinedGroup(group));
     this.client.on("leftGroup", (group) => this._onLeftGroup(group));
   }
@@ -161,11 +163,26 @@ class DiceClient {
   /**
    * Handle successful login event.
    * @private
-   * @param {import('wolf.js').Subscriber} _subscriber - The logged-in subscriber
+   * @param {import('wolf.js').Subscriber} subscriber - The logged-in subscriber
    * @returns {void}
    */
-  _onLoginSuccess(_subscriber) {
-    // Login successful
+  _onLoginSuccess(subscriber) {
+    logger.info("Bot logged in successfully", {
+      subscriberId: subscriber.id,
+      nickname: subscriber.nickname
+    });
+  }
+
+  /**
+   * Handle failed login event.
+   * @private
+   * @param {Error} error - The login error
+   * @returns {void}
+   */
+  _onLoginFailed(error) {
+    logger.error("Bot login failed", {
+      error: error.message
+    });
   }
 }
 
