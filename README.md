@@ -42,12 +42,14 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/fawazorg/wolf-dice-bot.git
    cd wolf-dice-bot
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -55,6 +57,7 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 3. **Configure environment**
 
    Create a `.env` file in the project root (see [.env.example](.env.example) for full reference):
+
    ```env
    # ============================================
    # Bot Account Configuration
@@ -90,11 +93,13 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
    ```
 
 4. **Start infrastructure**
+
    ```bash
    docker-compose up -d
    ```
 
 5. **Run the bot**
+
    ```bash
    # Development mode with auto-reload
    npm run dev
@@ -107,56 +112,62 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 
 ### Player Commands
 
-| Command | Description | Example |
-|---------|-------------|---------|
-| `!dice new <balance>` | Create a new game with initial balance | `!dice new 2000` |
-| `!dice join` | Join an existing game in the joining phase | `!dice join` |
-| `!dice cancel` | Cancel the current game (creator only) | `!dice cancel` |
-| `!dice bal` | Check your current game balance | `!dice bal` |
-| `!dice show` | Display all players in the current game | `!dice show` |
-| `!dice rank` | View your rank and total points | `!dice rank` |
-| `!dice status` | View your dice roll statistics | `!dice status` |
-| `!dice top` | Display top 10 players leaderboard | `!dice top` |
-| `!dice help` | Show help menu | `!dice help` |
+| Command               | Description                                | Example          |
+| --------------------- | ------------------------------------------ | ---------------- |
+| `!dice new <balance>` | Create a new game with initial balance     | `!dice new 2000` |
+| `!dice join`          | Join an existing game in the joining phase | `!dice join`     |
+| `!dice cancel`        | Cancel the current game (creator only)     | `!dice cancel`   |
+| `!dice balance`       | Check your current game balance            | `!dice balance`  |
+| `!dice show`          | Display all players in the current game    | `!dice show`     |
+| `!dice rank`          | View your rank and total points            | `!dice rank`     |
+| `!dice status`        | View your dice roll statistics             | `!dice status`   |
+| `!dice top`           | Display top 10 players leaderboard         | `!dice top`      |
+| `!dice help`          | Show help menu                             | `!dice help`     |
 
 ### Admin Commands
 
-| Command | Description |
-|---------|-------------|
-| `!dice admin join <groupID>` | Make the bot join a specific group |
-| `!dice admin refresh` | Update last active date for all groups |
-| `!dice admin count` | Get total group count |
-| `!dice admin help` | Show admin help menu |
+| Command                      | Description                            |
+| ---------------------------- | -------------------------------------- |
+| `!dice admin join <groupID>` | Make the bot join a specific group     |
+| `!dice admin refresh`        | Update last active date for all groups |
+| `!dice admin count`          | Get total group count                  |
+| `!dice admin help`           | Show admin help menu                   |
 
 ## Game Flow
 
 ### 1. Joining Phase (30 seconds)
+
 - A player creates a game with `!dice new <balance>`
 - Balance must be in multiples of 500 (max 5000)
 - Other players join using `!dice join`
 - Game starts automatically when time expires
 
 ### 2. Guessing Phase (15 seconds)
+
 - All players guess a dice number (1-50)
 - Players who guess correctly earn 500 bonus points
 - Used to determine turn order
 
 ### 3. Picking Phase (15 seconds)
+
 - Players take turns picking opponents for PvP matches
 - Turn order based on dice rolls from guessing phase
 - Auto-selection if only one opponent available
 
 ### 4. Betting Phase
+
 - Players bet coins in multiples of 500
 - Maximum bet limited to player's current balance
 - Minimum bet: 500 coins
 
 ### 5. Rolling Phase
+
 - Both players roll dice (1-6)
 - Higher roll wins the bet amount from opponent
 - Ties result in a replay of the round
 
 ### 6. Scoring & Elimination
+
 - Players with zero balance are eliminated
 - Game continues until one player remains
 - Winner and runner-ups are announced
@@ -211,17 +222,20 @@ wolf-dice-bot/
 ### Design Patterns
 
 #### Layered Architecture
+
 - **Core Layer**: Pure game logic, framework-agnostic
 - **Manager Layer**: Integration between core and WOLF platform
 - **Service Layer**: External integrations (database, messaging)
 - **Command Layer**: User-facing command handlers
 
 #### Multi-Account Support
+
 - Accounts configured via `ACCOUNTS` environment variable
 - Each account gets isolated diceClient instance
 - 500ms staggered login to prevent rate limiting
 
 #### Message Localization
+
 - All user messages stored in `phrases/{language}.json`
 - MessageService handles phrase lookup and placeholder replacement
 - Per-channel language configuration
@@ -231,10 +245,10 @@ wolf-dice-bot/
 ### Bot Settings (`config/default.yaml`)
 
 ```yaml
-keyword: dice                    # Bot command prefix
+keyword: dice # Bot command prefix
 app:
-  defaultLanguage: en           # Default language (en/ar)
-  developerId: 82366923         # Admin user ID
+  defaultLanguage: en # Default language (en/ar)
+  developerId: 82366923 # Admin user ID
   commandSettings:
     ignoreOfficialBots: true
     ignoreUnofficialBots: true
@@ -292,11 +306,13 @@ npm run lint:fix
 ## Database Schema
 
 ### Player Model
+
 - `subscriberId`: Wolf.live user ID (unique)
 - `score`: Total accumulated points
 - `diceStats`: Object tracking roll history (1-6)
 
 ### Channel Model
+
 - `channelId`: Wolf.live group ID
 - `language`: Preferred language (en/ar)
 - `lastActiveAt`: Last game activity timestamp
@@ -304,17 +320,20 @@ npm run lint:fix
 ## Troubleshooting
 
 ### Bot Not Responding
+
 1. Check if infrastructure is running: `docker-compose ps`
 2. Verify environment variables in `.env`
 3. Check bot account credentials
 4. Review logs for connection errors
 
 ### Database Connection Issues
+
 1. Ensure MongoDB container is running
 2. Verify MongoDB credentials match `.env` configuration
 3. Check network connectivity: `docker network inspect wolf-dice-bot_default`
 
 ### Commands Not Working
+
 1. Verify bot has joined the group
 2. Check if bot keyword is correct (`dice` by default)
 3. Ensure proper command syntax (refer to help menu)

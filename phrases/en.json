@@ -21,7 +21,7 @@
   },
   {
     "name": "dice_balance_command",
-    "value": "bal"
+    "value": "balance"
   },
   {
     "name": "dice_show_command",
@@ -222,7 +222,7 @@
       "🎮 !dice new <balance> - Create a new game",
       "❌ !dice cancel - Cancel the current game",
       "✅ !dice join - Join an existing game",
-      "💰 !dice bal - Check your balance",
+      "💰 !dice balance - Check your balance",
       "👥 !dice show - Show player list",
       "🏅 !dice rank - View your rank",
       "📊 !dice status - View your dice statistics",
