@@ -44,12 +44,12 @@ print_warning() {
 # Health check for all services
 health_check() {
     print_header "Health Check"
-    
+
     echo "MongoDB:"
     docker compose exec mongodb mongosh --quiet --eval "db.adminCommand('ping')" && \
         print_success "MongoDB is healthy" || \
         print_error "MongoDB is not responding"
-    
+
     echo ""
     echo "Redis:"
     docker compose exec redis redis-cli ping && \
@@ -60,16 +60,53 @@ health_check() {
 # Backup MongoDB
 backup_mongodb() {
     print_header "MongoDB Backup"
-    
+
+    # Load environment variables
+    source .env 2>/dev/null || true
+
     BACKUP_DIR="./backups/mongodb"
     BACKUP_FILE="mongodb-backup-$(date +%Y%m%d-%H%M%S).gz"
-    
-    mkdir -p "$BACKUP_DIR"
-    
-    docker compose exec -T mongodb mongodump --archive --gzip > "$BACKUP_DIR/$BACKUP_FILE"
-    
-    print_success "Backup saved to: $BACKUP_DIR/$BACKUP_FILE"
+    BACKUP_PATH="$BACKUP_DIR/$BACKUP_FILE"
+
+    mkdir -p "$BACKUP_DIR" || {
+        print_error "Failed to create backup directory"
+        return 1
+    }
+
+    # Check required environment variables
+    if [ -z "$MONGO_ROOT_USERNAME" ] || [ -z "$MONGO_ROOT_PASSWORD" ] || [ -z "$MONGO_DB_NAME" ]; then
+        print_error "Missing required environment variables (MONGO_ROOT_USERNAME, MONGO_ROOT_PASSWORD, MONGO_DB_NAME)"
+        return 1
+    fi
+
+    echo "→ Starting MongoDB dump..."
+
+    if ! docker compose exec -T mongodb \
+        mongodump \
+          --username "$MONGO_ROOT_USERNAME" \
+          --password "$MONGO_ROOT_PASSWORD" \
+          --authenticationDatabase "admin" \
+          --db "$MONGO_DB_NAME" \
+          --archive \
+          --gzip \
+          > "$BACKUP_PATH"; then
+
+        print_error "MongoDB backup failed (mongodump error)"
+        rm -f "$BACKUP_PATH"
+        return 1
+    fi
+
+    # Validate backup file
+    if [[ ! -s "$BACKUP_PATH" ]]; then
+        print_error "Backup file is empty or corrupted"
+        rm -f "$BACKUP_PATH"
+        return 1
+    fi
+
+    print_success "Backup saved successfully:"
+    echo "  $BACKUP_PATH"
 }
+
 
 # Restore MongoDB
 restore_mongodb() {
@@ -77,17 +114,52 @@ restore_mongodb() {
         print_error "Usage: $0 restore <backup-file>"
         exit 1
     fi
-    
+
+    # Load environment variables
+    source .env 2>/dev/null || true
+
+    # Get absolute path of backup file
+    local BACKUP_FILE="$1"
+    if [[ ! "$BACKUP_FILE" = /* ]]; then
+        # Convert relative path to absolute path
+        BACKUP_FILE="$(cd "$(dirname "$BACKUP_FILE")" 2>/dev/null && pwd)/$(basename "$BACKUP_FILE")"
+    fi
+
+    # Check if backup file exists
+    if [ ! -f "$BACKUP_FILE" ]; then
+        print_error "Backup file not found: $BACKUP_FILE"
+        exit 1
+    fi
+
+    # Validate it's a gzip file
+    if ! gzip -t "$BACKUP_FILE" 2>/dev/null; then
+        print_error "Backup file is corrupted or not a valid gzip archive"
+        exit 1
+    fi
+
     print_header "MongoDB Restore"
+    echo "Backup file: $BACKUP_FILE"
     print_warning "This will replace all data in the database!"
     read -p "Are you sure? (yes/no): " confirm
-    
+
     if [ "$confirm" != "yes" ]; then
         echo "Restore cancelled."
         exit 0
     fi
-    
-    docker compose exec -T mongodb mongorestore --archive --gzip < "$1"
+
+    echo "→ Starting MongoDB restore..."
+
+    if ! docker compose exec -T mongodb \
+        mongorestore \
+          --username "$MONGO_ROOT_USERNAME" \
+          --password "$MONGO_ROOT_PASSWORD" \
+          --authenticationDatabase "admin" \
+          --archive \
+          --gzip < "$BACKUP_FILE"; then
+        print_error "MongoDB restore failed"
+        exit 1
+    fi
+
     print_success "Restore completed"
 }
 
@@ -101,19 +173,19 @@ resource_usage() {
 # Clean up old logs
 cleanup_logs() {
     print_header "Log Cleanup"
-    
+
     echo "Truncating container logs..."
     for container in $(docker compose ps -q); do
         truncate -s 0 $(docker inspect --format='{{.LogPath}}' $container) 2>/dev/null || true
     done
-    
+
     print_success "Logs cleaned"
 }
 
 # Show connection strings
 show_connections() {
     print_header "Connection Strings"
-    
+
     echo "MongoDB (from host):"
     echo "  mongodb://${MONGO_USER}:${MONGO_PWD}@localhost:${MONGO_HOST_PORT:-27017}/${MONGO_DB_NAME}"
     echo ""
