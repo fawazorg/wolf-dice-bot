@@ -55,11 +55,11 @@ export const deleteGroup = async (gid) => {
 /**
  * Refresh activity timestamps for all groups the bot is currently in.
  * Used by admin refresh command to prevent premature cleanup of all groups.
- * @param {import ("wolf.js").WOLF} api - WOLF client instance
+ * @param {import ("wolf.js").WOLF} client - WOLF client instance
  * @returns {Promise<Array<string>>} Array of group names that were refreshed
  */
-export const refreshUnsetGroup = async (api) => {
-  const groups = await api.channel().list();
+export const refreshUnsetGroup = async (client) => {
+  const groups = await client.channel().list();
   const groupsNames = groups.reduce(async (pv, group) => {
     const names = await pv;
 

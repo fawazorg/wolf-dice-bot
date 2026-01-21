@@ -11,21 +11,21 @@ import { Privilege } from "wolf.js";
  * Handle the cancel dice game command.
  * Cancels the active game in the current channel if the requesting user has permission.
  * Authorization is granted to group owners and users with VOLUNTEER privilege.
- * @param {import('wolf.js').WOLF} api - WOLF client instance
+ * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @param {import('../src/managers/GameManager.js').default} game - GameManager instance for game operations
  * @returns {Promise<void>}
  */
-export default async (api, command, game) => {
-  const IsVolunteer = await api.utility.subscriber.privilege.has(
+export default async (client, command, game) => {
+  const IsVolunteer = await client.utility.subscriber.privilege.has(
     command.sourceSubscriberId,
     Privilege.VOLUNTEER,
   );
-  const Group = await api.channel.getById(command.targetChannelId);
+  const Group = await client.channel.getById(command.targetChannelId);
   const IsGroupOwner = Group.owner.id === command.sourceSubscriberId;
   const okay = IsVolunteer || IsGroupOwner;
   if (!okay) {
-    const phrase = api.phrase.getByCommandAndName(command, "dice_owner_only_command");
+    const phrase = client.phrase.getByCommandAndName(command, "dice_owner_only_command");
 
     return command.reply(phrase);
   }
