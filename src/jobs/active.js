@@ -16,7 +16,6 @@ import { getAdminChannelId, getIgnoreChannelIds } from "../utils/config.js";
  * @returns {Promise<void>}
  */
 const leaveInactiveChannels = async (client, days) => {
-
   const inactiveChannels = await getInactiveChannels(days);
 
   if (inactiveChannels.length <= 0) {
@@ -33,7 +32,10 @@ const leaveInactiveChannels = async (client, days) => {
 
   const ignoreChannels = getIgnoreChannelIds(client);
   inChannels.forEach((channel) => {
-    if (!ignoreChannels.includes(channel.id) && inArray(inactiveChannels, "channelId", channel.id)) {
+    if (
+      !ignoreChannels.includes(channel.id) &&
+      inArray(inactiveChannels, "channelId", channel.id)
+    ) {
       toExitChannels.push(channel);
     }
   });
@@ -75,14 +77,11 @@ const sendLeaveMessage = async (client, channel) => {
 const sendLogMessage = async (client, names) => {
   const phrase = client.phrase.getByLanguageAndName("ar", "dice_maintenance_report");
   const channelsCount = await client.channel.list();
-  const content = client
-    .utility
-    .string
-    .replace(phrase, {
-      count: channelsCount.length,
-      inactiveCount: names.length,
-      channelsName: names.join("\n")
-    });
+  const content = client.utility.string.replace(phrase, {
+    count: channelsCount.length,
+    inactiveCount: names.length,
+    channelsName: names.join("\n")
+  });
 
   const adminChannelId = getAdminChannelId(client);
   if (adminChannelId) {

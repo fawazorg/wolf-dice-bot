@@ -57,29 +57,25 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 
 3. **Configure environment**
 
-   Create a `.env` file in the project root (see [.env.example](.env.example) for full reference):
+   Copy the example configuration file:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` and fill in your values. Critical settings include:
 
    ```env
-   # ============================================
-   # Bot Account Configuration
-   # ============================================
-   # Pipe-separated list of bot accounts (email:password|email:password)
-   ACCOUNTS=email1:password1|email2:password2
+   # Bot Accounts (Format: email:password:apikey|...)
+   ACCOUNTS=email1@example.com:password1:apikey1|email2@example.com:password2:apikey2
 
-   # ============================================
-   # MongoDB Root Configuration
-   # ============================================
-   MONGO_ROOT_USERNAME=admin
-   MONGO_ROOT_PASSWORD=your_secure_root_password
-   MONGO_INITDB_DATABASE=admin
+   # Security (Set strong passwords!)
+   MONGO_ROOT_PASSWORD=changeme_root_password_here
+   MONGO_PWD=changeme_app_password_here
+   REDIS_PASSWORD=changeme_redis_password_here
 
-   # ============================================
-   # MongoDB Application Database
-   # ============================================
-   MONGO_USER=dice_user
-   MONGO_PWD=your_secure_app_password
-   MONGO_DB_NAME=wolf_dice
-
+   # Network
+   NETWORK_SUBNET=172.28.0.0/16
    ```
 
 4. **Start infrastructure**

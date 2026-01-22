@@ -42,10 +42,10 @@ const validateChannelId = async (client, command) => {
   const channelId = client.utility.number.toEnglishNumbers(command.argument);
 
   if (Validator.isValidNumber(channelId, false)) {
-    return true;
+    return Promise.resolve(true);
   } else {
-    await command.reply(client.phrase.getByCommandAndName(command, 'error_admin')[9]);
-    return false;
+    await command.reply(client.phrase.getByCommandAndName(command, "error_admin")[9]);
+    return Promise.resolve(false);
   }
 };
 
@@ -59,10 +59,10 @@ const isChannelJoined = async (channelId) => {
   const allChannels = [];
 
   for (const account of accountList) {
-    allChannels.push(...await account.channels());
+    allChannels.push(...(await account.channels()));
   }
 
-  return allChannels.find(i => i.id === channelId);
+  return allChannels.find((i) => i.id === channelId);
 };
 
 /**
@@ -73,8 +73,8 @@ const isChannelJoined = async (channelId) => {
  */
 export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
-    const phrase = client.phrase.getByCommandAndName(command, 'dice_admin_unauthorized');
-    return await command.reply(phrase);
+    const phrase = client.phrase.getByCommandAndName(command, "dice_admin_unauthorized");
+    return command.reply(phrase);
   }
 
   const isValidId = await validateChannelId(client, command);
@@ -87,7 +87,7 @@ export default async (client, command) => {
 
   const existingChannel = await isChannelJoined(targetChannelId);
 
-  const phrase = client.phrase.getByCommandAndName(command, 'dice_message_admin_join');
+  const phrase = client.phrase.getByCommandAndName(command, "dice_message_admin_join");
 
   if (existingChannel !== undefined) {
     return command.reply(phrase.find((err) => err.code === 403 && err?.subCode === 110).msg);
@@ -98,14 +98,16 @@ export default async (client, command) => {
   const text = phrase.find((err) => err.code === res.code && err?.subCode === res.headers?.subCode);
 
   if (!text) {
-    return command.reply(`An error occurred: ${res.code}${res.headers?.subCode ? ` (SubCode: ${res.headers.subCode})` : ''}`);
+    return command.reply(
+      `An error occurred: ${res.code}${res.headers?.subCode ? ` (SubCode: ${res.headers.subCode})` : ""}`
+    );
   }
 
   await command.reply(text.msg);
 
   // log message
   if (res.code === 200) {
-    const logPhrase = client.phrase.getByCommandAndName(command, 'dice_message_admin_join_log');
+    const logPhrase = client.phrase.getByCommandAndName(command, "dice_message_admin_join_log");
     const adminUser = await client.subscriber.getById(command.sourceSubscriberId);
     const channel = await client.channel.getById(targetChannelId);
 
@@ -118,7 +120,7 @@ export default async (client, command) => {
 
     const adminChannelId = getAdminChannelId(client);
     if (adminChannelId) {
-      return await selectedAccount.client.messaging.sendGroupMessage(adminChannelId, content);
+      return selectedAccount.client.messaging.sendGroupMessage(adminChannelId, content);
     }
   }
 };
