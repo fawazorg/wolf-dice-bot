@@ -5,15 +5,15 @@
  * @module commands/admin/refresh
  */
 
-import { refreshUnsetGroup } from "../../storage/mongo/helpers/group.js";
+import { refreshUnsetChannels } from "../../storage/mongo/helpers/channel.js";
 import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the admin refresh command.
  * Refreshes game state across all channels by:
- * - Identifying groups that need configuration updates
+ * - Identifying channels that need configuration updates
  * - Synchronizing database state with active games
- * - Returning a list of refreshed group names
+ * - Returning a list of refreshed channel names
  * This is useful for recovering from errors or updating configurations across all channels.
  * Access is restricted to the configured developer ID and authorized admin user IDs.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
@@ -24,8 +24,8 @@ export default async (client, command) => {
   if (!isAuthorizedAdmin(client, command.sourceSubscriberId)) {
     return command.reply(client.phrase.getByCommandAndName(command, "dice_admin_unauthorized"));
   }
-  const names = await refreshUnsetGroup(client);
-  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_groups_refreshed");
+  const names = await refreshUnsetChannels(client);
+  const phrase = client.phrase.getByCommandAndName(command, "dice_admin_channels_refreshed");
   const content = client.utility.string.replace(phrase, { list: names.join("\n") });
 
   return command.reply(content);

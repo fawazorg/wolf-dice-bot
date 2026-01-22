@@ -73,39 +73,39 @@
   },
   {
     "name": "dice_game_wrong_creation",
-    "value": "(n) يجب تحديد الرصيد. استخدم \"!نرد انشاء <الرصيد>\""
+    "value": "❌ يجب تحديد الرصيد. استخدم \"!نرد انشاء <الرصيد>\""
   },
   {
     "name": "dice_game_invalid_balance",
-    "value": "(n) مبلغ الرصيد يجب أن يكون من مضاعفات 500 وأقل من أو يساوي 5000"
+    "value": "❌ مبلغ الرصيد يجب أن يكون من مضاعفات 500 وأقل من أو يساوي 5000"
   },
   {
     "name": "dice_game_finished",
-    "value": "(n) انتهت اللعبة 🎲"
+    "value": "❌ انتهت اللعبة 🎲"
   },
   {
     "name": "dice_game_cancelled",
-    "value": "(y) تم إلغاء اللعبة بنجاح ❌"
+  "value": "✅ تم إلغاء اللعبة بنجاح"
   },
   {
     "name": "dice_game_already_created",
-    "value": "(n) هناك لعبة تم إنشاؤها مسبقاً. استخدم \"!نرد دخول\" للانضمام"
+    "value": "❌ هناك لعبة تم إنشاؤها مسبقاً. استخدم \"!نرد دخول\" للانضمام"
   },
   {
     "name": "dice_game_already_started",
-    "value": "(n) هناك لعبة قيد التقدم حالياً. يرجى الانتظار حتى تنتهي"
+    "value": "❌ هناك لعبة قيد التقدم حالياً. يرجى الانتظار حتى تنتهي"
   },
   {
     "name": "dice_game_player_joined",
-    "value": "(y) انضم للعبة ✅\n{nickname} ({id})"
+    "value": "✅ انضم للعبة ✅\n{nickname} ({id})"
   },
   {
     "name": "dice_game_already_joined",
-    "value": "(n) أنت منضم للعبة بالفعل\n{nickname} ({id})"
+    "value": "❌ أنت منضم للعبة بالفعل\n{nickname} ({id})"
   },
   {
     "name": "dice_game_not_exist",
-    "value": "(n) ليس هناك لعبة متاحة حالياً. لإنشاء لعبة جديدة استخدم الأمر \"!نرد انشاء <الرصيد>\""
+    "value": "❌ ليس هناك لعبة متاحة حالياً. لإنشاء لعبة جديدة استخدم الأمر \"!نرد انشاء <الرصيد>\""
   },
   {
     "name": "dice_game_players_list",
@@ -117,7 +117,7 @@
   },
   {
     "name": "dice_game_player_not_found",
-    "value": "(n) لم تقم بالانضمام للعبة\n{nickname} ({id})"
+    "value": "❌ لم تقم بالانضمام للعبة\n{nickname} ({id})"
   },
   {
     "name": "dice_game_started",
@@ -133,7 +133,7 @@
   },
   {
     "name": "dice_game_player_did_not_pick",
-    "value": "(n) لم تقم باختيار منافس لك، سيتم تجاهل هذه الجولة\n{nickname} ({id})"
+    "value": "❌ لم تقم باختيار منافس لك، سيتم تجاهل هذه الجولة\n{nickname} ({id})"
   },
   {
     "name": "dice_game_auto_pick_opponent",
@@ -157,7 +157,7 @@
   },
   {
     "name": "dice_game_time_expired",
-    "value": "(n) ⏱️ لقد انتهى وقتك\n{nickname} ({id})"
+    "value": "❌ ⏱️ لقد انتهى وقتك\n{nickname} ({id})"
   },
   {
     "name": "dice_game_roll_command",
@@ -169,11 +169,11 @@
   },
   {
     "name": "dice_game_round_won",
-    "value": "(y) 🎉 خسر منافسك {bet} عملة!"
+    "value": "✅ 🎉 خسر منافسك {bet} عملة!"
   },
   {
     "name": "dice_game_round_draw",
-    "value": "(n) 🔄 تعادل! سيتم إعادة الجولة"
+    "value": "❌ 🔄 تعادل! سيتم إعادة الجولة"
   },
   {
     "name": "dice_game_player_eliminated",
@@ -189,11 +189,11 @@
   },
   {
     "name": "dice_game_invalid_bet_amount",
-    "value": "(n) ❌ مبلغ الرهان يجب أن يكون من مضاعفات 500"
+    "value": "❌ مبلغ الرهان يجب أن يكون من مضاعفات 500"
   },
   {
     "name": "dice_game_insufficient_balance",
-    "value": "(n) ❌ ليس لديك رصيد كافٍ"
+    "value": "❌ ليس لديك رصيد كافٍ"
   },
   {
     "name": "dice_player_rank_display",
@@ -209,7 +209,7 @@
   },
   {
     "name": "dice_leaderboard_empty",
-    "value": "(n) لم يسجل أي لاعب نقاطاً بعد"
+    "value": "❌ لم يسجل أي لاعب نقاطاً بعد"
   },
   {
     "name": "dice_player_statistics",
@@ -217,7 +217,7 @@
   },
   {
     "name": "dice_player_no_statistics",
-    "value": "(n) لا توجد إحصائيات لك بعد. العب بعض الألعاب وحاول مجدداً!"
+    "value": "❌ لا توجد إحصائيات لك بعد. العب بعض الألعاب وحاول مجدداً!"
   },
   {
     "name": "dice_help_message",
@@ -247,28 +247,28 @@
   {
     "name": "dice_message_admin_join",
     "value": [
-      { "code": 200, "msg": "(y) تم الانضمام للغرفة بنجاح." },
-      { "code": 404, "msg": "(n) الغرفة غير موجودة." },
-      { "code": 401, "subCode": 1, "msg": "(n) الغرفة محمية بكلمة مرور." },
-      { "code": 403, "subCode": 4, "msg": "(n) مستوى دخول الغرفة عالي." },
-      { "code": 403, "subCode": 100, "msg": "(n) الغرفة ممتلئة." },
-      { "code": 403, "subCode": 101, "msg": "(n) لا يمكن للبوت دخول غرف أكثر." },
-      { "code": 403, "subCode": 105, "msg": "(n) الغرفة ليست موجودة حاليا." },
-      { "code": 403, "subCode": 107, "msg": "(n) البوت متبند من الغرفة." },
-      { "code": 403, "subCode": 110, "msg": "(n) البوت موجود بالغرفة اصلا." },
-      { "code": 403, "subCode": 112, "msg": "(n) الغرفة محظورة على الاعضاء الجدد." },
-      { "code": 403, "subCode": 115, "msg": "(n) الغرفة مغلقة." },
-      { "code": 403, "subCode": 116, "msg": "(n) يمكن انك مسوي حسابات كثيرة؟" },
-      { "code": 403, "subCode": 117, "msg": "(n) يمكن الانضمام للغرفة هذي من خلال لعبة." }
+      { "code": 200, "msg": "✅ تم الانضمام للغرفة بنجاح." },
+      { "code": 404, "msg": "❌ الغرفة غير موجودة." },
+      { "code": 401, "subCode": 1, "msg": "❌ الغرفة محمية بكلمة مرور." },
+      { "code": 403, "subCode": 4, "msg": "❌ مستوى دخول الغرفة عالي." },
+      { "code": 403, "subCode": 100, "msg": "❌ الغرفة ممتلئة." },
+      { "code": 403, "subCode": 101, "msg": "❌ لا يمكن للبوت دخول غرف أكثر." },
+      { "code": 403, "subCode": 105, "msg": "❌ الغرفة ليست موجودة حاليا." },
+      { "code": 403, "subCode": 107, "msg": "❌ البوت متبند من الغرفة." },
+      { "code": 403, "subCode": 110, "msg": "❌ البوت موجود بالغرفة اصلا." },
+      { "code": 403, "subCode": 112, "msg": "❌ الغرفة محظورة على الاعضاء الجدد." },
+      { "code": 403, "subCode": 115, "msg": "❌ الغرفة مغلقة." },
+      { "code": 403, "subCode": 116, "msg": "❌ يمكن انك مسوي حسابات كثيرة؟" },
+      { "code": 403, "subCode": 117, "msg": "❌ يمكن الانضمام للغرفة هذي من خلال لعبة." }
     ]
   },
   {
     "name": "dice_auto_leave_message",
-    "value": "/me 👋 عذراً! لم تقوموا باللعب خلال الخمسة أيام الماضية، لذلك سوف أغادر الغرفة. أتمنى رؤيتكم مجدداً!"
+    "value": "/me 👋 عذراً! لم تقوموا باللعب خلال الخمسة أيام الماضية، لذلك سوف أغادر القناة. أتمنى رؤيتكم مجدداً!"
   },
   {
-    "name": "dice_admin_group_count",
-    "value": "/me 📊 إجمالي الغرف: {count}"
+    "name": "dice_admin_channel_count",
+    "value": "/me 📊 إجمالي القنوات: {count}"
   },
   {
     "name": "dice_admin_status_updated",
@@ -276,22 +276,22 @@
   },
   {
     "name": "dice_maintenance_report",
-    "value": "/me 🔧 تقرير الصيانة:\n\n✅ الغرف المتبقية: {count}\n⚠️ الغرف الخاملة: {inactiveCount}\n👋 تم المغادرة من:\n{groupsName}"
+    "value": "/me 🔧 تقرير الصيانة:\n\n✅ القنوات المتبقية: {count}\n⚠️ القنوات الخاملة: {inactiveCount}\n👋 تم المغادرة من:\n{channelsName}"
   },
   {
-    "name": "dice_admin_join_log",
-    "value": "/alert ⚙️ أمر إداري\n\n• الأمر: انضمام\n• المدير: {adminNickname} ({adminID})\n• الغرفة: [{groupName}] ({groupID})"
+    "name": "dice_message_admin_join_log",
+    "value": "/alert ⚙ أمر إداري\n\n•الامر:انضمام\n•المدير : {adminNickname} ({adminID})\n•القناة:[{channelName}] ({channelID})"
   },
   {
     "name": "dice_admin_unauthorized",
-    "value": "/me (n) ❌ أنت غير مخول لاستخدام هذا الأمر"
+    "value": "/me ❌ أنت غير مخول لاستخدام هذا الأمر"
   },
   {
     "name": "dice_owner_only_command",
-    "value": "(n) ❌ فقط صاحب اللعبة يمكنه استخدام هذا الأمر"
+    "value": "❌ فقط صاحب اللعبة يمكنه استخدام هذا الأمر"
   },
   {
-    "name": "dice_admin_groups_refreshed",
-    "value": "/me 🔄 تم تحديث الغرف التالية بنجاح:\n{list}"
+    "name": "dice_admin_channels_refreshed",
+    "value": "/me 🔄 تم تحديث القنوات التالية بنجاح:\n{list}"
   }
 ]

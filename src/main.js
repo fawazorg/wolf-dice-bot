@@ -16,7 +16,7 @@ const clients = new Map();
 
 /**
  * Bot account credentials parsed from environment variable.
- * Format: "email1:password1|email2:password2"
+ * Format: "email1:password1:apikey1|email2:password2:apikey2"
  * @type {string[]}
  */
 const accounts = process.env.ACCOUNTS.split("|");
@@ -31,8 +31,8 @@ const main = async () => {
   await accounts.reduce(async (previousValue, account) => {
     await previousValue;
 
-    const [email, password] = account.split(":");
-    const client = new DiceClient(email, password);
+    const [email, password, apikey] = account.split(":");
+    const client = new DiceClient(email, password, apikey);
 
     client.commandRegister();
 

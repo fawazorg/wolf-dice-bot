@@ -23,7 +23,7 @@ export default async (client, command) => {
   const count = (await client.channel.list()).length;
   return command.reply(
     client.utility.string.replace(
-      client.phrase.getByCommandAndName(command, "dice_admin_group_count"),
+      client.phrase.getByCommandAndName(command, "dice_admin_channel_count"),
       { count }
     )
   );

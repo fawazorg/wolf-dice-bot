@@ -7,10 +7,10 @@
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "../commands/index.js";
-import { deleteGroup, setLastActive } from "../storage/mongo/helpers/group.js";
+import { deleteChannel, setLastActive } from "../storage/mongo/helpers/channel.js";
 import { GameManager } from "../index.js";
-import { leaveInactiveGroups } from "../jobs/active.js";
-import { createUpdateTimer } from "../jobs/group.js";
+import { leaveInactiveChannels } from "../jobs/active.js";
+import { createUpdateTimer } from "../jobs/channel.js";
 import logger from "../utils/logger.js";
 
 /**
@@ -34,15 +34,16 @@ class DiceClient {
    * Create a new DiceClient instance.
    * @param {string} email - Account email for login
    * @param {string} password - Account password for login
+   * @param {string} apikey - Account apikey for login
    */
-  constructor(email, password) {
+  constructor(email, password, apikey) {
     this.client = new WOLF();
     this.game = new GameManager(this.client, {
       maxPlayers: 16,
       timeToJoin: 30000,
       timeToChoice: 15000
     });
-    this.client.login(email, password, "", OnlineState.ONLINE);
+    this.client.login(email, password, apikey, OnlineState.ONLINE);
     this.client.on("ready", async () => this._onReady());
     this.client.on("loginSuccess", async (subscriber) => this._onLoginSuccess(subscriber));
     this.client.on("loginFailed", (error) => this._onLoginFailed(error));
@@ -109,7 +110,7 @@ class DiceClient {
             }),
             /* Admin join command */
             new Command("dice_admin_join_command", {
-              channel: (command) => Dice.admin.join(this.client, command)
+              private: (command) => Dice.admin.join(this.client, command)
             }),
             /* Admin refresh command */
             new Command("dice_admin_refresh_command", {
@@ -132,7 +133,7 @@ class DiceClient {
    * @returns {Promise<void>}
    */
   async _onReady() {
-    scheduleJob("0 * * * *", async () => leaveInactiveGroups(this.client, 5));
+    scheduleJob("0 * * * *", async () => leaveInactiveChannels(this.client, 5));
 
     const UpdateTimer = createUpdateTimer(this.game);
     await this.client.utility.timer.register({ UpdateTimer });
@@ -165,7 +166,7 @@ class DiceClient {
    * @returns {Promise<void>}
    */
   async _onLeftGroup(channel) {
-    await deleteGroup(channel.id);
+    await deleteChannel(channel.id);
   }
 
   /**

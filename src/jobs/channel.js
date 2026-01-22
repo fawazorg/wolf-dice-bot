@@ -1,7 +1,7 @@
 /**
  * @fileoverview Game timer job factory.
  * Creates timer handlers for managing game phase timeouts.
- * @module jobs/group
+ * @module jobs/channel
  */
 
 /**
