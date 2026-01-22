@@ -72,7 +72,7 @@ The bot runs multiple accounts simultaneously:
 - 500ms delay between account logins to prevent rate limiting
 
 ### Message Pattern
-- All user-facing messages stored in `phrases/en.json` and `phrases/ar.json`
+- All user-facing messages stored in `src/phrases/en.json` and `src/phrases/ar.json`
 - MessageService handles phrase lookup and placeholder replacement
 - Commands use `command.language` for proper localization
 
@@ -105,14 +105,14 @@ MONGO_DB_NAME=                             # Database name
 
 ## Important Files
 
-- `config/default.yaml`: Bot configuration (keyword, language, developer ID, retry settings)
-- `phrases/*.json`: Localized message templates with placeholder support
-- `jobs/*.js`: Scheduled tasks (group cleanup, update timers)
-- `dice/*.js`: Legacy game helpers (active tracking, score helpers)
+- `src/config/default.yaml`: Bot configuration (keyword, language, developer ID, retry settings)
+- `src/phrases/*.json`: Localized message templates with placeholder support
+- `src/jobs/*.js`: Scheduled tasks (group cleanup, update timers)
+- `src/index.js`: Module exports
 
 ## WOLF.js Integration Notes
 
-- Bot keyword: "dice" (configured in `config/default.yaml`)
+- Bot keyword: "dice" (configured in `src/config/default.yaml`)
 - Commands registered hierarchically: `dice_default_command` → subcommands
 - Command context provides: `sourceSubscriberId`, `targetChannelId`, `language`, `argument`
 - Use `client.channel.sendMessage()` for group messages

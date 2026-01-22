@@ -4,7 +4,8 @@
   "description": "A dice game bot for wolf.live",
   "main": "src/main.js",
   "scripts": {
-    "dev": "nodemon src/main.js",
+    "start": "cd src && DOTENV_CONFIG_PATH=../.env node main.js",
+    "dev": "cd src && DOTENV_CONFIG_PATH=../.env nodemon main.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

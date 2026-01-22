@@ -198,12 +198,13 @@ wolf-dice-bot/
 │   ├── jobs/              # Scheduled tasks
 │   ├── bot/               # Bot client
 │   │   └── DiceClient.js  # WOLF client wrapper
+│   ├── config/            # Configuration files
+│   │   └── default.yaml   # Bot configuration
+│   ├── phrases/           # Localization files
+│   │   ├── en.json        # English messages
+│   │   └── ar.json        # Arabic messages
+│   ├── index.js           # Module exports
 │   └── main.js            # Application entry point
-├── phrases/               # Localization files
-│   ├── en.json           # English messages
-│   └── ar.json           # Arabic messages
-├── config/
-│   └── default.yaml      # Bot configuration
 ├── docker/
 │   └── mongodb/          # MongoDB initialization
 │       ├── init-db.sh    # User creation script
@@ -231,13 +232,13 @@ wolf-dice-bot/
 
 #### Message Localization
 
-- All user messages stored in `phrases/{language}.json`
+- All user messages stored in `src/phrases/{language}.json`
 - MessageService handles phrase lookup and placeholder replacement
 - Per-channel language configuration
 
 ## Configuration
 
-### Bot Settings (`config/default.yaml`)
+### Bot Settings (`src/config/default.yaml`)
 
 ```yaml
 keyword: dice # Bot command prefix

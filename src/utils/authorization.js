@@ -16,7 +16,7 @@ import { getAdminIds } from "./config.js";
  * @returns {boolean} True if user is authorized
  */
 export const isAuthorizedAdmin = (client, subscriberId) => {
-  const isDeveloper = subscriberId === client.config.app.developerId;
+  const isDeveloper = subscriberId === client.config.framework.developer;
   const isAdmin = getAdminIds(client).includes(subscriberId);
   return isDeveloper || isAdmin;
 };

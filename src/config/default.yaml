@@ -1,0 +1,39 @@
+keyword: dice # keyword #single word only
+framework:
+  developer: 82366923 #your id here
+  owner: 82366923 #owner id here
+  language: en #default response language here
+  command:
+    ignore:
+      official: true # whether or not an official bot will trigger a command (internal)
+      unofficial: true # whether or not an unofficial bot will trigger a command (internal)
+      self: true # whether or not the bot will process its own messages and trigger its own commands (internal)
+  message:
+    ignore:
+      self: true # whether or not the bot will process its own messages (internal)
+  subscriptions:
+    messages:
+      channel:
+        enabled: true #subscribe to channel messages  (server)
+        tipping: true # subscribe to channel message tip events  (server)
+      private:
+        enabled: true # subscribe to private messages (server)
+        tipping: false # subscribe to private message tip events  (server) - NOT IMPLEMENTED
+admin:
+  # Comma-separated list of admin user IDs
+  # These users have elevated permissions to execute admin commands
+  # Example: [12345678, 87654321]
+  adminIds: [76117834]
+
+  # Special admin group ID for notifications and logs
+  # Bot will send administrative notifications to this group
+  adminGroupId: 81967172
+
+  # Comma-separated list of group IDs to ignore in bot operations
+  # These groups won't be auto-left due to inactivity
+  # Example: [11111111, 22222222]
+  ignoreGroupIds: []
+
+redis:
+  host: localhost
+  port: 6379

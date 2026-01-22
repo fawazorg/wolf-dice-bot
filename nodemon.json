@@ -2,6 +2,6 @@
   "watch": ["src"],
   "ext": "js,json",
   "ignore": ["node_modules", ".git"],
-  "exec": "node src/main.js",
+  "exec": "cd src && node /main.js",
   "delay": "2000"
 }
