@@ -2,7 +2,7 @@
  * @fileoverview Cancel command handler.
  * Handles the `!dice cancel` command to terminate an active game.
  * Only game creator or channel owner can cancel games.
- * @module commands/cancel
+ * @module commands/game/cancel
  */
 
 /**
@@ -11,7 +11,7 @@
  * Authorization is granted to channel owners and the game creator.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @param {import('wolf.js').CommandContext} command - Command context with request details
- * @param {import('../src/managers/GameManager.js').default} game - GameManager instance for game operations
+ * @param {import('../../managers/GameManager.js').default} game - GameManager instance for game operations
  * @returns {Promise<void>}
  */
 export default async (client, command, game) => {

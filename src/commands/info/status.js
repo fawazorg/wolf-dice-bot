@@ -2,10 +2,10 @@
  * @fileoverview Status command handler.
  * Handles the `!dice status` command to display dice roll statistics.
  * Shows comprehensive statistics about a player's dice rolls and game performance.
- * @module commands/status
+ * @module commands/info/status
  */
 
-import Player from "../database/models/player.js";
+import Player from "../../database/models/player.js";
 
 /**
  * Calculate the total of all values in a status array.

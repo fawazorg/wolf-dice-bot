@@ -2,10 +2,10 @@
  * @fileoverview Leaderboard command handler.
  * Handles the `!dice top` command to display the global leaderboard.
  * Shows the top-ranked players with their scores across all games.
- * @module commands/leaderboard
+ * @module commands/info/leaderboard
  */
 
-import { getTopPlayers } from "../database/helpers/player.js";
+import { getTopPlayers } from "../../database/helpers/player.js";
 
 /**
  * Handle the top players leaderboard command.

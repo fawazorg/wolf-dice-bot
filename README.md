@@ -193,8 +193,9 @@ wolf-dice-bot/
 │   │   ├── config.js      # Environment variable parsing
 │   │   └── authorization.js # Admin authorization
 │   ├── commands/          # Command handlers
-│   │   ├── admin/         # Admin-specific commands
-│   │   └── *.js           # Player commands
+│   │   ├── game/          # Game control commands (create, join, cancel, show)
+│   │   ├── info/          # Player information commands (balance, rank, status, leaderboard, help)
+│   │   └── admin/         # Admin-specific commands
 │   ├── jobs/              # Scheduled tasks
 │   ├── bot/               # Bot client
 │   │   └── DiceClient.js  # WOLF client wrapper

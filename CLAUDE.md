@@ -49,10 +49,12 @@ Integration between engine and WOLF platform:
 ### Utils Layer (`src/utils/`)
 - **Random.js**: Random number generation for dice rolls
 
-### Command Layer (`commands/`)
-User-facing command handlers that delegate to GameManager:
-- `create.js`, `join.js`, `cancel.js`, `balance.js`, `rank.js`, `show.js`, `status.js`, `leaderboard.js`
+### Command Layer (`src/commands/`)
+User-facing command handlers organized by function:
+- `game/`: Game control commands (create, join, cancel, show)
+- `info/`: Player information commands (balance, rank, status, leaderboard, help)
 - `admin/`: Admin-specific commands (count, help, join, refresh, update)
+- `main.js`: Default `!dice` command handler
 
 ## Game Flow
 

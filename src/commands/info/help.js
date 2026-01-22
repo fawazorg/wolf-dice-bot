@@ -2,7 +2,7 @@
  * @fileoverview Help command handler.
  * Handles the `!dice help` command to display comprehensive game instructions.
  * Provides localized help text with all available commands and game rules.
- * @module commands/help
+ * @module commands/info/help
  */
 
 /**

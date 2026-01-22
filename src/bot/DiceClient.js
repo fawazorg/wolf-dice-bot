@@ -60,31 +60,39 @@ class DiceClient {
       new Command("dice_default_command", { both: (command) => Dice.main(this.client, command) }, [
         /* Balance command */
         new Command("dice_balance_command", {
-          channel: (command) => Dice.balance(command, this.game)
+          channel: (command) => Dice.info.balance(command, this.game)
         }),
-        /* cancel command */
+        /* Cancel command */
         new Command("dice_cancel_command", {
-          channel: (command) => Dice.cancel(this.client, command, this.game)
+          channel: (command) => Dice.game.cancel(this.client, command, this.game)
         }),
-        /* create command */
+        /* Create command */
         new Command("dice_create_command", {
-          channel: (command) => Dice.create(command, this.game)
+          channel: (command) => Dice.game.create(command, this.game)
         }),
         /* Help command */
-        new Command("dice_help_command", { both: (command) => Dice.help(this.client, command) }),
+        new Command("dice_help_command", {
+          both: (command) => Dice.info.help(this.client, command)
+        }),
         /* Join command */
-        new Command("dice_join_command", { channel: (command) => Dice.join(command, this.game) }),
+        new Command("dice_join_command", {
+          channel: (command) => Dice.game.join(command, this.game)
+        }),
         /* Rank command */
-        new Command("dice_rank_command", { channel: (command) => Dice.rank(this.client, command) }),
+        new Command("dice_rank_command", {
+          channel: (command) => Dice.info.rank(this.client, command)
+        }),
         /* Show command */
-        new Command("dice_show_command", { channel: (command) => Dice.show(command, this.game) }),
+        new Command("dice_show_command", {
+          channel: (command) => Dice.game.show(command, this.game)
+        }),
         /* Status command */
         new Command("dice_status_command", {
-          both: (command) => Dice.status(this.client, command)
+          both: (command) => Dice.info.status(this.client, command)
         }),
         /* Top players command */
         new Command("dice_top_command", {
-          both: (command) => Dice.leaderboard(this.client, command)
+          both: (command) => Dice.info.leaderboard(this.client, command)
         }),
         /* Admin command */
         new Command(

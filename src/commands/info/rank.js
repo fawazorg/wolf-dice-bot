@@ -2,10 +2,10 @@
  * @fileoverview Rank command handler.
  * Handles the `!dice rank` command to display player's global ranking.
  * Shows the player's current rank and total score across all games.
- * @module commands/rank
+ * @module commands/info/rank
  */
 
-import { getPlayerRankData } from "../database/helpers/player.js";
+import { getPlayerRankData } from "../../database/helpers/player.js";
 
 /**
  * Handle the rank query command.
