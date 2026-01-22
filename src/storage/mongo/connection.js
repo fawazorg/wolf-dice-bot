@@ -1,11 +1,11 @@
 /**
  * @fileoverview MongoDB database connection configuration.
  * Establishes connection to MongoDB using Mongoose ODM with credentials from environment variables.
- * @module database/connection
+ * @module storage/mongo/connection
  */
 
 import mongoose from "mongoose";
-import logger from "../utils/logger.js";
+import logger from "../../utils/logger.js";
 
 // Disable strict query mode for more flexible queries
 mongoose.set({ strictQuery: false });

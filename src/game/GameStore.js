@@ -1,11 +1,11 @@
 /**
  * @fileoverview Redis-based game state storage with atomic operations.
  * Replaces in-memory Maps with Redis for distributed multi-instance support.
- * @module database/RedisGameStore
+ * @module game/GameStore
  */
 
 import { v4 as uuidv4 } from "uuid";
-import { getRedis } from "./RedisConnection.js";
+import { getRedis } from "../storage/redis/connection.js";
 import logger from "../utils/logger.js";
 
 /** @constant {number} Game TTL in seconds (3 minutes) */

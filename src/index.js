@@ -9,7 +9,6 @@
 export {
   Channel,
   Dice,
-  Game,
   GameState,
   Player,
   Round,
@@ -17,11 +16,8 @@ export {
   getNextState
 } from "./core/index.js";
 
-// Engine layer
-export { RedisGameEngine, Random, Validator } from "./engine/index.js";
+// Game engine
+export { GameEngine, Validator } from "./game/index.js";
 
-// Services
-export { MessageService } from "./services/index.js";
-
-// Managers
-export { GameManager } from "./managers/index.js";
+// Platform layer
+export { GameManager, DiceClient, MessageService } from "./platform/index.js";

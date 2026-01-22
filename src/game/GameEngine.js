@@ -1,12 +1,12 @@
 /**
  * @fileoverview Redis-backed game engine for the dice game.
  * Replaces in-memory GameEngine with Redis storage for multi-instance support.
- * @module engine/RedisGameEngine
+ * @module game/GameEngine
  */
 
 import { GameState } from "../core/GameState.js";
 import { Dice } from "../core/index.js";
-import RedisGameStore from "../database/RedisGameStore.js";
+import GameStore from "./GameStore.js";
 import Validator from "./Validator.js";
 
 /**
@@ -14,7 +14,7 @@ import Validator from "./Validator.js";
  * Orchestrates game flow with Redis persistence and UUID-validated timers
  */
 class RedisGameEngine {
-  /** @type {RedisGameStore} */
+  /** @type {GameStore} */
   #store;
 
   /** @type {Map<string, Function[]>} Event listeners */
@@ -32,7 +32,7 @@ class RedisGameEngine {
    * @param {number} [options.minBet=500] - Minimum bet amount
    */
   constructor(options = {}) {
-    this.#store = new RedisGameStore();
+    this.#store = new GameStore();
     this.#listeners = new Map();
 
     this.#config = {

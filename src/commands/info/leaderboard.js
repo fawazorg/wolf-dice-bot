@@ -5,7 +5,7 @@
  * @module commands/info/leaderboard
  */
 
-import { getTopPlayers } from "../../database/helpers/player.js";
+import { getTopPlayers } from "../../storage/mongo/helpers/player.js";
 
 /**
  * Handle the top players leaderboard command.

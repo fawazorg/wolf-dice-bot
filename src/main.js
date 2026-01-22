@@ -5,8 +5,8 @@
  */
 
 import "dotenv/config";
-import DiceClient from "./bot/DiceClient.js";
-import("./database/connection.js");
+import DiceClient from "./platform/DiceClient.js";
+import("./storage/mongo/connection.js");
 
 /**
  * Map of active bot clients, keyed by email address.

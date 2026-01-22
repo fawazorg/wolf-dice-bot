@@ -1,13 +1,13 @@
 /**
  * @fileoverview DiceClient manages a single bot account instance.
  * Handles WOLF platform connection, command registration, and event handling.
- * @module bot/DiceClient
+ * @module platform/DiceClient
  */
 
 import { scheduleJob } from "node-schedule";
 import { Command, OnlineState, WOLF } from "wolf.js";
 import * as Dice from "../commands/index.js";
-import { deleteGroup, setLastActive } from "../database/helpers/group.js";
+import { deleteGroup, setLastActive } from "../storage/mongo/helpers/group.js";
 import { GameManager } from "../index.js";
 import { leaveInactiveGroups } from "../jobs/active.js";
 import { createUpdateTimer } from "../jobs/group.js";

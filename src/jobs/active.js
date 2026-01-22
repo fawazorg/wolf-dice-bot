@@ -4,7 +4,7 @@
  * @module jobs/active
  */
 
-import { deleteGroup, getInactiveGroups } from "../database/helpers/group.js";
+import { deleteGroup, getInactiveGroups } from "../storage/mongo/helpers/group.js";
 import { getAdminGroupId, getIgnoreGroupIds } from "../utils/config.js";
 
 /**

@@ -169,36 +169,32 @@ Wolf Dice Bot is an interactive multiplayer dice game bot built for wolf.live ch
 ```
 wolf-dice-bot/
 ├── src/
-│   ├── core/              # Pure game logic (no external dependencies)
-│   │   ├── Game.js        # Central game state manager
+│   ├── core/              # Pure game logic (stateless)
 │   │   ├── Player.js      # Player balance and status
 │   │   ├── Channel.js     # Channel management
 │   │   ├── Dice.js        # Dice rolling mechanics
-│   │   └── GameState.js   # Game phase constants
-│   ├── engine/            # Redis-backed game engine
-│   │   ├── RedisGameEngine.js # Game orchestration with Redis persistence
+│   │   ├── GameState.js   # Game phase constants
+│   │   └── Round.js       # Round state entity
+│   ├── game/              # Game engine (Redis-backed)
+│   │   ├── GameEngine.js  # Game orchestration with Redis persistence
+│   │   ├── GameStore.js   # Redis game state storage
 │   │   └── Validator.js   # Input validation
-│   ├── managers/          # Integration layer
-│   │   └── GameManager.js # Bridges engine with WOLF platform
-│   ├── services/          # External services
-│   │   └── MessageService.js # Multi-language message handling
-│   ├── database/          # Database layer
-│   │   ├── RedisGameStore.js # Redis game state storage
-│   │   ├── helpers/       # Database helper functions
-│   │   │   ├── group.js   # Group activity tracking
-│   │   │   └── player.js  # Player scoring and ranking
-│   │   └── models/        # Mongoose schemas
-│   ├── utils/             # Utility functions
-│   │   ├── Random.js      # Random number generation
-│   │   ├── config.js      # Environment variable parsing
-│   │   └── authorization.js # Admin authorization
+│   ├── platform/          # Platform integration
+│   │   ├── DiceClient.js  # WOLF client wrapper
+│   │   ├── GameManager.js # Bridges game with WOLF platform
+│   │   └── MessageService.js # Message handling
+│   ├── storage/           # Data persistence
+│   │   ├── redis/         # Redis connection
+│   │   └── mongo/         # MongoDB (connection, models, helpers)
 │   ├── commands/          # Command handlers
 │   │   ├── game/          # Game control commands (create, join, cancel, show)
 │   │   ├── info/          # Player information commands (balance, rank, status, leaderboard, help)
 │   │   └── admin/         # Admin-specific commands
 │   ├── jobs/              # Scheduled tasks
-│   ├── bot/               # Bot client
-│   │   └── DiceClient.js  # WOLF client wrapper
+│   ├── utils/             # Utility functions
+│   │   ├── Random.js      # Random number generation
+│   │   ├── config.js      # Environment variable parsing
+│   │   └── authorization.js # Admin authorization
 │   ├── config/            # Configuration files
 │   │   └── default.yaml   # Bot configuration
 │   ├── phrases/           # Localization files
@@ -219,11 +215,11 @@ wolf-dice-bot/
 
 #### Layered Architecture
 
-- **Core Layer**: Pure game logic, framework-agnostic
-- **Engine Layer**: Redis-backed game orchestration for multi-instance support
-- **Manager Layer**: Integration between engine and WOLF platform
-- **Service Layer**: External integrations (database, messaging)
-- **Command Layer**: User-facing command handlers
+- **Core Layer**: Pure game logic, framework-agnostic (stateless)
+- **Game Layer**: Redis-backed game orchestration (stateful)
+- **Platform Layer**: WOLF platform integration and messaging
+- **Storage Layer**: Database connections (Redis + MongoDB)
+- **Command Layer**: User-facing command handlers organized by function
 
 #### Multi-Account Support
 

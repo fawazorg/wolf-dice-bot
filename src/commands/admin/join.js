@@ -6,7 +6,7 @@
  */
 
 import { Validator } from "wolf.js";
-import Group from "../../database/models/group.js";
+import Group from "../../storage/mongo/models/group.js";
 import { isAuthorizedAdmin } from "../../utils/authorization.js";
 import { getAdminGroupId } from "../../utils/config.js";
 

@@ -24,37 +24,49 @@ docker-compose up -d
 
 ## Architecture
 
-The codebase follows a layered architecture with separation between game logic, messaging, and platform integration:
+The codebase follows a clean layered architecture:
 
 ### Core Layer (`src/core/`)
-Pure game logic without external dependencies:
-- **Game.js**: Game state definitions and logic helpers
+Pure game logic without external dependencies (stateless):
 - **Player.js**: Player balance and status tracking
 - **Channel.js**: Game channel management (language, player list)
 - **Dice.js**: Dice rolling mechanics with configurable ranges
 - **GameState.js**: Game phase constants (JOINING, GUESSING, PICKING, BETTING, ROLLING, FINISHED)
+- **Round.js**: Round state entity
 
-### Engine Layer (`src/engine/`)
-Redis-backed game orchestration for multi-instance support:
-- **RedisGameEngine.js**: Main game engine with Redis persistence, handles all game phases and events
+### Game Layer (`src/game/`)
+Stateful game engine with Redis persistence:
+- **GameEngine.js**: Main game orchestration with Redis persistence, handles all game phases and events
+- **GameStore.js**: Redis-backed game state storage
 - **Validator.js**: Input validation for guesses, bets, and picks
 
-### Manager Layer (`src/managers/`)
-Integration between engine and WOLF platform:
-- **GameManager.js**: Bridges RedisGameEngine with MessageService and WOLF client, handles timers and command routing
-
-### Service Layer (`src/services/`)
+### Platform Layer (`src/platform/`)
+WOLF platform integration:
+- **DiceClient.js**: WOLF client wrapper with command registration
+- **GameManager.js**: Bridges GameEngine with MessageService and WOLF client
 - **MessageService.js**: Centralized message handling with phrase lookup and multi-language support
+
+### Storage Layer (`src/storage/`)
+All data persistence:
+- **redis/**: Redis connection management
+- **mongo/**: MongoDB connection, Mongoose models, and database helpers
 
 ### Utils Layer (`src/utils/`)
 - **Random.js**: Random number generation for dice rolls
+- **config.js**: Configuration helpers
+- **logger.js**: Logging utilities
+- **authorization.js**: Admin/user authorization
 
 ### Command Layer (`src/commands/`)
 User-facing command handlers organized by function:
-- `game/`: Game control commands (create, join, cancel, show)
-- `info/`: Player information commands (balance, rank, status, leaderboard, help)
-- `admin/`: Admin-specific commands (count, help, join, refresh, update)
-- `main.js`: Default `!dice` command handler
+- **game/**: Game control commands (create, join, cancel, show)
+- **info/**: Player information commands (balance, rank, status, leaderboard, help)
+- **admin/**: Admin-specific commands (count, help, join, refresh, update)
+- **main.js**: Default `!dice` command handler
+
+### Jobs Layer (`src/jobs/`)
+- **group.js**: Timer creation for game phases
+- **active.js**: Inactive group cleanup
 
 ## Game Flow
 
@@ -70,7 +82,7 @@ User-facing command handlers organized by function:
 ### Multi-Account Support
 The bot runs multiple accounts simultaneously:
 - Accounts configured via `ACCOUNTS` env var (format: `email:password|email:password`)
-- Each account gets its own diceClient instance stored in a Map
+- Each account gets its own DiceClient instance stored in a Map
 - 500ms delay between account logins to prevent rate limiting
 
 ### Message Pattern
@@ -81,7 +93,7 @@ The bot runs multiple accounts simultaneously:
 ### Timer Integration
 Uses WOLF client's timer system (`client.utility.timer`):
 - Timers registered with unique IDs (`game-${channelId}`)
-- `UpdateTimer` created in `jobs/group.js` and registered in `diceClient.js`
+- `UpdateTimer` created in `jobs/group.js` and registered in `DiceClient.js`
 - Phase timeouts handled via `node-schedule` for recurring tasks
 
 ## Environment Configuration
@@ -111,6 +123,7 @@ MONGO_DB_NAME=                             # Database name
 - `src/phrases/*.json`: Localized message templates with placeholder support
 - `src/jobs/*.js`: Scheduled tasks (group cleanup, update timers)
 - `src/index.js`: Module exports
+- `src/main.js`: Application entry point
 
 ## WOLF.js Integration Notes
 

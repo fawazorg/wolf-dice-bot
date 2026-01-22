@@ -5,7 +5,7 @@
  * @module commands/info/status
  */
 
-import Player from "../../database/models/player.js";
+import Player from "../../storage/mongo/models/player.js";
 
 /**
  * Calculate the total of all values in a status array.

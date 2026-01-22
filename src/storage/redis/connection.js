@@ -1,11 +1,11 @@
 /**
  * @fileoverview Redis connection manager for game state storage.
  * Provides singleton connection with reconnection handling and graceful shutdown.
- * @module database/RedisConnection
+ * @module storage/redis/connection
  */
 
 import Redis from "ioredis";
-import logger from "../utils/logger.js";
+import logger from "../../utils/logger.js";
 
 /** @type {Redis|null} Singleton Redis instance */
 let redis = null;

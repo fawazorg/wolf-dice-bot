@@ -1,6 +1,6 @@
 import { Validator } from "wolf.js";
-import { RedisGameEngine } from "../engine/index.js";
-import MessageService from "../services/MessageService.js";
+import { GameEngine } from "../game/index.js";
+import MessageService from "./MessageService.js";
 
 /**
  * GameManager integrates GameEngine with MessageService and WOLF.js client
@@ -12,7 +12,7 @@ class GameManager {
   /** @type {import('wolf.js').WOLF} */
   #client;
 
-  /** @type {RedisGameEngine} */
+  /** @type {GameEngine} */
   #engine;
 
   /** @type {MessageService} */
@@ -42,7 +42,7 @@ class GameManager {
    */
   constructor(client, options = {}) {
     this.#client = client;
-    this.#engine = new RedisGameEngine({
+    this.#engine = new GameEngine({
       maxPlayers: options.maxPlayers || 16,
       timeToJoin: options.timeToJoin || 30000,
       timeToChoice: options.timeToChoice || 15000,
@@ -922,7 +922,7 @@ class GameManager {
    * @private
    */
   async #rewardPlayers(_channelId, scores) {
-    const { addPoint } = await import("../database/helpers/player.js");
+    const { addPoint } = await import("../storage/mongo/helpers/player.js");
 
     for (const { playerId, points } of scores) {
       await addPoint(playerId, points);
