@@ -71,7 +71,7 @@ class GameManager {
     this.#engine.on("game:finished", (data) => this.#onGameFinished(data));
 
     // Player events
-    this.#engine.on("player:joined", (data) => this.#onPlayerJoined(data));
+    //this.#engine.on("player:joined", (data) => this.#onPlayerJoined(data));
 
     // Phase events
     this.#engine.on("phase:guessing", (data) => this.#onPhaseGuessing(data));
@@ -429,8 +429,7 @@ class GameManager {
       nickname: user.nickname,
       id: user.id
     });
-    // Silent for now
-    // await this.#messages.send(channelId, response);
+    await this.#messages.send(channelId, response);
   }
 
   /**
