@@ -47,8 +47,8 @@ class DiceClient {
     this.client.on("ready", async () => this._onReady());
     this.client.on("loginSuccess", async (subscriber) => this._onLoginSuccess(subscriber));
     this.client.on("loginFailed", (error) => this._onLoginFailed(error));
-    this.client.on("joinedGroup", async (group) => this._onJoinedGroup(group));
-    this.client.on("leftGroup", (group) => this._onLeftGroup(group));
+    this.client.on("joinedChannel", async (channel) => this._onJoinedChannel(channel));
+    this.client.on("leftChannel", (channel) => this._onLeftChannel(channel));
   }
 
   /**
@@ -128,7 +128,7 @@ class DiceClient {
 
   /**
    * Handle WOLF client ready event.
-   * Schedules hourly job to leave inactive groups and registers game update timer.
+   * Schedules hourly job to leave inactive channels and registers game update timer.
    * @private
    * @returns {Promise<void>}
    */
@@ -148,24 +148,24 @@ class DiceClient {
   }
 
   /**
-   * Handle bot joining a group event.
-   * Records the group's last active timestamp in the database.
+   * Handle bot joining a channel event.
+   * Records the channel's last active timestamp in the database.
    * @private
    * @param {import('wolf.js').ChannelExtended} channel - The channel that was joined
    * @returns {Promise<void>}
    */
-  async _onJoinedGroup(channel) {
+  async _onJoinedChannel(channel) {
     await setLastActive(channel.id);
   }
 
   /**
-   * Handle bot leaving a group event.
-   * Removes the group from the active tracking database.
+   * Handle bot leaving a channel event.
+   * Removes the channel from the active tracking database.
    * @private
    * @param {import('wolf.js').ChannelExtended} channel - The channel that was left
    * @returns {Promise<void>}
    */
-  async _onLeftGroup(channel) {
+  async _onLeftChannel(channel) {
     await deleteChannel(channel.id);
   }
 

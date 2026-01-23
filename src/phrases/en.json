@@ -77,39 +77,39 @@
   },
   {
     "name": "dice_game_wrong_creation",
-    "value": "❌ You must specify a balance. Send \"!dice new <balance>\""
+    "value": "(n) You must specify a balance. Send \"!dice new <balance>\""
   },
   {
     "name": "dice_game_invalid_balance",
-    "value": "❌ The balance must be a multiple of 500 and less than or equal to 5000"
+    "value": "(n) The balance must be a multiple of 500 and less than or equal to 5000"
   },
   {
     "name": "dice_game_finished",
-    "value": "❌ The game is over 🎲"
+    "value": "(n) The game is over 🎲"
   },
   {
     "name": "dice_game_cancelled",
-    "value": "✅ This game has been cancelled ❌"
+    "value": "(n) This game has been cancelled"
   },
   {
     "name": "dice_game_already_created",
-    "value": "❌ There is already a game created. Send \"!dice join\" to join"
+    "value": "(n) There is already a game created. Send \"!dice join\" to join"
   },
   {
     "name": "dice_game_already_started",
-    "value": "❌ There is already a game in progress. Please wait for it to end"
+    "value": "(n) There is already a game in progress. Please wait for it to end"
   },
   {
     "name": "dice_game_player_joined",
-    "value": "✅ {nickname} ({id}) joined the game"
+    "value": "(n) {nickname} ({id}) joined the game"
   },
   {
     "name": "dice_game_already_joined",
-    "value": "❌ {nickname} ({id}) You have already joined"
+    "value": "(n) {nickname} ({id}) You have already joined"
   },
   {
     "name": "dice_game_not_exist",
-    "value": "❌ There is no game available right now. Send \"!dice new <balance>\" to create a new game"
+    "value": "(n) There is no game available right now. Send \"!dice new <balance>\" to create a new game"
   },
   {
     "name": "dice_game_players_list",
@@ -121,7 +121,7 @@
   },
   {
     "name": "dice_game_player_not_found",
-    "value": "❌ You have not joined the game\n{nickname} ({id})"
+    "value": "(n) You have not joined the game\n{nickname} ({id})"
   },
   {
     "name": "dice_game_started",
@@ -137,11 +137,11 @@
   },
   {
     "name": "dice_game_player_did_not_pick",
-    "value": "❌ You didn't choose your opponent, so this round will be skipped\n{nickname} ({id})"
+    "value": "(n) You didn't choose your opponent, so this round will be skipped\n{nickname} ({id})"
   },
   {
     "name": "dice_game_auto_pick_opponent",
-    "value": "🎲 The dice number is {dice}\n\n🎯 Only one opponent available, auto-selecting:\n{opponentNickname} ({opponentId})\n\n💰 Your balance: {balance}\nPlease select your bet amount in multiples of 500\n{nickname} ({id})"
+    "value": "🎲 The dice number is {dice}\n\nOnly one opponent available, auto-selecting:\n{opponentNickname} ({opponentId})\n\n💰 Your balance: {balance}\nPlease select your bet amount in multiples of 500\n{nickname} ({id})"
   },
   {
     "name": "dice_game_correct_guess_reward",
@@ -161,7 +161,7 @@
   },
   {
     "name": "dice_game_time_expired",
-    "value": "❌ ⏱️ Your time has expired\n{nickname} ({id})"
+    "value": "(n) ⏱️ Your time has expired\n{nickname} ({id})"
   },
   {
     "name": "dice_game_roll_command",
@@ -173,15 +173,15 @@
   },
   {
     "name": "dice_game_round_won",
-    "value": "✅ 🎉 Your opponent lost {bet} coins!"
+    "value": "✅ Your opponent lost {bet} coins!"
   },
   {
     "name": "dice_game_round_draw",
-    "value": "❌ 🔄 It's a draw! The round will be replayed"
+    "value": "🔄 It's a draw! The round will be replayed"
   },
   {
     "name": "dice_game_player_eliminated",
-    "value": "💔 You have been eliminated. Better luck next time!"
+    "value": "\nYou have been eliminated. Better luck next time!"
   },
   {
     "name": "dice_game_player_format",
@@ -193,11 +193,11 @@
   },
   {
     "name": "dice_game_invalid_bet_amount",
-    "value": "❌ The bet amount must be a multiple of 500"
+    "value": "(n) The bet amount must be a multiple of 500"
   },
   {
     "name": "dice_game_insufficient_balance",
-    "value": "❌ You don't have enough balance"
+    "value": "(n) You don't have enough balance"
   },
   {
     "name": "dice_player_rank_display",
@@ -213,7 +213,7 @@
   },
   {
     "name": "dice_leaderboard_empty",
-    "value": "❌ No players have scored yet"
+    "value": "(n) No players have scored yet"
   },
   {
     "name": "dice_help_message",
@@ -288,7 +288,7 @@
   },
   {
     "name": "dice_player_no_statistics",
-    "value": "❌ You don't have enough data yet. Play some games and try again!"
+    "value": "(n) You don't have enough data yet. Play some games and try again!"
   },
   {
     "name": "dice_admin_status_updated",
@@ -296,11 +296,11 @@
   },
   {
     "name": "dice_admin_unauthorized",
-    "value": "/me ❌ You are not authorized to use this command"
+    "value": "/me (n) You are not authorized to use this command"
   },
   {
     "name": "dice_owner_only_command",
-    "value": "❌ Only the game owner can use this command"
+    "value": "(n) Only the game owner can use this command"
   },
   {
     "name": "dice_admin_channels_refreshed",

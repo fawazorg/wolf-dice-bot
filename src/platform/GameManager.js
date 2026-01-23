@@ -429,7 +429,8 @@ class GameManager {
       nickname: user.nickname,
       id: user.id
     });
-    await this.#messages.send(channelId, response);
+    // Silent for now
+    // await this.#messages.send(channelId, response);
   }
 
   /**
