@@ -211,6 +211,22 @@ class RedisGameEngine {
       return { success: false, error: validation.error };
     }
 
+    // Check if this guess number has already been taken by another player
+    const round = await this.#store.getRound(channelId);
+    const existingGuesses = Object.entries(round.guesses || {});
+
+    for (const [otherPlayerId, otherGuess] of existingGuesses) {
+      // Skip if it's the same player (they can change their guess)
+      if (parseInt(otherPlayerId, 10) === playerId) {
+        continue;
+      }
+
+      // Check if another player already guessed this number
+      if (otherGuess === guess) {
+        return { success: false, error: "guess_already_taken" };
+      }
+    }
+
     await this.#store.recordGuess(channelId, playerId, guess);
     this.#emit("guess:received", { channelId, playerId, guess });
 
@@ -647,15 +663,6 @@ class RedisGameEngine {
 
   async getRoundInfo(channelId) {
     return this.#store.getRound(channelId);
-  }
-
-  /**
-   * Get game creator ID
-   * @param {number} channelId
-   * @returns {Promise<number|null>}
-   */
-  async getGameCreator(channelId) {
-    return this.#store.getGameCreator(channelId);
   }
 
   /**

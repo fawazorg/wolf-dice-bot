@@ -204,16 +204,6 @@ class RedisGameStore {
   }
 
   /**
-   * Get game creator ID
-   * @param {number} channelId
-   * @returns {Promise<number|null>}
-   */
-  async getGameCreator(channelId) {
-    const creatorId = await this.#redis.hget(this.#gameKey(channelId), "creatorId");
-    return creatorId ? parseInt(creatorId, 10) : null;
-  }
-
-  /**
    * Remove a game and all associated data
    * @param {number} channelId
    * @returns {Promise<{success: boolean, error?: string}>}
