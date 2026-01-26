@@ -169,7 +169,7 @@
   },
   {
     "name": "dice_game_round_won",
-    "value": "خسر منافسك {bet}"
+    "value": "خسرت المنافسة على {bet}"
   },
   {
     "name": "dice_game_round_draw",

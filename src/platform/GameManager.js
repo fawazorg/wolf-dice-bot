@@ -342,15 +342,6 @@ class GameManager {
     return this.#engine.getSortedScores(channelId);
   }
 
-  /**
-   * Get game creator ID
-   * @param {number} channelId
-   * @returns {Promise<number|null>}
-   */
-  async getGameCreator(channelId) {
-    return this.#engine.getGameCreator(channelId);
-  }
-
   // ===== Event Handlers =====
 
   /**
@@ -441,10 +432,14 @@ class GameManager {
     const { channelId, round } = data;
     const language = this.#languages.get(channelId) || "en";
 
-    // Store initial player count for final scoring
+    // Store initial player count for final scoring and show player list at game start
     if (round === 1) {
       const players = await this.#engine.getEligiblePlayers(channelId);
       this.#initialPlayerCounts.set(channelId, players.length);
+
+      // Display all players who joined before the game starts
+      const playerList = await this.#messages.formatPlayerList(players);
+      await this.#messages.replyGameStart(channelId, language, playerList);
     }
 
     await this.#messages.replyMakeAGuess(channelId, language);
