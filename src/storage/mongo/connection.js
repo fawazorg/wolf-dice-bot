@@ -22,7 +22,9 @@ mongoose.connect(
   `mongodb://127.0.0.1:${process.env.MONGO_HOST_PORT || 27017}/${process.env.MONGO_DB_NAME}`,
   {
     user: process.env.MONGO_USER,
-    pass: process.env.MONGO_PWD
+    pass: process.env.MONGO_PWD,
+    maxPoolSize: 5,
+    minPoolSize: 1
   }
 );
 
