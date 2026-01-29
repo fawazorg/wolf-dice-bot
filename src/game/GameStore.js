@@ -6,7 +6,6 @@
 
 import { v4 as uuidv4 } from "uuid";
 import { getRedis } from "../storage/redis/connection.js";
-import logger from "../utils/logger.js";
 
 /** @constant {number} Game TTL in seconds (3 minutes) */
 const GAME_TTL = 180;
@@ -118,7 +117,6 @@ class RedisGameStore {
       pipeline.sadd(`${KEY_PREFIX}:channels:active`, channelId.toString());
 
       await pipeline.exec();
-      logger.info("Game created", { channelId, uuid, language, defaultBalance });
       return { success: true, uuid };
     } finally {
       await this.#redis.del(`${gameKey}:lock`);
@@ -226,7 +224,6 @@ class RedisGameStore {
     pipeline.srem(`${KEY_PREFIX}:channels:active`, channelId.toString());
 
     await pipeline.exec();
-    logger.info("Game removed", { channelId });
     return { success: true };
   }
 
@@ -514,7 +511,6 @@ class RedisGameStore {
     const handle = setTimeout(async () => {
       const currentUuid = await this.getGameUuid(channelId);
       if (currentUuid !== expectedUuid) {
-        logger.debug("Timer callback ignored (game changed)", { channelId });
         return;
       }
       callback();

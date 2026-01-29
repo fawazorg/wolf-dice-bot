@@ -5,8 +5,11 @@
  */
 
 import "dotenv/config";
+import mongoose from "mongoose";
 import DiceClient from "./platform/DiceClient.js";
-import("./storage/mongo/connection.js");
+import "./storage/mongo/connection.js";
+import { closeRedis } from "./storage/redis/connection.js";
+import logger from "./utils/logger.js";
 
 /**
  * Map of active bot clients, keyed by email address.
@@ -42,6 +45,20 @@ const main = async () => {
 
   return Promise.resolve();
 };
+
+/**
+ * Gracefully shut down all connections before process exit.
+ * Handles SIGINT (Ctrl+C) and SIGTERM (PM2 stop/restart).
+ */
+const shutdown = async () => {
+  logger.info("Shutting down gracefully...");
+  await mongoose.connection.close();
+  await closeRedis();
+  process.exit(0);
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 main()
   .then()
