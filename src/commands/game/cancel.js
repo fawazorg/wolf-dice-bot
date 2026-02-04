@@ -1,9 +1,11 @@
 /**
  * @fileoverview Cancel command handler.
  * Handles the `!dice cancel` command to terminate an active game.
- * Only channel owner can cancel games.
+ * Channel owners and bot admins can cancel games.
  * @module commands/game/cancel
  */
+
+import { isAuthorizedAdmin } from "../../utils/authorization.js";
 
 /**
  * Handle the cancel dice game command.
@@ -24,11 +26,12 @@ export default async (client, command, game) => {
     return command.reply(phrase);
   }
 
-  // Check permissions: channel owner only
+  // Check permissions: channel owner or bot admin
   const channel = await client.channel.getById(channelId);
   const isChannelOwner = channel.owner.id === userId;
+  const isBotAdmin = isAuthorizedAdmin(client, userId);
 
-  if (!isChannelOwner) {
+  if (!isChannelOwner && !isBotAdmin) {
     const phrase = client.phrase.getByCommandAndName(command, "dice_owner_only_command");
     return command.reply(phrase);
   }
