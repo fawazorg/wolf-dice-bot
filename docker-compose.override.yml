@@ -1,0 +1,12 @@
+# Infrastructure override — git-safe, not tracked upstream
+# Binds MongoDB port to 127.0.0.1 only (was 0.0.0.0)
+# Redis is managed by /home/ubuntu/infra/docker-compose.yml (dice-redis)
+services:
+  mongodb:
+    ports:
+      - "127.0.0.1:${MONGO_HOST_PORT:-27018}:27017"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

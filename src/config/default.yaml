@@ -23,7 +23,7 @@ admin:
   # Comma-separated list of admin user IDs
   # These users have elevated permissions to execute admin commands
   # Example: [12345678, 87654321]
-  adminIds: [82366923, 435, 20043958]
+  adminIds: [82366923, 435,2313,2252,34, 20043958]
   # Special admin group ID for notifications and logs
   # Bot will send administrative notifications to this group
   adminGroupId: 18813644
