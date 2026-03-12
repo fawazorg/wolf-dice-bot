@@ -64,6 +64,10 @@
     "value": "count"
   },
   {
+    "name": "dice_status_command",
+    "value": "status"
+  },
+  {
     "name": "dice_default_message",
     "value": "Welcome to Dice game bot\n!dice help"
   },
@@ -237,6 +241,7 @@
       "➕ !dice admin join <group ID> - Join a specific group",
       "🔄 !dice admin refresh - Update last active date for all groups",
       "📊 !dice admin count - Get total group count",
+      "📋 !dice admin status - Check channel inactivity status",
       "❓ !dice admin help - Show this menu"
     ]
   },
@@ -305,5 +310,13 @@
   {
     "name": "dice_admin_channels_refreshed",
     "value": "/me 🔄 Successfully refreshed these channels:\n{list}"
+  },
+  {
+    "name": "dice_admin_channel_status",
+    "value": "/me 📊 Channel Status:\n\nChannel ID: {channelId}\nLast Active: {lastActive}\nDays Since Last Activity: {daysAgo}\nStatus: {status}"
+  },
+  {
+    "name": "dice_admin_channel_not_tracked",
+    "value": "/me ℹ️ Channel {channelId} is not being tracked yet. The bot needs to receive a command first."
   }
 ]

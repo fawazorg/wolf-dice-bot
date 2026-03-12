@@ -5,14 +5,18 @@
  * @module commands/info/balance
  */
 
+import { setLastActive } from "../../storage/mongo/helpers/channel.js";
+
 /**
  * Handle the balance query command.
  * Displays the requesting player's current balance in the active game.
  * If no game is active or player is not in a game, returns an appropriate message.
+ * Also updates the channel's last active timestamp for inactivity tracking.
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @param {import('../../managers/GameManager.js').default} game - GameManager instance for game operations
  * @returns {Promise<void>}
  */
 export default async (command, game) => {
+  await setLastActive(command.targetChannelId);
   await game.balance(command);
 };

@@ -5,14 +5,18 @@
  * @module commands/game/join
  */
 
+import { setLastActive } from "../../storage/mongo/helpers/channel.js";
+
 /**
  * Handle the join dice game command.
  * Adds the requesting player to the current active game in the channel.
  * Validates that the game is in the JOINING phase before allowing entry.
+ * Also updates the channel's last active timestamp for inactivity tracking.
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @param {import('../../managers/GameManager.js').default} game - GameManager instance for game operations
  * @returns {Promise<void>}
  */
 export default async (command, game) => {
+  await setLastActive(command.targetChannelId);
   await game.join(command);
 };

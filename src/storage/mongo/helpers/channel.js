@@ -68,3 +68,29 @@ export const refreshUnsetChannels = async (client) => {
     return [...names, `[${channel.name}]`];
   }, Promise.resolve([]));
 };
+
+/**
+ * Get inactivity information for a specific channel.
+ * Returns the last active timestamp and days since last activity.
+ * @param {number} channelId - Channel ID to check
+ * @returns {Promise<{lastActiveAt: Date, days: number} | null>} Channel activity data or null if not found
+ */
+export const getChannelInactivity = async (channelId) => {
+  const result = await Channel.aggregate([
+    { $match: { channelId } },
+    {
+      $project: {
+        lastActiveAt: "$lastActiveAt",
+        days: {
+          $dateDiff: {
+            startDate: "$lastActiveAt",
+            endDate: "$$NOW",
+            unit: "day"
+          }
+        }
+      }
+    }
+  ]);
+
+  return result.length > 0 ? result[0] : null;
+};

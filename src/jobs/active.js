@@ -6,6 +6,7 @@
 
 import { deleteChannel, getInactiveChannels } from "../storage/mongo/helpers/channel.js";
 import { getAdminChannelId, getIgnoreChannelIds } from "../utils/config.js";
+import logger from "../utils/logger.js";
 
 /**
  * Leave channels that have been inactive for a specified number of days.
@@ -19,12 +20,14 @@ const leaveInactiveChannels = async (client, days) => {
   const inactiveChannels = await getInactiveChannels(days);
 
   if (inactiveChannels.length <= 0) {
+    logger.debug("No inactive channels found", { days });
     return Promise.resolve();
   }
 
   const inChannels = await client.channel.list();
 
   if (inChannels.length <= 0) {
+    logger.debug("No channels to check");
     return Promise.resolve();
   }
 
@@ -39,9 +42,20 @@ const leaveInactiveChannels = async (client, days) => {
       toExitChannels.push(channel);
     }
   });
+
   if (toExitChannels.length > 0) {
+    logger.info("Found inactive channels to leave", { count: toExitChannels.length, days });
+
     const channelsNames = await toExitChannels.reduce(async (pv, channel) => {
       const names = await pv;
+
+      const inactiveData = inactiveChannels.find((c) => c.channelId === channel.id);
+
+      logger.info("Leaving inactive channel", {
+        channelId: channel.id,
+        channelName: channel.name,
+        inactiveDays: inactiveData?.days || "unknown"
+      });
 
       await sendLeaveMessage(client, channel);
       await client.channel.leaveById(channel.id);

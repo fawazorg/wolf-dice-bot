@@ -6,11 +6,13 @@
  */
 
 import { isAuthorizedAdmin } from "../../utils/authorization.js";
+import { setLastActive } from "../../storage/mongo/helpers/channel.js";
 
 /**
  * Handle the cancel dice game command.
  * Cancels the active game in the current channel if the requesting user has permission.
  * Authorization is granted to channel owners only.
+ * Also updates the channel's last active timestamp for inactivity tracking.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @param {import('../../managers/GameManager.js').default} game - GameManager instance for game operations
@@ -19,6 +21,8 @@ import { isAuthorizedAdmin } from "../../utils/authorization.js";
 export default async (client, command, game) => {
   const channelId = command.targetChannelId;
   const userId = command.sourceSubscriberId;
+
+  await setLastActive(channelId);
 
   // Check if game exists first
   if (!(await game.hasGame(channelId))) {

@@ -6,16 +6,22 @@
  */
 
 import { getPlayerRankData } from "../../storage/mongo/helpers/player.js";
+import { setLastActive } from "../../storage/mongo/helpers/channel.js";
 
 /**
  * Handle the rank query command.
  * Retrieves and displays the requesting player's global rank and total score.
  * If the player has no recorded scores, displays a no-score message.
+ * Also updates the channel's last active timestamp for inactivity tracking.
  * @param {import('wolf.js').WOLF} client - WOLF client instance
  * @param {import('wolf.js').CommandContext} command - Command context with request details
  * @returns {Promise<Response<MessageResponse>>} Response with rank and score information
  */
 export default async (client, command) => {
+  if (command.targetChannelId) {
+    await setLastActive(command.targetChannelId);
+  }
+
   const data = await getPlayerRankData(command.sourceSubscriberId);
   const user = await client.subscriber.getById(command.sourceSubscriberId);
 

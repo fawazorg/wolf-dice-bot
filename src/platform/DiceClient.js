@@ -116,6 +116,10 @@ class DiceClient {
             new Command("dice_admin_refresh_command", {
               channel: (command) => Dice.admin.refresh(this.client, command)
             }),
+            /* Admin status command */
+            new Command("dice_status_command", {
+              channel: (command) => Dice.admin.status(this.client, command)
+            }),
             /* Admin update command */
             new Command("dice_admin_update_command", {
               channel: (command) => Dice.admin.update(this.client, command)
