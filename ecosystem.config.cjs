@@ -11,8 +11,7 @@ module.exports = {
       watch: false,
       node_args: "--max-old-space-size=512",
       env: {
-        NODE_ENV: "production",
-        DOTENV_CONFIG_PATH: "../.env"
+        NODE_ENV: "production"
       }
     }
   ]

@@ -30,6 +30,8 @@ class DiceClient {
    */
   game;
 
+  #cronJob = null;
+
   /**
    * Create a new DiceClient instance.
    * @param {string} email - Account email for login
@@ -137,7 +139,10 @@ class DiceClient {
    * @returns {Promise<void>}
    */
   async _onReady() {
-    scheduleJob("0 * * * *", async () => leaveInactiveChannels(this.client, 5));
+    if (this.#cronJob) {
+      this.#cronJob.cancel();
+    }
+    this.#cronJob = scheduleJob("0 * * * *", async () => leaveInactiveChannels(this.client, 5));
 
     const UpdateTimer = createUpdateTimer(this.game);
     await this.client.utility.timer.register({ UpdateTimer });
